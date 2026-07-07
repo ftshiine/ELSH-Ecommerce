@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>ELSH | Home</title>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;1,400&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/css/user/home-navbar.css" />
+  <link rel="stylesheet" href="/css/user/home.css" />
+  <link rel="stylesheet" href="/css/user/footer.css" />
+</head>
+<body>
+
+  <%- include('./partials/home-navbar') %>
+
+  <!-- Hero Banner -->
+  <section class="hero-banner">
+    <div class="hero-banner-content">
+      <span class="hero-tag">THE SIGNATURE SERUM</span>
+      <h1>Rituals of<br/>Intentional Beauty</h1>
+      <p>Discover scientifically proven botanical formulations designed to restore balance and elevate your daily skincare rhythm.</p>
+      <a href="/shop" class="btn-shop">SHOP THE COLLECTION</a>
+    </div>
+    <div class="hero-banner-image">
+      <img src="/images/user/home-hero.png" alt="ELSH Hero" />
+    </div>
+  </section>
+
+  <!-- Curated by Concern -->
+  <section class="curated">
+    <div class="curated-header">
+      <h2>Curated by Concern</h2>
+      <p>Targeted solutions formulated to address your unique skin narrative.</p>
+    </div>
+    <div class="curated-grid">
+      <div class="concern-card">
+        <div class="concern-image">
+          <img src="/images/user/home-hydration.png" alt="Hydration" />
+        </div>
+        <div class="concern-info">
+          <h3>Hydration</h3>
+          <p>Restore moisture barrier and plump the skin with deep-penetrating botanical...</p>
+        </div>
+      </div>
+      <div class="concern-card">
+        <div class="concern-image">
+          <img src="/images/user/home-antiAging.png" alt="Firmness" />
+        </div>
+        <div class="concern-info">
+          <h3>Firmness</h3>
+          <p>Support collagen synthesis and improve elasticity with potent...</p>
+        </div>
+      </div>
+      <div class="concern-card">
+        <div class="concern-image">
+          <img src="/images/user/home-clarity.png" alt="Clarity" />
+        </div>
+        <div class="concern-info">
+          <h3>Clarity</h3>
+          <p>Gently exfoliate and balance sebum production for a radiant, even-toned...</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Featured Sets -->
+  <section class="featured-sets">
+    <div class="set-card">
+      <div class="set-image">
+        <img src="/images/user/The Essentials Collection.png" alt="The Essentials" />
+      </div>
+      <div class="set-info">
+        <span class="set-tag">SET</span>
+        <h3>The Essentials</h3>
+        <p>A foundational three-step routine to cleanse, tone, and deeply nourish.</p>
+        <a href="/shop" class="set-link">Discover Set →</a>
+      </div>
+    </div>
+    <div class="set-card">
+      <div class="set-image">
+        <img src="/images/user/The Glow Kit Collection.png" alt="The Glow Kit" />
+      </div>
+      <div class="set-info">
+        <span class="set-tag">REGIMEN</span>
+        <h3>The Glow Kit</h3>
+        <p>Elevate your evening ritual with powerful botanical active serums and oils.</p>
+        <a href="/shop" class="set-link">Discover Regimen →</a>
+      </div>
+    </div>
+  </section>
+
+  <%- include('./partials/footer') %>
+
+</body>
+</html>

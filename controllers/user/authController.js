@@ -1,6 +1,6 @@
 import { findUserByEmail, findUserByUsername, createUser } from '../../services/user/authService.js';
 import { sendOTP, verifyOTP } from '../../services/user/otpService.js';
-import { validateSignup } from '../../utils/validation.js';
+import { validateSignup, validateLogin } from '../../utils/validation.js';
 import bcrypt from 'bcrypt';
 
 const loadSignup = (req, res) => {
@@ -114,6 +114,11 @@ const loadLogin = (req,res) => {
 const login = async (req,res) => {
   try{
     const {email,password} = req.body;
+
+    const errors = validateLogin({email,password});
+    if(errors.length > 0){
+      return res.render('user/auth/login', {error: errors[0]})
+    }
 
     if(!email || !password){
       return res.render('user/auth/login',{error: 'All fields are required'});

@@ -45,4 +45,22 @@ const validateSignup = (data) => {
   return errors;
 };
 
-export { validateSignup };
+const validateLogin = (data) => {
+  const {email, password} = data;
+  const errors = [];
+
+  //Email
+  if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim())) {
+    errors.push('Please enter a valid email address');
+  }
+
+  // Password
+  if (!password || password.trim().length === 0) {
+    errors.push('Password is required');
+  }
+
+  return errors;
+
+}
+
+export { validateSignup, validateLogin };

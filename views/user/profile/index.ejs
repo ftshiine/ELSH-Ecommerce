@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>ELSH | My Profile</title>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;1,400&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/css/user/home-navbar.css" />
+  <link rel="stylesheet" href="/css/user/profile.css" />
+  <link rel="stylesheet" href="/css/user/footer.css" />
+</head>
+<body>
+
+  <%- include('../partials/home-navbar') %>
+
+  <div class="profile-wrapper">
+
+    <!-- Breadcrumb -->
+    <div class="breadcrumb">
+      <span>ACCOUNT</span>
+      <span>›</span>
+      <span class="breadcrumb-active">MY PROFILE</span>
+    </div>
+
+    <!-- Page Header -->
+    <div class="profile-page-header">
+      <h1>My Profile</h1>
+      <p>Manage your personal information and account preferences.</p>
+    </div>
+
+    <!-- Profile Card -->
+    <div class="profile-card">
+
+      <!-- Profile Top -->
+      <div class="profile-top">
+        <div class="profile-avatar">
+          <% if (user.profileImage) { %>
+            <img src="<%= user.profileImage %>" alt="Profile" />
+          <% } else { %>
+            <div class="avatar-placeholder"><%= user.fullName.charAt(0).toUpperCase() %></div>
+          <% } %>
+        </div>
+        <div class="profile-info">
+          <h2><%= user.fullName %></h2>
+          <div class="profile-meta">
+            <span class="tier-badge">⭐ <%= user.loyaltyTier || 'Bronze' %> Tier</span>
+            <span class="member-since">MEMBER SINCE <%= new Date(user.createdAt).toLocaleDateString('en-US', { month: 'long', year: 'numeric' }).toUpperCase() %></span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Profile Details -->
+      <div class="profile-details">
+        <div class="details-section">
+          <h3>PERSONAL INFORMATION</h3>
+          <div class="detail-item">
+            <label>FULL NAME</label>
+            <p><%= user.fullName %></p>
+          </div>
+          <div class="detail-item">
+            <label>EMAIL ADDRESS</label>
+            <p><%= user.email %></p>
+          </div>
+          <div class="detail-item">
+            <label>PHONE NUMBER</label>
+            <p><%= user.phone || '—' %></p>
+          </div>
+        </div>
+
+        <div class="details-section">
+          <h3>ACCOUNT INFORMATION</h3>
+          <div class="detail-item-row">
+            <label>ACCOUNT STATUS</label>
+            <span class="status-active">● Active</span>
+          </div>
+          <div class="detail-item-row">
+            <label>EMAIL VERIFIED</label>
+            <span class="verified-icon">✅</span>
+          </div>
+          <div class="detail-item-row">
+            <label>PHONE VERIFIED</label>
+            <span class="verified-icon">✅</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Profile Actions -->
+      <div class="profile-actions">
+        <a href="/profile/edit" class="btn-edit-profile">EDIT PROFILE</a>
+        <a href="/profile/change-password" class="btn-change-password">CHANGE PASSWORD</a>
+      </div>
+
+    </div>
+  </div>
+
+  <%- include('../partials/footer') %>
+
+</body>
+</html>

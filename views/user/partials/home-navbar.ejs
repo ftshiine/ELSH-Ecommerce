@@ -1,0 +1,53 @@
+<nav class="home-navbar">
+  <div class="home-navbar-container">
+    <a href="/home" class="home-navbar-logo">ELSH</a>
+
+    <ul class="home-navbar-links">
+      <li><a href="/shop">SHOP</a></li>
+      <li><a href="/rituals">RITUALS</a></li>
+      <li><a href="/science">SCIENCE</a></li>
+      <li><a href="/journal">JOURNAL</a></li>
+    </ul>
+
+    <div class="home-navbar-actions">
+      <a href="/search" class="nav-icon-btn">
+        <img src="/images/icons/user/search (1).svg" alt="Search" />
+      </a>
+
+      <!-- User Dropdown -->
+      <div class="user-dropdown-wrapper">
+        <button class="nav-icon-btn" id="userDropdownBtn">
+          <img src="/images/icons/admin/customers.svg" alt="Profile" />
+        </button>
+        <div class="user-dropdown" id="userDropdown">
+          <a href="/profile" class="dropdown-item">
+            <img src="/images/icons/admin/customers.svg" alt="Profile" />
+            My Profile
+          </a>
+          <a href="/logout" class="dropdown-item dropdown-logout">
+            <img src="/images/icons/admin/logout.svg" alt="Logout" />
+            Logout
+          </a>
+        </div>
+      </div>
+
+      <a href="/cart" class="nav-icon-btn">
+        <img src="/images/icons/user/shopping-bag.svg" alt="Cart" />
+      </a>
+    </div>
+  </div>
+</nav>
+
+<script>
+  const userDropdownBtn = document.getElementById('userDropdownBtn');
+  const userDropdown = document.getElementById('userDropdown');
+
+  userDropdownBtn.addEventListener('click', (e) => {
+    e.stopPropagation();
+    userDropdown.classList.toggle('active');
+  });
+
+  document.addEventListener('click', () => {
+    userDropdown.classList.remove('active');
+  });
+</script>

@@ -1,0 +1,234 @@
+/* ── PROFILE WRAPPER ── */
+.profile-wrapper {
+  max-width: 860px;
+  margin: 0 auto;
+  padding: 48px 40px 80px;
+  min-height: 100vh;
+}
+
+body {
+  background-color: #f5f5ee;
+  margin: 0;
+  padding: 0;
+}
+
+/* ── BREADCRUMB ── */
+.breadcrumb {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-family: 'Inter', sans-serif;
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 1.5px;
+  color: #aaa;
+  margin-bottom: 20px;
+}
+
+.breadcrumb-active {
+  color: #2c2c2c;
+}
+
+/* ── PAGE HEADER ── */
+.profile-page-header {
+  margin-bottom: 32px;
+}
+
+.profile-page-header h1 {
+  font-family: 'Playfair Display', serif;
+  font-size: 40px;
+  font-weight: 400;
+  color: #2c2c2c;
+  margin-bottom: 8px;
+}
+
+.profile-page-header p {
+  font-family: 'Inter', sans-serif;
+  font-size: 13px;
+  color: #888;
+}
+
+/* ── PROFILE CARD ── */
+.profile-card {
+  background: #ffffff;
+  border-radius: 16px;
+  padding: 40px;
+  box-shadow: 0 2px 16px rgba(0,0,0,0.05);
+}
+
+/* ── PROFILE TOP ── */
+.profile-top {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+  margin-bottom: 40px;
+  padding-bottom: 32px;
+  border-bottom: 1px solid #f0f0e8;
+}
+
+.profile-avatar {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  overflow: hidden;
+  flex-shrink: 0;
+}
+
+.profile-avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.avatar-placeholder {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  background-color: #4a5240;
+  color: #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: 'Playfair Display', serif;
+  font-size: 28px;
+}
+
+.profile-info h2 {
+  font-family: 'Playfair Display', serif;
+  font-size: 26px;
+  font-weight: 400;
+  color: #2c2c2c;
+  margin-bottom: 8px;
+}
+
+.profile-meta {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.tier-badge {
+  font-family: 'Inter', sans-serif;
+  font-size: 11px;
+  font-weight: 600;
+  color: #4a5240;
+  background: #f0f3ee;
+  padding: 4px 10px;
+  border-radius: 20px;
+}
+
+.member-since {
+  font-family: 'Inter', sans-serif;
+  font-size: 11px;
+  letter-spacing: 1px;
+  color: #aaa;
+}
+
+/* ── PROFILE DETAILS ── */
+.profile-details {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 48px;
+  margin-bottom: 40px;
+}
+
+.details-section h3 {
+  font-family: 'Inter', sans-serif;
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 1.5px;
+  color: #aaa;
+  margin-bottom: 24px;
+}
+
+.detail-item {
+  margin-bottom: 20px;
+}
+
+.detail-item label {
+  display: block;
+  font-family: 'Inter', sans-serif;
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 1.2px;
+  color: #aaa;
+  margin-bottom: 4px;
+}
+
+.detail-item p {
+  font-family: 'Inter', sans-serif;
+  font-size: 15px;
+  color: #2c2c2c;
+}
+
+.detail-item-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 14px 0;
+  border-bottom: 1px solid #f5f5ee;
+}
+
+.detail-item-row label {
+  font-family: 'Inter', sans-serif;
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 1.2px;
+  color: #aaa;
+}
+
+.status-active {
+  font-family: 'Inter', sans-serif;
+  font-size: 13px;
+  color: #4a5240;
+  font-weight: 600;
+}
+
+.verified-icon {
+  font-size: 18px;
+}
+
+/* ── PROFILE ACTIONS ── */
+.profile-actions {
+  display: flex;
+  gap: 16px;
+  justify-content: flex-end;
+  padding-top: 32px;
+  border-top: 1px solid #f0f0e8;
+}
+
+.btn-edit-profile {
+  font-family: 'Inter', sans-serif;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 1.5px;
+  color: #ffffff;
+  background-color: #4a5240;
+  padding: 14px 28px;
+  border-radius: 8px;
+  text-decoration: none;
+  transition: background 0.2s;
+}
+
+.btn-edit-profile:hover {
+  background-color: #3a4230;
+}
+
+.btn-change-password {
+  font-family: 'Inter', sans-serif;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 1.5px;
+  color: #2c2c2c;
+  background-color: transparent;
+  padding: 14px 28px;
+  border-radius: 8px;
+  border: 1.5px solid #2c2c2c;
+  text-decoration: none;
+  transition: all 0.2s;
+}
+
+.btn-change-password:hover {
+  background-color: #2c2c2c;
+  color: #aaa;
+}

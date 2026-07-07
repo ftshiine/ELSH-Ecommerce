@@ -8,6 +8,10 @@ import dashboardRoutes from './routes/admin/dashboardRoutes.js';
 import userRoutes from './routes/admin/userRoutes.js';
 import landingRoutes from './routes/user/landingRoutes.js';
 import userAuthRoutes from './routes/user/authRoutes.js';
+import homeRoutes from './routes/user/homeRoutes.js';
+import profileRoutes from './routes/user/profileRoutes.js';
+import passport from 'passport';
+
 
 dotenv.config();
 
@@ -54,9 +58,15 @@ app.use(session({
 app.use('/admin', adminAuthRoutes);
 app.use('/admin', dashboardRoutes);
 app.use('/admin', userRoutes);
+
 //User
 app.use('/', landingRoutes);
 app.use('/', userAuthRoutes);
+app.use('/',homeRoutes);
+app.use('/',profileRoutes);
+app.use(passport.initialize());
+app.use(passport.session());
+
 
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
