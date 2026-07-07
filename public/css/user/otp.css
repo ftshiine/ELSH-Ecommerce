@@ -1,0 +1,172 @@
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500&family=Inter:wght@300;400;500;600&display=swap');
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  min-height: 100vh;
+  background: linear-gradient(135deg, #e8ede4 0%, #f0f0e8 50%, #e4ebe8 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: 'Inter', sans-serif;
+}
+
+/* ── OTP WRAPPER ── */
+.otp-wrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  padding: 40px 20px;
+  gap: 32px;
+}
+
+/* ── OTP CARD ── */
+.otp-card {
+  background: #ffffff;
+  border-radius: 20px;
+  padding: 52px 48px;
+  width: 100%;
+  max-width: 480px;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.08);
+  text-align: center;
+}
+
+/* ── ICON ── */
+.otp-icon {
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  background: #f0f0e8;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 24px;
+}
+
+.otp-icon img {
+  width: 28px;
+  height: 28px;
+  opacity: 0.7;
+}
+
+/* ── HEADING ── */
+.otp-card h1 {
+  font-family: 'Playfair Display', serif;
+  font-size: 28px;
+  font-weight: 400;
+  color: #2c2c2c;
+  margin-bottom: 12px;
+}
+
+.otp-card p {
+  font-family: 'Inter', sans-serif;
+  font-size: 13px;
+  color: #888;
+  line-height: 1.7;
+  margin-bottom: 32px;
+  max-width: 320px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+/* ── ERROR ── */
+.otp-error {
+  background: #fff0f0;
+  color: #c0392b;
+  padding: 10px 14px;
+  border-radius: 8px;
+  font-size: 13px;
+  margin-bottom: 20px;
+}
+
+/* ── OTP INPUTS ── */
+.otp-inputs {
+  display: flex;
+  justify-content: center;
+  gap: 12px;
+  margin-bottom: 32px;
+}
+
+.otp-box {
+  width: 52px;
+  height: 60px;
+  border: 1.5px solid #e0e0d8;
+  border-radius: 10px;
+  text-align: center;
+  font-size: 22px;
+  font-weight: 600;
+  color: #2c2c2c;
+  background: #fafaf7;
+  outline: none;
+  transition: border 0.2s;
+  font-family: 'Inter', sans-serif;
+}
+
+.otp-box:focus {
+  border-color: #4a5240;
+  background: #ffffff;
+}
+
+/* ── VERIFY BUTTON ── */
+.btn-verify {
+  width: 100%;
+  padding: 16px;
+  background-color: #4a5240;
+  color: #ffffff;
+  border: none;
+  border-radius: 10px;
+  font-family: 'Inter', sans-serif;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 2px;
+  cursor: pointer;
+  transition: background 0.2s;
+  margin-bottom: 28px;
+}
+
+.btn-verify:hover {
+  background-color: #3a4230;
+}
+
+/* ── RESEND ── */
+.otp-resend p {
+  font-family: 'Inter', sans-serif;
+  font-size: 13px;
+  color: #888;
+  margin-bottom: 8px;
+}
+
+.resend-link {
+  color: #4a5240;
+  text-decoration: none;
+  font-weight: 600;
+  transition: opacity 0.2s;
+}
+
+.resend-link.disabled {
+  color: #aaa;
+  pointer-events: none;
+  cursor: default;
+}
+
+.timer-text {
+  font-family: 'Inter', sans-serif;
+  font-size: 10px;
+  letter-spacing: 1.5px;
+  color: #aaa;
+}
+
+/* ── FOOTER ── */
+.otp-footer {
+  font-family: 'Inter', sans-serif;
+  font-size: 10px;
+  letter-spacing: 1.5px;
+  color: #aaa;
+  text-align: center;
+}

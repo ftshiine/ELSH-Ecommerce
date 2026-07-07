@@ -1,0 +1,243 @@
+/* ── SEARCH BAR ── */
+.search-bar {
+  margin-top: 24px;
+  margin-bottom: 24px;
+}
+
+.search-bar form {
+  position: relative;
+  display: flex;
+  align-items: center;
+  background: #ffffff;
+  border-radius: 10px;
+  padding: 12px 16px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+  max-width: 420px;
+}
+
+.search-bar img {
+  width: 16px;
+  height: 16px;
+  opacity: 0.4;
+  margin-right: 10px;
+}
+
+.search-bar input {
+  border: none;
+  outline: none;
+  font-size: 14px;
+  width: 100%;
+  color: #333;
+  background: transparent;
+}
+
+.clear-btn {
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  padding: 4px;
+}
+
+.clear-btn img {
+  width: 14px;
+  height: 14px;
+  margin: 0;
+  opacity: 0.5;
+}
+
+.clear-btn:hover img {
+  opacity: 1;
+}
+
+/* ── TABLE CARD ── */
+.users-table-card {
+  background: #ffffff;
+  border-radius: 12px;
+  padding: 24px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+}
+
+.users-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.users-table th {
+  text-align: left;
+  font-size: 11px;
+  letter-spacing: 0.8px;
+  color: #999;
+  text-transform: uppercase;
+  padding: 12px 8px;
+  border-bottom: 1px solid #f0f0e8;
+}
+
+.users-table td {
+  padding: 16px 8px;
+  border-bottom: 1px solid #f9f9f6;
+  font-size: 13px;
+  color: #555;
+  vertical-align: middle;
+}
+
+.no-results {
+  text-align: center;
+  padding: 40px 0;
+  color: #aaa;
+}
+
+/* ── CUSTOMER CELL ── */
+.customer-cell {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.customer-avatar {
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  background-color: #7a8c6a;
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+  font-weight: bold;
+  flex-shrink: 0;
+}
+
+.customer-name {
+  display: block;
+  font-size: 14px;
+  color: #2c2c2c;
+  font-weight: 600;
+}
+
+.customer-id {
+  display: block;
+  font-size: 11px;
+  color: #aaa;
+}
+
+/* ── CONTACT CELL ── */
+.contact-cell span {
+  display: block;
+}
+
+.contact-cell .phone {
+  font-size: 12px;
+  color: #aaa;
+}
+
+/* ── STATUS ── */
+.status {
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.status.active {
+  color: #7a8c6a;
+}
+
+.status.blocked {
+  color: #c0392b;
+}
+
+/* ── ACTION BUTTON ── */
+.block-form {
+  display: inline-block;
+}
+
+.action-btn {
+  padding: 8px 16px;
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 600;
+  border: none;
+  cursor: pointer;
+  transition: opacity 0.2s;
+}
+
+.action-btn:hover {
+  opacity: 0.85;
+}
+
+.block-action {
+  background-color: #fdecea;
+  color: #c0392b;
+}
+
+.unblock-action {
+  background-color: #eaf2e8;
+  color: #7a8c6a;
+}
+
+/* ── PAGINATION ── */
+.pagination-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 24px;
+  padding-top: 20px;
+  border-top: 1px solid #f0f0e8;
+}
+
+.pagination-footer span {
+  font-size: 12px;
+  color: #aaa;
+}
+
+.pagination {
+  display: flex;
+  gap: 6px;
+}
+
+.page-header h1 {
+  font-family: 'Playfair Display', Georgia, serif;
+  font-size: 32px;
+  font-weight: 400;
+  color: #2c2c2c;
+}
+
+.page-header p {
+  font-size: 13px;
+  color: #aaa;
+  margin-top: 6px;
+  font-family: 'Inter', sans-serif;
+  font-weight: 400;
+}
+
+.page-content {
+  padding: 28px;
+  flex: 1;
+}
+
+.page-btn {
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 6px;
+  text-decoration: none;
+  font-size: 13px;
+  color: #555;
+  transition: background 0.2s;
+}
+
+.page-btn:hover {
+  background-color: #f5f5ee;
+}
+
+.page-btn.active {
+  background-color: #7a8c6a;
+  color: #fff;
+}
+
+.page-btn.disabled {
+  pointer-events: none;
+  opacity: 0.3;
+}

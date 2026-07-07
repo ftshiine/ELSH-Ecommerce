@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>ELSH | Skincare Designed With Purpose</title>
+  <link rel="stylesheet" href="/css/user/navbar.css" />
+  <link rel="stylesheet" href="/css/user/landing.css" />
+  <link rel="stylesheet" href="/css/user/footer.css" />
+</head>
+<body>
+
+  <%- include('./partials/navbar') %>
+
+  <!-- Hero Section -->
+  <section class="hero">
+    <div class="hero-content">
+      <h1>Skincare Designed<br/>With Purpose.</h1>
+      <p>Harnessing the potent synergy of botanical innovation and scientific precision to create intentional rituals for the discerning individual.</p>
+      <div class="hero-actions">
+        <a href="/signup" class="btn-primary">CREATE ACCOUNT</a>
+        <a href="/login" class="btn-secondary">LOGIN</a>
+      </div>
+    </div>
+    <div class="hero-image">
+      <img src="/images/user/hero-product.png" alt="ELSH Product" />
+    </div>
+  </section>
+
+  <!-- Features Section -->
+<section class="features">
+  <div class="feature-card">
+    <div class="feature-icon">
+      <img src="/images/icons/user/botanical.svg" alt="Botanical" />
+    </div>
+    <h3>Botanical Innovation</h3>
+    <p>We source the world's most resilient botanicals, processed through green chemistry to preserve cellular integrity and maximize results.</p>
+  </div>
+  <div class="feature-card">
+    <div class="feature-icon">
+      <img src="/images/icons/user/personalized.svg" alt="Personalized" />
+    </div>
+    <h3>Personalized Rituals</h3>
+    <p>Skincare is not one-size-fits-all. Our algorithm-driven consultation builds a sequence unique to your skin's biological needs.</p>
+  </div>
+  <div class="feature-card">
+    <div class="feature-icon">
+      <img src="/images/icons/user/premium.svg" alt="Premium" />
+    </div>
+    <h3>Premium Experience</h3>
+    <p>From sensory textures to sustainable weighted glass packaging, every touchpoint is designed for a moment of essential luxury.</p>
+  </div>
+</section>
+
+<!-- Ritual Journey Section -->
+<section class="ritual-journey">
+  <h2>Your Ritual Journey</h2>
+  <div class="journey-underline"></div>
+  <div class="journey-steps">
+    <div class="journey-step">
+      <div class="step-number">1</div>
+      <h4>CREATE YOUR ACCOUNT</h4>
+      <p>Join the ELSH inner circle for tailored access.</p>
+    </div>
+    <div class="journey-step">
+      <div class="step-number">2</div>
+      <h4>DISCOVER PRODUCTS</h4>
+      <p>Explore our scientifically curated collections.</p>
+    </div>
+    <div class="journey-step">
+      <div class="step-number">3</div>
+      <h4>BUILD YOUR RITUAL</h4>
+      <p>Receive your personalized application sequence.</p>
+    </div>
+    <div class="journey-step">
+      <div class="step-number">4</div>
+      <h4>TRACK YOUR PROGRESS</h4>
+      <p>Monitor your skin's evolution over time.</p>
+    </div>
+  </div>
+</section>
+
+<!-- Heritage Section -->
+<section class="heritage">
+  <div class="heritage-image">
+    <img src="/images/user/heritage.jpg" alt="ELSH Heritage" />
+  </div>
+  <div class="heritage-content">
+    <span class="heritage-label">OUR HERITAGE</span>
+    <h2>More Than Skincare</h2>
+    <p>ELSH was founded on the belief that beauty is a slow, intentional practice. We reject the 'quick-fix' culture, opting instead for long-term skin health through cellular nourishment and molecular science.</p>
+    <p>Our laboratory in the Swiss Alps focuses on extracting the essence of nature without compromising its purity, ensuring that every drop of ELSH is as potent as it is luxurious.</p>
+    <a href="/about" class="heritage-link">LEARN MORE</a>
+  </div>
+</section>
+
+<!-- Core Essentials Section -->
+<section class="core-essentials">
+  <div class="essentials-header">
+    <div>
+      <h2>Core Essentials</h2>
+      <p>The foundation of every intentional ritual.</p>
+    </div>
+    <div class="essentials-nav">
+      <button class="nav-arrow" id="prevBtn">‹</button>
+      <button class="nav-arrow" id="nextBtn">›</button>
+    </div>
+  </div>
+
+  <div class="carousel-wrapper">
+    <div class="carousel-track" id="carouselTrack">
+
+      <div class="product-card">
+        <div class="product-image">
+          <img src="/images/user/serum.png" alt="Botanical Serum" />
+        </div>
+        <h4>Botanical Serum</h4>
+        <p>A high-potency infusion of alpine herbs and hyaluronic acid for deep cellular hydration and...</p>
+        <a href="/login" class="product-btn">🔒 AVAILABLE AFTER LOGIN</a>
+      </div>
+
+      <div class="product-card">
+        <div class="product-image">
+          <img src="/images/user/balm.png" alt="Night Recovery Balm" />
+        </div>
+        <h4>Night Recovery Balm</h4>
+        <p>A rich, lipid-replenishing balm that works with your skin's circadian rhythm to repair the dermal...</p>
+        <a href="/login" class="product-btn">🔒 AVAILABLE AFTER LOGIN</a>
+      </div>
+
+      <div class="product-card">
+        <div class="product-image">
+          <img src="/images/user/oil.png" alt="Gentle Cleansing Oil" />
+        </div>
+        <h4>Gentle Cleansing Oil</h4>
+        <p>A transforming oil-to-milk cleanser that lifts impurities while maintaining the skin's natural...</p>
+        <a href="/login" class="product-btn">🔒 AVAILABLE AFTER LOGIN</a>
+      </div>
+
+      <div class="product-card">
+        <div class="product-image">
+          <img src="/images/user/Bio-Active Moisturizer.png" alt="Bio-Active Moisturizer" />
+        </div>
+        <h4>Bio-Active Moisturizer</h4>
+        <p>Hydration that works beneath the surface for healthier, more resilient skin.</p>
+        <a href="/login" class="product-btn">🔒 AVAILABLE AFTER LOGIN</a>
+      </div>
+
+      <div class="product-card">
+        <div class="product-image">
+          <img src="/images/user/Silk Purifying Cleanser.png" alt="Silk Purifying Cleanser" />
+        </div>
+        <h4>Silk Purifying Cleanser</h4>
+        <p>A luxurious silk-infused cleanser that purifies, hydrates, and reveals a radiant complexion.</p>
+        <a href="/login" class="product-btn">🔒 AVAILABLE AFTER LOGIN</a>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- Community Section -->
+<section class="community">
+  <h2>Join The ELSH Community</h2>
+  <p class="community-subtitle">Real voices, real skin, real transformation.</p>
+  <div class="testimonials-grid">
+    <div class="testimonial-card">
+      <div class="stars">★★★★★</div>
+      <p>"The personalized ritual has completely changed my relationship with my skin. It's no longer a chore, but a moment of peace I look forward to."</p>
+      <div class="testimonial-author">
+        <img src="/images/avatars/userReview.png" alt="Eleanor V." />
+        <div>
+          <span class="author-name">Eleanor V.</span>
+          <span class="author-title">ARCHITECT</span>
+        </div>
+      </div>
+    </div>
+    <div class="testimonial-card">
+      <div class="stars">★★★★★</div>
+      <p>"Science-backed and truly luxurious. The Botanical Serum is the only product that has ever actually reduced my fine lines without irritation."</p>
+      <div class="testimonial-author">
+        <img src="/images/avatars/userReviewer.png" alt="Marcus U." />
+        <div>
+          <span class="author-name">Marcus U.</span>
+          <span class="author-title">CREATIVE DIRECTOR</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+<%- include('./partials/footer') %>
+
+<script>
+  const track = document.getElementById('carouselTrack');
+  const prevBtn = document.getElementById('prevBtn');
+  const nextBtn = document.getElementById('nextBtn');
+
+  const cards = document.querySelectorAll('.product-card');
+  const totalCards = cards.length;
+  const visibleCards = 3;
+  let currentIndex = 0;
+  let autoScrollInterval;
+
+  function getCardWidth() {
+    const card = cards[0];
+    const gap = 28;
+    return card.offsetWidth + gap;
+  }
+
+  function goToIndex(index) {
+    const maxIndex = totalCards - visibleCards;
+    if (index < 0) index = maxIndex;
+    if (index > maxIndex) index = 0;
+    currentIndex = index;
+    track.style.transform = `translateX(-${currentIndex * getCardWidth()}px)`;
+  }
+
+  function startAutoScroll() {
+    autoScrollInterval = setInterval(() => {
+      goToIndex(currentIndex + 1);
+    }, 3000);
+  }
+
+  function resetAutoScroll() {
+    clearInterval(autoScrollInterval);
+    startAutoScroll();
+  }
+
+  nextBtn.addEventListener('click', () => {
+    goToIndex(currentIndex + 1);
+    resetAutoScroll();
+  });
+
+  prevBtn.addEventListener('click', () => {
+    goToIndex(currentIndex - 1);
+    resetAutoScroll();
+  });
+
+  // Start auto scroll
+  startAutoScroll();
+</script>
+
+</body>
+</html>

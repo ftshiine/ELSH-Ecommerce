@@ -1,0 +1,86 @@
+<div class="sidebar">
+  <div class="sidebar-logo">
+    <h2>ELSH</h2>
+    <span>SKINCARE ADMIN</span>
+  </div>
+
+  <nav class="sidebar-nav">
+    <a href="/admin/dashboard" class="nav-item <%= activePage === 'dashboard' ? 'active' : '' %>">
+      <img src="/images/icons/admin/dashboard.svg" alt="Dashboard" />
+      Dashboard
+    </a>
+    <a href="/admin/products" class="nav-item <%= activePage === 'products' ? 'active' : '' %>">
+      <img src="/images/icons/admin/products.svg" alt="Products" />
+      Products
+    </a>
+    <a href="/admin/orders" class="nav-item <%= activePage === 'orders' ? 'active' : '' %>">
+      <img src="/images/icons/admin/orders.svg" alt="Orders" />
+      Orders
+    </a>
+    <a href="/admin/users" class="nav-item <%= activePage === 'users' ? 'active' : '' %>">
+      <img src="/images/icons/admin/customers.svg" alt="Customers" />
+      Customers
+    </a>
+    <a href="/admin/inventory" class="nav-item <%= activePage === 'inventory' ? 'active' : '' %>">
+      <img src="/images/icons/admin/inventory.svg" alt="Inventory" />
+      Inventory
+    </a>
+    <a href="/admin/sales-report" class="nav-item <%= activePage === 'sales-report' ? 'active' : '' %>">
+      <img src="/images/icons/admin/salesreport.svg" alt="Sales Report" />
+      Sales Report
+    </a>
+    <a href="/admin/coupons" class="nav-item <%= activePage === 'coupons' ? 'active' : '' %>">
+      <img src="/images/icons/admin/coupons.svg" alt="Coupons" />
+      Coupons
+    </a>
+    <a href="/admin/offers" class="nav-item <%= activePage === 'offers' ? 'active' : '' %>">
+      <img src="/images/icons/admin/offers.svg" alt="Offers" />
+      Offers
+    </a>
+    <a href="/admin/brands" class="nav-item <%= activePage === 'brands' ? 'active' : '' %>">
+      <img src="/images/icons/admin/brands.svg" alt="Brands" />
+      Brands
+    </a>
+    <a href="/admin/category" class="nav-item <%= activePage === 'category' ? 'active' : '' %>">
+      <img src="/images/icons/admin/category.svg" alt="Category" />
+      Category
+    </a>
+    <a href="/admin/banners" class="nav-item <%= activePage === 'banners' ? 'active' : '' %>">
+      <img src="/images/icons/admin/banners.svg" alt="Banners" />
+      Banners
+    </a>
+    <a href="/admin/settings" class="nav-item <%= activePage === 'settings' ? 'active' : '' %>">
+      <img src="/images/icons/admin/settings.svg" alt="Settings" />
+      Settings
+    </a>
+  </nav>
+
+  <div class="sidebar-footer">
+    <div class="admin-info">
+      <div class="admin-avatar">A</div>
+      <div class="admin-details">
+        <span class="admin-name"><%= admin.fullName %></span>
+        <span class="admin-role">Administrator</span>
+      </div>
+    </div>
+      <a href="#" class="logout-btn" id="logoutBtn">
+      <img src="/images/icons/admin/logout.svg" alt="Logout" />
+      Logout
+    </a>
+  </div>
+</div>
+
+<!-- Logout Modal -->
+<div class="modal-overlay" id="logoutModal">
+  <div class="modal-box">
+    <div class="modal-icon">
+      <img src="/images/icons/admin/logout.svg" alt="Logout" />
+    </div>
+    <h2 class="modal-title">Leaving so soon?</h2>
+    <p class="modal-message">Are you sure you want to logout of the ELSH Admin Panel?</p>
+    <div class="modal-actions">
+      <button class="modal-btn modal-btn-cancel" id="cancelLogout">Stay</button>
+      <a href="/admin/logout" class="modal-btn modal-btn-confirm">Yes, Logout</a>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Admin | Customers</title>
+  <link rel="stylesheet" href="/css/admin/layout.css" />
+  <link rel="stylesheet" href="/css/admin/users.css" />
+  <link rel="stylesheet" href="/css/admin/modal.css" />
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet" />
+</head>
+<body>
+
+  <div class="admin-layout">
+    <%- include('../partials/sidebar') %>
+
+    <div class="main-content">
+      <%- include('../partials/topbar') %>
+
+      <div class="page-content">
+        <div class="page-header">
+          <div>
+            <h1>Customers</h1>
+            <p>Manage your community of skincare enthusiasts. Review spending patterns and account activity.</p>
+          </div>
+        </div>
+
+        <!-- Search -->
+        <div class="search-bar">
+          <form action="/admin/users" method="GET" id="searchForm">
+            <img src="/images/icons/admin/search.svg" alt="Search" />
+            <input
+              type="text"
+              name="search"
+              id="searchInput"
+              placeholder="Search community members..."
+              value="<%= search %>"
+            />
+            <% if (search) { %>
+              <button type="button" id="clearSearch" class="clear-btn">
+                <img src="/images/icons/admin/x.svg" alt="Clear" />
+              </button>
+            <% } %>
+          </form>
+        </div>
+
+        <!-- Table -->
+        <div class="users-table-card">
+          <table class="users-table">
+            <thead>
+              <tr>
+                <th>Customer</th>
+                <th>Contact Info</th>
+                <th>Joined Date</th>
+                <th>Status</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              <% if (users.length === 0) { %>
+                <tr>
+                  <td colspan="5" class="no-results">No users found.</td>
+                </tr>
+              <% } else { %>
+                <% users.forEach(user => { %>
+                  <tr>
+                    <td>
+                      <div class="customer-cell">
+                        <div class="customer-avatar"><%= user.fullName.charAt(0).toUpperCase() %></div>
+                        <div>
+                          <span class="customer-name"><%= user.fullName %></span>
+                          <span class="customer-id">ID: #<%= user._id.toString().slice(-6) %></span>
+                        </div>
+                      </div>
+                    </td>
+                    <td>
+                      <div class="contact-cell">
+                        <span><%= user.email %></span>
+                        <span class="phone"><%= user.phone || '—' %></span>
+                      </div>
+                    </td>
+                    <td>
+                      <%= new Date(user.createdAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) %>
+                    </td>
+                    <td>
+                      <% if (user.isActive) { %>
+                        <span class="status active">● Active</span>
+                      <% } else { %>
+                        <span class="status blocked">● Blocked</span>
+                      <% } %>
+                    </td>
+                    <td>
+                      <form
+                        action="/admin/users/block-unblock/<%= user._id %>?page=<%= currentPage %>&search=<%= search %>"
+                        method="POST"
+                        class="block-form"
+                      >
+                        <button
+                          type="submit"
+                          class="action-btn confirm-action <%= user.isActive ? 'block-action' : 'unblock-action' %>"
+                          data-action="<%= user.isActive ? 'block' : 'unblock' %>"
+                        >
+                          <%= user.isActive ? 'Block' : 'Unblock' %>
+                        </button>
+                      </form>
+                    </td>
+                  </tr>
+                <% }) %>
+              <% } %>
+            </tbody>
+          </table>
+
+          <!-- Pagination -->
+          <div class="pagination-footer">
+            <span>Showing page <%= currentPage %> of <%= totalPages %> (<%= totalUsers %> total customers)</span>
+            <div class="pagination">
+              <a
+                href="/admin/users?page=<%= currentPage - 1 %>&search=<%= search %>"
+                class="page-btn <%= currentPage <= 1 ? 'disabled' : '' %>"
+              >‹</a>
+
+              <% for (let i = 1; i <= totalPages; i++) { %>
+                <a
+                  href="/admin/users?page=<%= i %>&search=<%= search %>"
+                  class="page-btn <%= currentPage === i ? 'active' : '' %>"
+                ><%= i %></a>
+              <% } %>
+
+              <a
+                href="/admin/users?page=<%= currentPage + 1 %>&search=<%= search %>"
+                class="page-btn <%= currentPage >= totalPages ? 'disabled' : '' %>"
+              >›</a>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      <%- include('../partials/footer') %>
+    </div>
+  </div>
+
+  <script>
+    // Clear search button
+    const clearBtn = document.getElementById('clearSearch');
+    if (clearBtn) {
+      clearBtn.addEventListener('click', () => {
+        window.location.href = '/admin/users';
+      });
+    }
+
+    // Confirm block/unblock action
+    document.querySelectorAll('.confirm-action').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        const action = btn.dataset.action;
+        const message = action === 'block'
+          ? 'Are you sure you want to block this user?'
+          : 'Are you sure you want to unblock this user?';
+
+        if (!confirm(message)) {
+          e.preventDefault();
+        }
+      });
+    });
+  </script>
+
+</body>
+</html>
