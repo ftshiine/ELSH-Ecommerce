@@ -1,11 +1,4 @@
-const noCache = (req, res) => {
-  res.setHeader('Cache-Control', 'no-store');
-  res.setHeader('Pragma', 'no-cache');
-  res.setHeader('Expires', '0');
-};
-
 const isAdminLoggedIn = (req, res, next) => {
-  noCache(req, res);
   if (req.session.admin) {
     next();
   } else {
@@ -14,7 +7,6 @@ const isAdminLoggedIn = (req, res, next) => {
 };
 
 const isAdminLoggedOut = (req, res, next) => {
-  noCache(req, res);
   if (!req.session.admin) {
     next();
   } else {
@@ -22,4 +14,20 @@ const isAdminLoggedOut = (req, res, next) => {
   }
 };
 
-export { isAdminLoggedIn, isAdminLoggedOut };
+const isUserLoggedIn = (req, res, next) => {
+  if (req.session.user) {
+    next();
+  } else {
+    res.redirect('/login');
+  }
+};
+
+const isUserLoggedOut = (req, res, next) => {
+  if (!req.session.user) {
+    next();
+  } else {
+    res.redirect('/home');
+  }
+};
+
+export { isAdminLoggedIn, isAdminLoggedOut, isUserLoggedIn, isUserLoggedOut };

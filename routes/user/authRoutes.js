@@ -1,30 +1,32 @@
 import express from 'express';
 import passport from 'passport';
 import { loadSignup, signup, loadOTP, verifyOTPHandler, resendOTP, loadLogin, login, logout } from '../../controllers/user/authController.js';
+import { isUserLoggedIn, isUserLoggedOut } from '../../middleware/authMiddleware.js';
 
 const router = express.Router();
 
 // Signup routes
-router.get('/signup', loadSignup);
-router.post('/signup', signup);
+router.get('/signup', isUserLoggedOut, loadSignup);
+router.post('/signup', isUserLoggedOut, signup);
 
 // OTP routes
-router.get('/otp', loadOTP);
-router.post('/otp', verifyOTPHandler);
-router.post('/otp/resend', resendOTP);
+router.get('/otp', isUserLoggedOut, loadOTP);
+router.post('/otp', isUserLoggedOut, verifyOTPHandler);
+router.post('/otp/resend', isUserLoggedOut, resendOTP);
 
 // Login routes
-router.get('/login', loadLogin);
-router.post('/login', login);
+router.get('/login', isUserLoggedOut, loadLogin);
+router.post('/login', isUserLoggedOut, login);
 
 // Logout route
-router.get('/logout', logout);
+router.get('/logout', isUserLoggedIn, logout);
 
 // Google OAuth routes
-router.get('/auth/google', passport.authenticate('google', { scope: ['profile', 'email'] }));
+router.get('/auth/google', isUserLoggedOut, passport.authenticate('google', { scope: ['profile', 'email'] }));
 
 // Google OAuth callback with proper cache prevention
 router.get('/auth/google/callback',
+  isUserLoggedOut,
   passport.authenticate('google', { failureRedirect: '/login', session: false }),
   (req, res) => {
     // Set user session from Google profile
@@ -35,12 +37,28 @@ router.get('/auth/google/callback',
       role: req.user.role,
     };
 
-    // Prevent caching of OAuth callback redirect
-    res.set('Cache-Control', 'no-store, no-cache, must-revalidate, private');
-    res.set('Pragma', 'no-cache');
-    res.set('Expires', '0');
 
-    res.redirect('/home');
+
+    res.send(`
+      <!DOCTYPE html>
+      <html>
+      <head>
+        <title>Authenticating...</title>
+        <script>
+          if (window.opener && !window.opener.closed) {
+            window.opener.location.href = '/home';
+            window.close();
+          } else {
+            window.location.replace('/home');
+          }
+        </script>
+        <noscript>
+          <meta http-equiv="refresh" content="0;url=/home">
+        </noscript>
+      </head>
+      <body></body>
+      </html>
+    `);
   }
 );
 

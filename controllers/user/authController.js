@@ -4,9 +4,6 @@ import { validateSignup, validateLogin } from '../../utils/validation.js';
 import bcrypt from 'bcrypt';
 
 const loadSignup = (req, res) => {
-  if(req.session.user){
-    return res.redirect('/home');
-  }
   res.render('user/auth/signup', { error: null });
 };
 
@@ -109,9 +106,6 @@ const resendOTP = async (req,res) => {
 }
 
 const loadLogin = (req,res) => {
-  if(req.session.user){
-    return res.redirect('/home');
-  }
   res.render('user/auth/login', {error: null});
 }
 
@@ -159,6 +153,7 @@ const login = async (req,res) => {
 
 const logout = (req,res) => {
   req.session.destroy(() => {
+    res.clearCookie('connect.sid');
     res.redirect('/login');
   })
 }

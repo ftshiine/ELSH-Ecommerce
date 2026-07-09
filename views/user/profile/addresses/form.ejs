@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>ELSH | <%= address ? 'Edit' : 'New' %> Ritual Site</title>
+  <link rel="stylesheet" href="/css/user/address.css" />
+</head>
+<body>
+
+  <%- include('../../partials/home-navbar') %>
+
+  <div class="address-wrapper">
+    <div class="breadcrumb">
+      <a href="/profile/addresses">&larr; BACK TO SITES</a>
+    </div>
+
+    <div class="page-header">
+      <h1><%= address ? 'Edit' : 'New' %> Ritual Site</h1>
+      <p>Specify the sanctuary where your ELSH essentials should arrive.<br>We ensure every delivery is handled with intentional care.</p>
+    </div>
+
+    <% if (error) { %>
+      <div class="alert-error"><%= error %></div>
+    <% } %>
+
+    <div class="form-card">
+      <form action="/profile/addresses/<%= address ? 'edit/' + address._id : 'add' %>" method="POST">
+        
+        <div class="form-row">
+          <div class="form-group">
+            <label>FULL NAME</label>
+            <input type="text" name="fullName" placeholder="Julianne Moore" value="<%= address ? address.fullName : '' %>" required>
+          </div>
+          <div class="form-group">
+            <label>PHONE NUMBER</label>
+            <input type="text" name="phone" placeholder="+1 (555) 000-0000" value="<%= address ? address.phone : '' %>" required>
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group full-width">
+            <label>ADDRESS LINE 1</label>
+            <input type="text" name="addressLine1" placeholder="Apartment, suite, unit, or building" value="<%= address ? address.addressLine1 : '' %>" required>
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group full-width">
+            <label>LANDMARK (OPTIONAL)</label>
+            <input type="text" name="landmark" placeholder="Near the botanical conservatory" value="<%= address ? address.landmark : '' %>">
+          </div>
+        </div>
+
+        <div class="form-row" style="grid-template-columns: 1fr 1fr; gap: 24px;">
+          <div class="form-group">
+            <label>COUNTRY</label>
+            <select name="country" id="countrySelect" required>
+              <option value="India" <%= !address || address.country === 'India' ? 'selected' : '' %>>India</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>STATE</label>
+            <select name="state" id="stateSelect" required>
+              <option value="" disabled <%= !address ? 'selected' : '' %>>Select State</option>
+              <% 
+                const states = [
+                  'Andhra Pradesh', 'Arunachal Pradesh', 'Assam', 'Bihar', 'Chhattisgarh', 
+                  'Goa', 'Gujarat', 'Haryana', 'Himachal Pradesh', 'Jharkhand', 'Karnataka', 
+                  'Kerala', 'Madhya Pradesh', 'Maharashtra', 'Manipur', 'Meghalaya', 'Mizoram', 
+                  'Nagaland', 'Odisha', 'Punjab', 'Rajasthan', 'Sikkim', 'Tamil Nadu', 'Telangana', 
+                  'Tripura', 'Uttar Pradesh', 'Uttarakhand', 'West Bengal', 
+                  'Andaman and Nicobar Islands', 'Chandigarh', 'Dadra and Nagar Haveli and Daman and Diu', 
+                  'Delhi', 'Jammu and Kashmir', 'Ladakh', 'Lakshadweep', 'Puducherry'
+                ];
+                states.forEach(s => { 
+              %>
+                <option value="<%= s %>" <%= address && address.state === s ? 'selected' : '' %>><%= s %></option>
+              <% }) %>
+            </select>
+          </div>
+        </div>
+
+        <div class="form-row" style="grid-template-columns: 1fr 1fr; gap: 24px;">
+          <div class="form-group">
+            <label>CITY</label>
+            <input type="text" name="city" placeholder="Mumbai" value="<%= address ? address.city : '' %>" required>
+          </div>
+          <div class="form-group">
+            <label>PINCODE</label>
+            <input type="text" name="pincode" placeholder="400001" value="<%= address ? address.pincode : '' %>" required>
+          </div>
+        </div>
+
+        <div class="toggle-row">
+          <div class="toggle-info">
+            <h4>Set as Primary Ritual Site</h4>
+            <p>All future deliveries will default to this sanctuary.</p>
+          </div>
+          <label class="switch">
+            <input type="checkbox" name="isPrimary" <%= address && address.isPrimary ? 'checked' : '' %>>
+            <span class="slider"></span>
+          </label>
+        </div>
+
+        <div class="form-actions">
+          <button type="submit" class="btn-save">SAVE LOCATION</button>
+          <a href="/profile/addresses" class="btn-cancel">CANCEL</a>
+        </div>
+
+      </form>
+    </div>
+
+  </div>
+
+  <%- include('../../partials/footer') %>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      const countrySelect = document.getElementById('countrySelect');
+      const stateSelect = document.getElementById('stateSelect');
+      const indiaStates = <%- JSON.stringify(states) %>;
+      const currentState = "<%= address ? address.state : '' %>";
+      
+      countrySelect.addEventListener('change', (e) => {
+        const country = e.target.value;
+        stateSelect.innerHTML = '<option value="" disabled selected>Select State</option>';
+        if (country === 'India') {
+          indiaStates.forEach(s => {
+            const opt = document.createElement('option');
+            opt.value = s;
+            opt.textContent = s;
+            if (s === currentState) opt.selected = true;
+            stateSelect.appendChild(opt);
+          });
+        }
+      });
+    });
+  </script>
+</body>
+</html>

@@ -1,7 +1,8 @@
 import express from 'express';
 import multer from 'multer';
 import path from 'path';
-import { loadProfile, loadEditProfile, editProfile, removePhoto } from '../../controllers/user/profileController.js';
+import { loadProfile, loadEditProfile, editProfile, removePhoto, editEmailRequest, verifyEmailOtp } from '../../controllers/user/profileController.js';
+import { isUserLoggedIn } from '../../middleware/authMiddleware.js';
 
 const router = express.Router();
 
@@ -28,9 +29,11 @@ const fileFilter = (req, file, cb) => {
 
 const upload = multer({ storage, fileFilter, limits: { fileSize: 5 * 1024 * 1024 } });
 
-router.get('/profile', loadProfile);
-router.get('/profile/edit', loadEditProfile);
-router.post('/profile/edit', upload.single('profileImage'), editProfile);
-router.post('/profile/remove-photo', removePhoto);
+router.get('/profile', isUserLoggedIn, loadProfile);
+router.get('/profile/edit', isUserLoggedIn, loadEditProfile);
+router.post('/profile/edit', isUserLoggedIn, upload.single('profileImage'), editProfile);
+router.post('/profile/remove-photo', isUserLoggedIn, removePhoto);
+router.post('/profile/edit-email-request', isUserLoggedIn, express.json(), editEmailRequest);
+router.post('/profile/verify-email-otp', isUserLoggedIn, express.json(), verifyEmailOtp);
 
 export default router;

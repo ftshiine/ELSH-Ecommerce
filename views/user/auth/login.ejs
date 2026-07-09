@@ -4,9 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>ELSH | Sign In</title>
-  <link rel="stylesheet" href="/css/user/navbar.css" />
   <link rel="stylesheet" href="/css/user/auth.css" />
-  <link rel="stylesheet" href="/css/user/footer.css" />
 </head>
 <body>
 
@@ -26,7 +24,9 @@
 
         <div class="form-group">
           <label>Email Address</label>
-          <input type="email" name="email" placeholder="name@example.com" required />
+          <div class="input-wrapper">
+            <input type="email" name="email" placeholder="name@example.com" required />
+          </div>
         </div>
 
         <div class="form-group">
@@ -45,10 +45,10 @@
       </form>
 
       <div class="auth-divider">
-        <span>or continue with</span>
+        <span>OR CONTINUE WITH</span>
       </div>
 
-      <a href="/auth/google" class="btn-google">
+      <a href="/auth/google" onclick="window.open('/auth/google', 'googleAuth', 'width=500,height=600'); return false;" class="btn-google">
         <img src="/images/icons/user/google.png" alt="Google" />
         Google
       </a>
@@ -66,12 +66,7 @@
       input.type = input.type === 'password' ? 'text' : 'password';
     }
 
-    // Prevent browser back button from showing cached signup page
-    window.addEventListener('pageshow', function(event) {
-      if (event.persisted) {
-        window.location.reload();
-      }
-    });
+
 
     // Optional: clear form when leaving the page
     window.addEventListener('pagehide', function() {

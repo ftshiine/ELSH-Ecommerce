@@ -1,3 +1,7 @@
+<% if (!locals._navbarCssLoaded) { %>
+  <link rel="stylesheet" href="/css/user/navbar.css" />
+  <% locals._navbarCssLoaded = true; %>
+<% } %>
 <nav class="navbar">
   <div class="navbar-container">
     <a href="/" class="navbar-logo">ELSH</a>

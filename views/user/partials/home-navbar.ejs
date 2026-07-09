@@ -1,3 +1,8 @@
+<% if (!locals._homeNavbarCssLoaded) { %>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;1,400&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/css/user/home-navbar.css" />
+  <% locals._homeNavbarCssLoaded = true; %>
+<% } %>
 <nav class="home-navbar">
   <div class="home-navbar-container">
     <a href="/home" class="home-navbar-logo">ELSH</a>
@@ -23,6 +28,10 @@
           <a href="/profile" class="dropdown-item">
             <img src="/images/icons/admin/customers.svg" alt="Profile" />
             My Profile
+          </a>
+          <a href="/profile/addresses" class="dropdown-item">
+            <img src="/images/icons/admin/globe.svg" alt="Ritual Sites" />
+            Ritual Sites
           </a>
           <a href="/logout" class="dropdown-item dropdown-logout">
             <img src="/images/icons/admin/logout.svg" alt="Logout" />

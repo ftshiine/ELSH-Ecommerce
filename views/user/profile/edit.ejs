@@ -4,10 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>ELSH | Edit Profile</title>
-  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;1,400&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="/css/user/home-navbar.css" />
   <link rel="stylesheet" href="/css/user/profile.css" />
-  <link rel="stylesheet" href="/css/user/footer.css" />
 </head>
 <body>
 
@@ -32,11 +29,11 @@
 
       <div class="edit-divider"></div>
 
-      <% if (error) { %>
-        <div class="auth-error"><%= error %></div>
+      <% if (locals.error) { %>
+        <div class="auth-error"><%= locals.error %></div>
       <% } %>
-      <% if (success) { %>
-        <div class="auth-success"><%= success %></div>
+      <% if (locals.success) { %>
+        <div class="auth-success"><%= locals.success %></div>
       <% } %>
 
       <form id="removePhotoForm" action="/profile/remove-photo" method="POST" style="display:none;"></form>
@@ -82,8 +79,7 @@
           <div class="edit-form-row">
             <div class="form-group">
               <label>Email</label>
-              <input type="email" value="<%= user.email %>" disabled class="input-disabled" />
-              <span class="input-hint">To change email <a href="/profile/change-email">click here</a></span>
+              <input type="email" name="email" id="emailInput" value="<%= user.email %>" data-original="<%= user.email %>" required />
             </div>
             <div class="form-group">
               <label>Gender</label>
@@ -115,6 +111,37 @@
     </div>
   </div>
 
+  <!-- OTP Modal Overlay -->
+  <div class="otp-modal-overlay" id="otpModalOverlay" style="display: none;">
+    <div class="otp-modal">
+      <button type="button" class="otp-modal-close" id="closeOtpModal">&times;</button>
+      <div class="otp-modal-header">
+        <h2>Verify Your Email</h2>
+        <p>Enter the verification code sent to <br><strong id="maskedEmail"></strong></p>
+      </div>
+      
+      <div class="otp-modal-error" id="modalError" style="display: none;"></div>
+
+      <div class="otp-inputs" id="modalOtpInputs">
+        <input type="text" maxlength="1" class="otp-box" inputmode="numeric" pattern="[0-9]*" />
+        <input type="text" maxlength="1" class="otp-box" inputmode="numeric" pattern="[0-9]*" />
+        <input type="text" maxlength="1" class="otp-box" inputmode="numeric" pattern="[0-9]*" />
+        <input type="text" maxlength="1" class="otp-box" inputmode="numeric" pattern="[0-9]*" />
+        <input type="text" maxlength="1" class="otp-box" inputmode="numeric" pattern="[0-9]*" />
+        <input type="text" maxlength="1" class="otp-box" inputmode="numeric" pattern="[0-9]*" />
+      </div>
+
+      <button type="button" class="btn-verify-modal" id="verifyOtpBtn">Verify OTP</button>
+
+      <div class="otp-resend">
+        <p>Didn't receive a code? <a href="#" id="modalResendBtn" class="resend-link disabled">Resend Code</a></p>
+        <p class="timer-text" id="modalTimerText">
+          RESEND AVAILABLE IN <span id="modalCountdown">59</span>S
+        </p>
+      </div>
+    </div>
+  </div>
+
   <%- include('../partials/footer') %>
 
   <script>
@@ -133,6 +160,185 @@
           if (avatarPlaceholder) avatarPlaceholder.style.display = 'none';
         };
         reader.readAsDataURL(file);
+      }
+    });
+
+    // --- OTP Modal Logic ---
+    const editProfileForm = document.getElementById('editProfileForm');
+    const emailInput = document.getElementById('emailInput');
+    const originalEmail = emailInput.getAttribute('data-original');
+    
+    const otpModalOverlay = document.getElementById('otpModalOverlay');
+    const closeOtpModal = document.getElementById('closeOtpModal');
+    const modalError = document.getElementById('modalError');
+    const maskedEmail = document.getElementById('maskedEmail');
+    const verifyOtpBtn = document.getElementById('verifyOtpBtn');
+    const modalResendBtn = document.getElementById('modalResendBtn');
+    const modalTimerText = document.getElementById('modalTimerText');
+    const modalCountdown = document.getElementById('modalCountdown');
+    
+    let timerInterval;
+    let seconds = 59;
+    let pendingNewEmail = '';
+
+    const startTimer = () => {
+      clearInterval(timerInterval);
+      seconds = 59;
+      modalCountdown.textContent = seconds;
+      modalTimerText.style.display = 'block';
+      modalResendBtn.classList.add('disabled');
+      
+      timerInterval = setInterval(() => {
+        seconds--;
+        modalCountdown.textContent = seconds;
+        if (seconds <= 0) {
+          clearInterval(timerInterval);
+          modalTimerText.style.display = 'none';
+          modalResendBtn.classList.remove('disabled');
+        }
+      }, 1000);
+    };
+
+    // Intercept form submission
+    let isSubmitting = false;
+    const submitBtn = editProfileForm.querySelector('.btn-save');
+
+    editProfileForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      if (isSubmitting) return;
+
+      const newEmail = emailInput.value.trim();
+      const original = originalEmail.trim();
+      
+      if (newEmail !== original) {
+        isSubmitting = true;
+        const originalBtnText = submitBtn.textContent;
+        submitBtn.textContent = 'PROCESSING...';
+        submitBtn.style.opacity = '0.7';
+
+        try {
+          const response = await fetch('/profile/edit-email-request', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ newEmail })
+          });
+          
+          const result = await response.json();
+          if (result.success) {
+            // Show Modal
+            pendingNewEmail = newEmail;
+            
+            // Mask email (e.g. joh*****@gmail.com)
+            const [local, domain] = newEmail.split('@');
+            const masked = local.slice(0, 3) + '*****@' + domain;
+            maskedEmail.textContent = masked;
+            
+            modalError.style.display = 'none';
+            otpModalOverlay.style.display = 'flex';
+            startTimer();
+          } else {
+            alert(result.message || 'Error processing email update');
+          }
+        } catch (err) {
+          alert('Network error. Please try again.');
+        } finally {
+          isSubmitting = false;
+          submitBtn.textContent = originalBtnText;
+          submitBtn.style.opacity = '1';
+        }
+      } else {
+        // No email change, submit normally
+        editProfileForm.submit();
+      }
+    });
+
+    closeOtpModal.addEventListener('click', () => {
+      otpModalOverlay.style.display = 'none';
+      clearInterval(timerInterval);
+    });
+
+    // Handle OTP Box Input
+    const otpBoxes = document.querySelectorAll('#modalOtpInputs .otp-box');
+    otpBoxes.forEach((box, index) => {
+      box.addEventListener('keypress', (e) => {
+        if (!/[0-9]/.test(e.key)) e.preventDefault();
+      });
+      box.addEventListener('input', () => {
+        box.value = box.value.replace(/[^0-9]/g, '');
+        if (box.value.length === 1 && index < otpBoxes.length - 1) {
+          otpBoxes[index + 1].focus();
+        }
+      });
+      box.addEventListener('keydown', (e) => {
+        if (e.key === 'Backspace' && box.value === '' && index > 0) {
+          otpBoxes[index - 1].focus();
+        }
+      });
+      // Paste support
+      box.addEventListener('paste', (e) => {
+        e.preventDefault();
+        const pastedData = e.clipboardData.getData('text').replace(/[^0-9]/g, '').slice(0, 6);
+        for (let i = 0; i < pastedData.length; i++) {
+          if (otpBoxes[index + i]) {
+            otpBoxes[index + i].value = pastedData[i];
+            if (index + i < otpBoxes.length - 1) otpBoxes[index + i + 1].focus();
+          }
+        }
+      });
+    });
+
+    // Verify OTP
+    verifyOtpBtn.addEventListener('click', async () => {
+      const otp = Array.from(otpBoxes).map(b => b.value).join('');
+      if (otp.length < 6) {
+        modalError.textContent = 'Please enter a 6-digit code';
+        modalError.style.display = 'block';
+        return;
+      }
+      
+      try {
+        const response = await fetch('/profile/verify-email-otp', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email: pendingNewEmail, otp })
+        });
+        const result = await response.json();
+        
+        if (result.success) {
+          // Proceed with main form update
+          editProfileForm.submit();
+        } else {
+          modalError.textContent = result.message || 'Invalid OTP';
+          modalError.style.display = 'block';
+        }
+      } catch (err) {
+        modalError.textContent = 'Network error';
+        modalError.style.display = 'block';
+      }
+    });
+
+    // Resend OTP
+    modalResendBtn.addEventListener('click', async (e) => {
+      e.preventDefault();
+      if (modalResendBtn.classList.contains('disabled')) return;
+      
+      try {
+        const response = await fetch('/profile/edit-email-request', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ newEmail: pendingNewEmail })
+        });
+        const result = await response.json();
+        if (result.success) {
+          startTimer();
+          modalError.style.display = 'none';
+        } else {
+          modalError.textContent = result.message || 'Failed to resend';
+          modalError.style.display = 'block';
+        }
+      } catch (err) {
+        modalError.textContent = 'Network error';
+        modalError.style.display = 'block';
       }
     });
   </script>

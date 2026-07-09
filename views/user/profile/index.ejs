@@ -5,10 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>ELSH | My Profile</title>
 
-  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;1,400&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="/css/user/home-navbar.css" />
   <link rel="stylesheet" href="/css/user/profile.css" />
-  <link rel="stylesheet" href="/css/user/footer.css" />
 </head>
 <body>
 
@@ -28,6 +25,10 @@
       <h1>My Profile</h1>
       <p>Manage your personal information and account preferences.</p>
     </div>
+
+    <% if (locals.success) { %>
+      <div class="auth-success" style="margin-bottom: 24px;"><%= locals.success %></div>
+    <% } %>
 
     <!-- Profile Card -->
     <div class="profile-card">

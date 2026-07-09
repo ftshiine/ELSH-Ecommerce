@@ -10,6 +10,7 @@ import landingRoutes from './routes/user/landingRoutes.js';
 import userAuthRoutes from './routes/user/authRoutes.js';
 import homeRoutes from './routes/user/homeRoutes.js';
 import profileRoutes from './routes/user/profileRoutes.js';
+import addressRoutes from './routes/user/addressRoutes.js';
 import passport from './config/passport.js';
 
 dotenv.config();
@@ -55,6 +56,15 @@ app.use(session({
 // Passport initialization (MUST be after session middleware)
 app.use(passport.initialize());
 
+// Flash messages middleware
+app.use((req, res, next) => {
+  res.locals.success = req.session.success || null;
+  res.locals.error = req.session.error || null;
+  delete req.session.success;
+  delete req.session.error;
+  next();
+});
+
 // Routes
 // Admin
 app.use('/admin', adminAuthRoutes);
@@ -66,6 +76,7 @@ app.use('/', landingRoutes);
 app.use('/', userAuthRoutes);
 app.use('/', homeRoutes);
 app.use('/', profileRoutes);
+app.use('/', addressRoutes);
 
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {

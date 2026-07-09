@@ -1,3 +1,7 @@
+<% if (!locals._footerCssLoaded) { %>
+  <link rel="stylesheet" href="/css/user/footer.css" />
+  <% locals._footerCssLoaded = true; %>
+<% } %>
 <footer class="footer">
   <div class="footer-top">
     <div class="footer-brand">
