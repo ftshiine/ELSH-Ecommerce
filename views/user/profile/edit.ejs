@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>ELSH | Edit Profile</title>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;1,400&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/css/user/home-navbar.css" />
+  <link rel="stylesheet" href="/css/user/profile.css" />
+  <link rel="stylesheet" href="/css/user/footer.css" />
+</head>
+<body>
+
+  <%- include('../partials/home-navbar') %>
+
+  <div class="profile-wrapper">
+
+    <div class="breadcrumb">
+      <span>ACCOUNT</span>
+      <span>›</span>
+      <a href="/profile" class="breadcrumb-link">MY PROFILE</a>
+      <span>›</span>
+      <span class="breadcrumb-active">EDIT PROFILE</span>
+    </div>
+
+    <div class="edit-card">
+
+      <div class="edit-card-header">
+        <h2>Manage Profile</h2>
+        <p>Update your personal information and account details.</p>
+      </div>
+
+      <div class="edit-divider"></div>
+
+      <% if (error) { %>
+        <div class="auth-error"><%= error %></div>
+      <% } %>
+      <% if (success) { %>
+        <div class="auth-success"><%= success %></div>
+      <% } %>
+
+      <form id="removePhotoForm" action="/profile/remove-photo" method="POST" style="display:none;"></form>
+
+      <form id="editProfileForm" action="/profile/edit" method="POST" enctype="multipart/form-data">
+
+        <div class="edit-section">
+          <label class="section-label">PROFILE PHOTO</label>
+          <div class="photo-upload-row">
+            <div class="edit-avatar">
+              <% if (user.profileImage) { %>
+                <img src="<%= user.profileImage %>" alt="Profile" id="avatarPreview" />
+              <% } else { %>
+                <div class="avatar-placeholder" id="avatarPlaceholder"><%= user.fullName.charAt(0).toUpperCase() %></div>
+                <img src="" alt="Profile" id="avatarPreview" style="display:none;" />
+              <% } %>
+            </div>
+            <div class="photo-actions">
+              <label for="profileImage" class="btn-upload">UPLOAD NEW PHOTO</label>
+              <input type="file" id="profileImage" name="profileImage" accept="image/*" style="display:none;" />
+              
+              <button type="submit" form="removePhotoForm" class="btn-remove-photo">Remove Photo</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="edit-divider"></div>
+
+        <div class="edit-section">
+          <label class="section-label">PERSONAL INFORMATION</label>
+
+          <div class="edit-form-row">
+            <div class="form-group">
+              <label>Full Name</label>
+              <input type="text" name="fullName" value="<%= user.fullName %>" placeholder="Your full name" required />
+            </div>
+            <div class="form-group">
+              <label>Phone</label>
+              <input type="tel" name="phone" value="<%= user.phone || '' %>" placeholder="+1 (555) 000-0000" />
+            </div>
+          </div>
+
+          <div class="edit-form-row">
+            <div class="form-group">
+              <label>Email</label>
+              <input type="email" value="<%= user.email %>" disabled class="input-disabled" />
+              <span class="input-hint">To change email <a href="/profile/change-email">click here</a></span>
+            </div>
+            <div class="form-group">
+              <label>Gender</label>
+              <select name="gender">
+                <option value="">Select Gender</option>
+                <option value="Male" <%= user.gender === 'Male' ? 'selected' : '' %>>Male</option>
+                <option value="Female" <%= user.gender === 'Female' ? 'selected' : '' %>>Female</option>
+                <option value="Other" <%= user.gender === 'Other' ? 'selected' : '' %>>Other</option>
+                <option value="Prefer not to say" <%= user.gender === 'Prefer not to say' ? 'selected' : '' %>>Prefer not to say</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="edit-form-row">
+            <div class="form-group">
+              <label>Date of Birth</label>
+              <input type="date" name="dateOfBirth" value="<%= user.dateOfBirth ? new Date(user.dateOfBirth).toISOString().split('T')[0] : '' %>" />
+            </div>
+          </div>
+
+        </div>
+
+        <div class="edit-actions">
+          <a href="/profile" class="btn-cancel">CANCEL</a>
+          <button type="submit" class="btn-save">SAVE CHANGES</button>
+        </div>
+
+      </form>
+    </div>
+  </div>
+
+  <%- include('../partials/footer') %>
+
+  <script>
+    // Preview profile image before upload
+    const profileImageInput = document.getElementById('profileImage');
+    const avatarPreview = document.getElementById('avatarPreview');
+    const avatarPlaceholder = document.getElementById('avatarPlaceholder');
+
+    profileImageInput.addEventListener('change', (e) => {
+      const file = e.target.files[0];
+      if (file) {
+        const reader = new FileReader();
+        reader.onload = (e) => {
+          avatarPreview.src = e.target.result;
+          avatarPreview.style.display = 'block';
+          if (avatarPlaceholder) avatarPlaceholder.style.display = 'none';
+        };
+        reader.readAsDataURL(file);
+      }
+    });
+  </script>
+
+</body>
+</html>

@@ -4,8 +4,12 @@ import { validateSignup, validateLogin } from '../../utils/validation.js';
 import bcrypt from 'bcrypt';
 
 const loadSignup = (req, res) => {
+  if(req.session.user){
+    return res.redirect('/home');
+  }
   res.render('user/auth/signup', { error: null });
 };
+
 
 const signup = async (req, res) => {
   try {

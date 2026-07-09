@@ -65,6 +65,18 @@
       const input = document.getElementById(id);
       input.type = input.type === 'password' ? 'text' : 'password';
     }
+
+    // Prevent browser back button from showing cached signup page
+    window.addEventListener('pageshow', function(event) {
+      if (event.persisted) {
+        window.location.reload();
+      }
+    });
+
+    // Optional: clear form when leaving the page
+    window.addEventListener('pagehide', function() {
+      document.querySelectorAll('form').forEach(form => form.reset());
+    });
   </script>
 
 </body>

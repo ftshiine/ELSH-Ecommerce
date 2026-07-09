@@ -10,8 +10,7 @@ import landingRoutes from './routes/user/landingRoutes.js';
 import userAuthRoutes from './routes/user/authRoutes.js';
 import homeRoutes from './routes/user/homeRoutes.js';
 import profileRoutes from './routes/user/profileRoutes.js';
-import passport from 'passport';
-
+import passport from './config/passport.js';
 
 dotenv.config();
 
@@ -32,12 +31,12 @@ app.set('view engine', 'ejs');
 app.set('views', './views');
 
 // Global no-cache middleware
-  app.use((req, res, next) => {
-    res.set("Cache-Control", "no-store, no-cache, must-revalidate, private");
-    res.set("Pragma", "no-cache");
-    res.set("Expires", "0");
-    next();
-  });
+app.use((req, res, next) => {
+  res.set("Cache-Control", "no-store, no-cache, must-revalidate, private");
+  res.set("Pragma", "no-cache");
+  res.set("Expires", "0");
+  next();
+});
 
 // Session
 app.use(session({
@@ -53,20 +52,20 @@ app.use(session({
   },
 }));
 
+// Passport initialization (MUST be after session middleware)
+app.use(passport.initialize());
+
 // Routes
-//Admin
+// Admin
 app.use('/admin', adminAuthRoutes);
 app.use('/admin', dashboardRoutes);
 app.use('/admin', userRoutes);
 
-//User
+// User
 app.use('/', landingRoutes);
 app.use('/', userAuthRoutes);
-app.use('/',homeRoutes);
-app.use('/',profileRoutes);
-app.use(passport.initialize());
-app.use(passport.session());
-
+app.use('/', homeRoutes);
+app.use('/', profileRoutes);
 
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
