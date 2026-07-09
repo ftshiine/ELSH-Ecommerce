@@ -1,4 +1,4 @@
-import { findUserByEmail, findUserByUsername, createUser } from '../../services/user/authService.js';
+import { findUserByEmail, findUserByUsername, createUser, validateAccountStatus } from '../../services/user/authService.js';
 import { sendOTP, verifyOTP } from '../../services/user/otpService.js';
 import { validateSignup, validateLogin } from '../../utils/validation.js';
 import bcrypt from 'bcrypt';
@@ -106,7 +106,7 @@ const resendOTP = async (req,res) => {
 }
 
 const loadLogin = (req,res) => {
-  res.render('user/auth/login', {error: null});
+  res.render('user/auth/login');
 }
 
 const login = async (req,res) => {
@@ -123,12 +123,16 @@ const login = async (req,res) => {
     }
 
     const user = await findUserByEmail(email);
+    
+    // We only check if user is found for password mismatch, but we run full validation later.
+    // Actually, if the account doesn't exist, we don't want to show "Account does not exist" in login, we show "Invalid email or password" for security.
     if(!user){
       return res.render('user/auth/login',{error: 'Invalid email or password'});
     }
 
-    if(!user.isActive){
-      return res.render('user/auth/login',{error: 'Your account has been blocked'})
+    const validation = validateAccountStatus(user);
+    if (!validation.isValid) {
+      return res.render('user/auth/login', { error: validation.message });
     }
 
     const isMatch = await bcrypt.compare(password,user.password);
@@ -153,13 +157,34 @@ const login = async (req,res) => {
 
 const logout = (req,res) => {
   if (req.session) {
-    req.session.destroy((err) => {
-      if (err) {
-        console.error('Session destroy error during user logout:', err);
+    // Delete only the User session state
+    delete req.session.user;
+
+    const handleSessionDestruction = () => {
+      if (!req.session.admin) {
+        // If no Admin is logged in, it's safe to destroy the entire session
+        req.session.destroy((err) => {
+          if (err) console.error('Session destroy error during user logout:', err);
+          res.clearCookie('connect.sid');
+          return res.redirect('/login');
+        });
+      } else {
+        // Admin is still logged in, so just save the modified session
+        req.session.save(() => {
+          return res.redirect('/login');
+        });
       }
-      res.clearCookie('connect.sid');
-      res.redirect('/login');
-    });
+    };
+
+    // If Passport session exists, log out properly
+    if (req.logout) {
+      req.logout({ keepSessionInfo: true }, (err) => {
+        if (err) console.error('Passport logout error:', err);
+        handleSessionDestruction();
+      });
+    } else {
+      handleSessionDestruction();
+    }
   } else {
     res.redirect('/login');
   }

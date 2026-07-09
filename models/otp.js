@@ -13,7 +13,7 @@ const otpSchema = new mongoose.Schema({
   expiresAt: {
     type: Date,
     required: true,
-    index: { expires: 0 }, // Tells MongoDB to automatically drop this document exactly at the expiresAt time
+    index: { expires: 0 },
   },
   isUsed: {
     type: Boolean,

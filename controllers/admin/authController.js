@@ -34,13 +34,22 @@ const login = async (req, res) => {
 
 const logout = (req, res) => {
   if (req.session) {
-    req.session.destroy((err) => {
-      if (err) {
-        console.error('Session destroy error during admin logout:', err);
-      }
-      res.clearCookie('connect.sid');
-      res.redirect('/admin/login');
-    });
+    // Delete only the Admin session state
+    delete req.session.admin;
+
+    // If no User session exists, it's safe to destroy the entire session
+    if (!req.session.user && !req.session.passport) {
+      req.session.destroy((err) => {
+        if (err) console.error('Session destroy error during admin logout:', err);
+        res.clearCookie('connect.sid');
+        return res.redirect('/admin/login');
+      });
+    } else {
+      // User is still logged in, so just save the modified session
+      req.session.save(() => {
+        return res.redirect('/admin/login');
+      });
+    }
   } else {
     res.redirect('/admin/login');
   }

@@ -28,4 +28,14 @@ const updatePassword = async (email, newPassword) => {
   return await User.findOneAndUpdate({ email }, { password: hashedPassword });
 };
 
-export { findUserByEmail, findUserByUsername, createUser, updatePassword };
+const validateAccountStatus = (user) => {
+  if (!user) {
+    return { isValid: false, message: 'Account does not exist.' };
+  }
+  if (!user.isActive) {
+    return { isValid: false, message: 'Your account has been blocked. Please contact support for assistance.' };
+  }
+  return { isValid: true };
+};
+
+export { findUserByEmail, findUserByUsername, createUser, updatePassword, validateAccountStatus };

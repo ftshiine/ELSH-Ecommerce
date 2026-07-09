@@ -2,6 +2,7 @@ import passport from 'passport';
 import { Strategy as GoogleStrategy } from 'passport-google-oauth20';
 import dotenv from 'dotenv';
 import User from '../models/User.js';
+import { validateAccountStatus } from '../services/user/authService.js';
 
 dotenv.config();
 
@@ -12,13 +13,19 @@ passport.use(
       clientID: process.env.GOOGLE_CLIENT_ID,
       clientSecret: process.env.GOOGLE_CLIENT_SECRET,
       callbackURL: process.env.GOOGLE_CALLBACK_URL,
+      passReqToCallback: true,
     },
-    async (accessToken, refreshToken, profile, done) => {
+    async (req, accessToken, refreshToken, profile, done) => {
       try {
         // Check if user already exists
         let user = await User.findOne({ googleId: profile.id });
 
         if (user) {
+          const validation = validateAccountStatus(user);
+          if (!validation.isValid) {
+            req.session.error = validation.message;
+            return done(null, false);
+          }
           return done(null, user);
         }
 
@@ -26,7 +33,13 @@ passport.use(
         user = await User.findOne({ email: profile.emails[0].value });
 
         if (user) {
-          // Link Google account to existing user
+          const validation = validateAccountStatus(user);
+          if (!validation.isValid) {
+            req.session.error = validation.message;
+            return done(null, false);
+          }
+          
+          // Link Google account to existing active user
           user.googleId = profile.id;
           await user.save();
           return done(null, user);
