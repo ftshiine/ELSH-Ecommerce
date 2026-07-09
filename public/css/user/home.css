@@ -6,7 +6,8 @@
 
 body {
   background-color: #ffffff;
-  font-family: 'Inter', sans-serif;
+
+  font-family: "SF Pro Display", "SF Pro Text", -apple-system, BlinkMacSystemFont, "Helvetica Neue", Helvetica, Arial, sans-serif;
 }
 
 /* ── HERO BANNER ── */
@@ -43,8 +44,7 @@ body {
   max-width: 600px;
 }
 
-.hero-tag {
-  font-family: 'Inter', sans-serif;
+.hero-tag {
   font-size: 10px;
   font-weight: 600;
   letter-spacing: 2px;
@@ -57,8 +57,7 @@ body {
   backdrop-filter: blur(4px);
 }
 
-.hero-banner-content h1 {
-  font-family: 'Playfair Display', serif;
+.hero-banner-content h1 {
   font-size: 56px;
   font-weight: 400;
   color: #ffffff;
@@ -66,8 +65,7 @@ body {
   margin-bottom: 20px;
 }
 
-.hero-banner-content p {
-  font-family: 'Inter', sans-serif;
+.hero-banner-content p {
   font-size: 14px;
   color: rgba(255,255,255,0.85);
   line-height: 1.8;
@@ -77,8 +75,7 @@ body {
   margin-right: auto;
 }
 
-.btn-shop {
-  font-family: 'Inter', sans-serif;
+.btn-shop {
   font-size: 11px;
   font-weight: 600;
   letter-spacing: 1.5px;
@@ -106,16 +103,14 @@ body {
   margin-bottom: 48px;
 }
 
-.curated-header h2 {
-  font-family: 'Playfair Display', serif;
+.curated-header h2 {
   font-size: 36px;
   font-weight: 400;
   color: #2c2c2c;
   margin-bottom: 10px;
 }
 
-.curated-header p {
-  font-family: 'Inter', sans-serif;
+.curated-header p {
   font-size: 13px;
   color: #888;
 }
@@ -154,16 +149,14 @@ body {
   padding: 20px 0 8px;
 }
 
-.concern-info h3 {
-  font-family: 'Playfair Display', serif;
+.concern-info h3 {
   font-size: 22px;
   font-weight: 400;
   color: #2c2c2c;
   margin-bottom: 8px;
 }
 
-.concern-info p {
-  font-family: 'Inter', sans-serif;
+.concern-info p {
   font-size: 12px;
   color: #888;
   line-height: 1.7;
@@ -207,8 +200,7 @@ body {
   padding: 4px 0;
 }
 
-.set-tag {
-  font-family: 'Inter', sans-serif;
+.set-tag {
   font-size: 10px;
   font-weight: 600;
   letter-spacing: 2px;
@@ -217,24 +209,21 @@ body {
   margin-bottom: 8px;
 }
 
-.set-info h3 {
-  font-family: 'Playfair Display', serif;
+.set-info h3 {
   font-size: 26px;
   font-weight: 400;
   color: #2c2c2c;
   margin-bottom: 10px;
 }
 
-.set-info p {
-  font-family: 'Inter', sans-serif;
+.set-info p {
   font-size: 13px;
   color: #888;
   line-height: 1.7;
   margin-bottom: 16px;
 }
 
-.set-link {
-  font-family: 'Inter', sans-serif;
+.set-link {
   font-size: 12px;
   font-weight: 600;
   color: #2c2c2c;

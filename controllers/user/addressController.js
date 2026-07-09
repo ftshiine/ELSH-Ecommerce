@@ -3,7 +3,7 @@ import { getAddressesByUser, getAddressById, createAddress, updateAddress, delet
 export const loadAddresses = async (req, res) => {
   try {
     const addresses = await getAddressesByUser(req.session.user.id);
-    res.render('user/profile/addresses/index', { addresses, error: null, success: null });
+    res.render('user/profile/addresses/index', { addresses });
   } catch (error) {
     console.error('Load addresses error:', error);
     res.redirect('/profile');
@@ -11,7 +11,7 @@ export const loadAddresses = async (req, res) => {
 };
 
 export const loadAddAddress = (req, res) => {
-  res.render('user/profile/addresses/form', { address: null, error: null, success: null });
+  res.render('user/profile/addresses/form', { address: null });
 };
 
 export const addAddress = async (req, res) => {
@@ -22,16 +22,14 @@ export const addAddress = async (req, res) => {
     if (!fullName || !phone || !addressLine1 || !country || !city || !state || !pincode) {
       return res.render('user/profile/addresses/form', { 
         address: req.body, 
-        error: 'Please fill out all required fields.', 
-        success: null 
+        error: 'Please fill out all required fields.'
       });
     }
 
     if (!/^\+?[0-9]{10,15}$/.test(phone.trim().replace(/\s/g, ''))) {
       return res.render('user/profile/addresses/form', { 
         address: req.body, 
-        error: 'Please enter a valid phone number', 
-        success: null 
+        error: 'Please enter a valid phone number'
       });
     }
 
@@ -39,10 +37,13 @@ export const addAddress = async (req, res) => {
       fullName, phone, addressLine1, landmark, country, city, state, pincode, isPrimary: isPrimary === 'on'
     });
     
-    res.redirect('/profile/addresses');
+    req.session.success = 'Address added successfully.';
+    req.session.save(() => {
+      res.redirect('/profile/addresses');
+    });
   } catch (error) {
     console.error('Add address error:', error);
-    res.render('user/profile/addresses/form', { address: req.body, error: 'Failed to add address.', success: null });
+    res.render('user/profile/addresses/form', { address: req.body, error: 'Failed to add address.' });
   }
 };
 
@@ -51,7 +52,7 @@ export const loadEditAddress = async (req, res) => {
     const address = await getAddressById(req.params.id, req.session.user.id);
     if (!address) return res.redirect('/profile/addresses');
     
-    res.render('user/profile/addresses/form', { address, error: null, success: null });
+    res.render('user/profile/addresses/form', { address });
   } catch (error) {
     console.error('Load edit address error:', error);
     res.redirect('/profile/addresses');
@@ -65,16 +66,14 @@ export const editAddress = async (req, res) => {
     if (!fullName || !phone || !addressLine1 || !country || !city || !state || !pincode) {
       return res.render('user/profile/addresses/form', { 
         address: { _id: req.params.id, ...req.body }, 
-        error: 'Please fill out all required fields.', 
-        success: null 
+        error: 'Please fill out all required fields.'
       });
     }
 
     if (!/^\+?[0-9]{10,15}$/.test(phone.trim().replace(/\s/g, ''))) {
       return res.render('user/profile/addresses/form', { 
         address: { _id: req.params.id, ...req.body }, 
-        error: 'Please enter a valid phone number', 
-        success: null 
+        error: 'Please enter a valid phone number'
       });
     }
 
@@ -82,7 +81,10 @@ export const editAddress = async (req, res) => {
       fullName, phone, addressLine1, landmark, country, city, state, pincode, isPrimary: isPrimary === 'on'
     });
     
-    res.redirect('/profile/addresses');
+    req.session.success = 'Address updated successfully.';
+    req.session.save(() => {
+      res.redirect('/profile/addresses');
+    });
   } catch (error) {
     console.error('Edit address error:', error);
     res.redirect('/profile/addresses');
@@ -92,7 +94,10 @@ export const editAddress = async (req, res) => {
 export const removeAddress = async (req, res) => {
   try {
     await deleteAddress(req.params.id, req.session.user.id);
-    res.redirect('/profile/addresses');
+    req.session.success = 'Address removed successfully.';
+    req.session.save(() => {
+      res.redirect('/profile/addresses');
+    });
   } catch (error) {
     console.error('Remove address error:', error);
     res.redirect('/profile/addresses');
@@ -102,7 +107,10 @@ export const removeAddress = async (req, res) => {
 export const makePrimary = async (req, res) => {
   try {
     await setPrimaryAddress(req.params.id, req.session.user.id);
-    res.redirect('/profile/addresses');
+    req.session.success = 'Primary address updated successfully.';
+    req.session.save(() => {
+      res.redirect('/profile/addresses');
+    });
   } catch (error) {
     console.error('Make primary error:', error);
     res.redirect('/profile/addresses');

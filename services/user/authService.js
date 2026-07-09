@@ -23,4 +23,9 @@ const createUser = async (userData) => {
   return await user.save();
 };
 
-export { findUserByEmail, findUserByUsername, createUser };
+const updatePassword = async (email, newPassword) => {
+  const hashedPassword = await bcrypt.hash(newPassword, 10);
+  return await User.findOneAndUpdate({ email }, { password: hashedPassword });
+};
+
+export { findUserByEmail, findUserByUsername, createUser, updatePassword };

@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Admin | Verify OTP</title>
+  <link rel="stylesheet" href="/css/user/otp.css" />
+</head>
+
+<body>
+
+  <div class="otp-wrapper">
+    <div class="otp-card">
+
+      <div class="otp-icon">
+        <img src="/public/images/icons/user/lock-open.svg" alt="Lock" />
+      </div>
+
+      <h1>Admin Verification</h1>
+      <p>We've sent a 6-digit verification code to your admin email. Please enter it below to proceed.</p>
+
+      <% if (error) { %>
+        <div class="otp-error">
+          <%= error %>
+        </div>
+        <% } %>
+
+          <form action="/admin/forgot-password/otp" method="POST" id="otpForm">
+            <div class="otp-inputs">
+              <input type="text" maxlength="1" class="otp-box" id="otp1" name="otp1" inputmode="numeric"
+                pattern="[0-9]*" />
+              <input type="text" maxlength="1" class="otp-box" id="otp2" name="otp2" inputmode="numeric"
+                pattern="[0-9]*" />
+              <input type="text" maxlength="1" class="otp-box" id="otp3" name="otp3" inputmode="numeric"
+                pattern="[0-9]*" />
+              <input type="text" maxlength="1" class="otp-box" id="otp4" name="otp4" inputmode="numeric"
+                pattern="[0-9]*" />
+              <input type="text" maxlength="1" class="otp-box" id="otp5" name="otp5" inputmode="numeric"
+                pattern="[0-9]*" />
+              <input type="text" maxlength="1" class="otp-box" id="otp6" name="otp6" inputmode="numeric"
+                pattern="[0-9]*" />
+            </div>
+
+            <button type="submit" class="btn-verify">VERIFY</button>
+          </form>
+
+          <div class="otp-resend">
+            <p>Didn't receive a code? <a href="#" id="resendBtn" class="resend-link disabled">Resend Code</a></p>
+            <p class="timer-text" id="timerText" data-remaining="<%= remaining %>">
+              RESEND AVAILABLE IN <span id="countdown"></span>S
+            </p>
+          </div>
+
+    </div>
+
+    <div class="otp-footer">
+      ELSH © 2024 Admin Portal
+    </div>
+  </div>
+
+  <script>
+    const boxes = document.querySelectorAll('.otp-box');
+
+    boxes.forEach((box, index) => {
+      box.addEventListener('keypress', (e) => {
+        if (!/[0-9]/.test(e.key)) {
+          e.preventDefault();
+        }
+      });
+
+      box.addEventListener('input', () => {
+        box.value = box.value.replace(/[^0-9]/g, '');
+        if (box.value.length === 1 && index < boxes.length - 1) {
+          boxes[index + 1].focus();
+        }
+      });
+
+      box.addEventListener('keydown', (e) => {
+        if (e.key === 'Backspace' && box.value === '' && index > 0) {
+          boxes[index - 1].focus();
+        }
+      });
+    });
+
+    // Read remaining seconds from data attribute
+    let seconds = parseInt(document.getElementById('timerText').dataset.remaining) || 59;
+    const countdown = document.getElementById('countdown');
+    const resendBtn = document.getElementById('resendBtn');
+    const timerText = document.getElementById('timerText');
+
+    countdown.textContent = seconds;
+
+    if (seconds <= 0) {
+      timerText.style.display = 'none';
+      resendBtn.classList.remove('disabled');
+    } else {
+      const timer = setInterval(() => {
+        seconds--;
+        countdown.textContent = seconds;
+        if (seconds <= 0) {
+          clearInterval(timer);
+          timerText.style.display = 'none';
+          resendBtn.classList.remove('disabled');
+        }
+      }, 1000);
+    }
+
+    // Resend OTP
+    resendBtn.addEventListener('click', async (e) => {
+      e.preventDefault();
+      if (resendBtn.classList.contains('disabled')) return;
+
+      const response = await fetch('/admin/forgot-password/otp/resend', { method: 'POST' });
+      if (response.ok) {
+        seconds = 59;
+        countdown.textContent = seconds;
+        timerText.style.display = 'block';
+        resendBtn.classList.add('disabled');
+
+        const newTimer = setInterval(() => {
+          seconds--;
+          countdown.textContent = seconds;
+          if (seconds <= 0) {
+            clearInterval(newTimer);
+            timerText.style.display = 'none';
+            resendBtn.classList.remove('disabled');
+          }
+        }, 1000);
+      }
+    });
+  </script>
+
+</body>
+
+</html>

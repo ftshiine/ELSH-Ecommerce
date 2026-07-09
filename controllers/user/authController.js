@@ -152,10 +152,17 @@ const login = async (req,res) => {
 };
 
 const logout = (req,res) => {
-  req.session.destroy(() => {
-    res.clearCookie('connect.sid');
+  if (req.session) {
+    req.session.destroy((err) => {
+      if (err) {
+        console.error('Session destroy error during user logout:', err);
+      }
+      res.clearCookie('connect.sid');
+      res.redirect('/login');
+    });
+  } else {
     res.redirect('/login');
-  })
+  }
 }
 
 export { loadSignup, signup, loadOTP, verifyOTPHandler, resendOTP,loadLogin,login,logout };

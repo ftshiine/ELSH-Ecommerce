@@ -1,139 +1,158 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Admin | Customers</title>
   <link rel="stylesheet" href="/css/admin/users.css" />
 </head>
+
 <body>
 
   <div class="admin-layout">
     <%- include('../partials/sidebar') %>
 
-    <div class="main-content">
-      <%- include('../partials/topbar') %>
+      <div class="main-content">
+        <%- include('../partials/topbar') %>
 
-      <div class="page-content">
-        <div class="page-header">
-          <div>
-            <h1>Customers</h1>
-            <p>Manage your community of skincare enthusiasts. Review spending patterns and account activity.</p>
-          </div>
-        </div>
-
-        <!-- Search -->
-        <div class="search-bar">
-          <form action="/admin/users" method="GET" id="searchForm">
-            <img src="/images/icons/admin/search.svg" alt="Search" />
-            <input
-              type="text"
-              name="search"
-              id="searchInput"
-              placeholder="Search community members..."
-              value="<%= search %>"
-            />
-            <% if (search) { %>
-              <button type="button" id="clearSearch" class="clear-btn">
-                <img src="/images/icons/admin/x.svg" alt="Clear" />
-              </button>
-            <% } %>
-          </form>
-        </div>
-
-        <!-- Table -->
-        <div class="users-table-card">
-          <table class="users-table">
-            <thead>
-              <tr>
-                <th>Customer</th>
-                <th>Contact Info</th>
-                <th>Joined Date</th>
-                <th>Status</th>
-                <th>Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              <% if (users.length === 0) { %>
-                <tr>
-                  <td colspan="5" class="no-results">No users found.</td>
-                </tr>
-              <% } else { %>
-                <% users.forEach(user => { %>
-                  <tr>
-                    <td>
-                      <div class="customer-cell">
-                        <div class="customer-avatar"><%= user.fullName.charAt(0).toUpperCase() %></div>
-                        <div>
-                          <span class="customer-name"><%= user.fullName %></span>
-                          <span class="customer-id">ID: #<%= user._id.toString().slice(-6) %></span>
-                        </div>
-                      </div>
-                    </td>
-                    <td>
-                      <div class="contact-cell">
-                        <span><%= user.email %></span>
-                        <span class="phone"><%= user.phone || '—' %></span>
-                      </div>
-                    </td>
-                    <td>
-                      <%= new Date(user.createdAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) %>
-                    </td>
-                    <td>
-                      <% if (user.isActive) { %>
-                        <span class="status active">● Active</span>
-                      <% } else { %>
-                        <span class="status blocked">● Blocked</span>
-                      <% } %>
-                    </td>
-                    <td>
-                      <form
-                        action="/admin/users/block-unblock/<%= user._id %>?page=<%= currentPage %>&search=<%= search %>"
-                        method="POST"
-                        class="block-form"
-                      >
-                        <button
-                          type="submit"
-                          class="action-btn confirm-action <%= user.isActive ? 'block-action' : 'unblock-action' %>"
-                          data-action="<%= user.isActive ? 'block' : 'unblock' %>"
-                        >
-                          <%= user.isActive ? 'Block' : 'Unblock' %>
-                        </button>
-                      </form>
-                    </td>
-                  </tr>
-                <% }) %>
-              <% } %>
-            </tbody>
-          </table>
-
-          <!-- Pagination -->
-          <div class="pagination-footer">
-            <span>Showing page <%= currentPage %> of <%= totalPages %> (<%= totalUsers %> total customers)</span>
-            <div class="pagination">
-              <a
-                href="/admin/users?page=<%= currentPage - 1 %>&search=<%= search %>"
-                class="page-btn <%= currentPage <= 1 ? 'disabled' : '' %>"
-              >‹</a>
-
-              <% for (let i = 1; i <= totalPages; i++) { %>
-                <a
-                  href="/admin/users?page=<%= i %>&search=<%= search %>"
-                  class="page-btn <%= currentPage === i ? 'active' : '' %>"
-                ><%= i %></a>
-              <% } %>
-
-              <a
-                href="/admin/users?page=<%= currentPage + 1 %>&search=<%= search %>"
-                class="page-btn <%= currentPage >= totalPages ? 'disabled' : '' %>"
-              >›</a>
+          <div class="page-content">
+            <div class="page-header">
+              <div>
+                <h1>Customers</h1>
+                <p>Manage your community of skincare enthusiasts. Review spending patterns and account activity.</p>
+              </div>
             </div>
+            <% if (locals.success) { %>
+              <div class="admin-alert success"
+                style="background-color: #e6f4ea; color: #1e8e3e; padding: 12px 16px; border-radius: 8px; margin-bottom: 20px; font-weight: 500; font-size: 14px;">
+                <%= success %>
+              </div>
+              <% } %>
+
+                <!-- Search -->
+                <div class="search-bar">
+                  <form action="/admin/users" method="GET" id="searchForm">
+                    <img src="/images/icons/admin/search.svg" alt="Search" />
+                    <input type="text" name="search" id="searchInput" placeholder="Search community members..."
+                      value="<%= search %>" />
+                    <% if (search) { %>
+                      <button type="button" id="clearSearch" class="clear-btn">
+                        <img src="/images/icons/admin/x.svg" alt="Clear" />
+                      </button>
+                      <% } %>
+                  </form>
+                </div>
+
+                <!-- Table -->
+                <div class="users-table-card">
+                  <table class="users-table">
+                    <thead>
+                      <tr>
+                        <th>Customer</th>
+                        <th>Contact Info</th>
+                        <th>Joined Date</th>
+                        <th>Status</th>
+                        <th>Actions</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <% if (users.length===0) { %>
+                        <tr>
+                          <td colspan="5" class="no-results">No users found.</td>
+                        </tr>
+                        <% } else { %>
+                          <% users.forEach(user=> { %>
+                            <tr>
+                              <td>
+                                <div class="customer-cell">
+                                  <div class="customer-avatar">
+                                    <%= user.fullName.charAt(0).toUpperCase() %>
+                                  </div>
+                                  <div>
+                                    <span class="customer-name">
+                                      <%= user.fullName %>
+                                    </span>
+                                    <span class="customer-id">ID: #<%= user._id.toString().slice(-6) %></span>
+                                  </div>
+                                </div>
+                              </td>
+                              <td>
+                                <div class="contact-cell">
+                                  <span>
+                                    <%= user.email %>
+                                  </span>
+                                  <span class="phone">
+                                    <%= user.phone || '—' %>
+                                  </span>
+                                </div>
+                              </td>
+                              <td>
+                                <%= new Date(user.createdAt).toLocaleDateString('en-US', { month: 'short' ,
+                                  day: 'numeric' , year: 'numeric' }) %>
+                              </td>
+                              <td>
+                                <% if (user.isActive) { %>
+                                  <span class="status active">● Active</span>
+                                  <% } else { %>
+                                    <span class="status blocked">● Blocked</span>
+                                    <% } %>
+                              </td>
+                              <td>
+                                <form
+                                  action="/admin/users/block-unblock/<%= user._id %>?page=<%= currentPage %>&search=<%= search %>"
+                                  method="POST" class="block-form">
+                                  <button type="submit"
+                                    class="action-btn confirm-action <%= user.isActive ? 'block-action' : 'unblock-action' %>"
+                                    data-action="<%= user.isActive ? 'block' : 'unblock' %>">
+                                    <%= user.isActive ? 'Block' : 'Unblock' %>
+                                  </button>
+                                </form>
+                              </td>
+                            </tr>
+                            <% }) %>
+                              <% } %>
+                    </tbody>
+                  </table>
+
+                  <!-- Pagination -->
+                  <div class="pagination-footer">
+                    <span>Showing page <%= currentPage %> of <%= totalPages %> (<%= totalUsers %> total
+                            customers)</span>
+                    <div class="pagination">
+                      <a href="/admin/users?page=<%= currentPage - 1 %>&search=<%= search %>"
+                        class="page-btn <%= currentPage <= 1 ? 'disabled' : '' %>">‹</a>
+
+                      <% for (let i=1; i <=totalPages; i++) { %>
+                        <a href="/admin/users?page=<%= i %>&search=<%= search %>"
+                          class="page-btn <%= currentPage === i ? 'active' : '' %>">
+                          <%= i %>
+                        </a>
+                        <% } %>
+
+                          <a href="/admin/users?page=<%= currentPage + 1 %>&search=<%= search %>"
+                            class="page-btn <%= currentPage >= totalPages ? 'disabled' : '' %>">›</a>
+                    </div>
+                  </div>
+                </div>
+
           </div>
-        </div>
 
+          <%- include('../partials/footer') %>
       </div>
+  </div>
 
-      <%- include('../partials/footer') %>
+  <div class="modal-overlay" id="confirmModal">
+    <div class="modal-box">
+      <div class="modal-icon">
+        <img src="/images/icons/admin/triangle-alert.svg" alt="Alert" id="confirmModalIcon" />
+      </div>
+      <h2 class="modal-title" id="confirmModalTitle">Title</h2>
+      <p class="modal-message" id="confirmModalMessage">Message</p>
+      <div class="modal-actions">
+        <button type="button" class="modal-btn modal-btn-cancel" id="cancelConfirm">Cancel</button>
+        <button type="button" class="modal-btn modal-btn-confirm" id="confirmActionBtn">Confirm</button>
+      </div>
     </div>
   </div>
 
@@ -146,20 +165,61 @@
       });
     }
 
-    // Confirm block/unblock action
+    // Custom confirm block/unblock action
+    const confirmModal = document.getElementById('confirmModal');
+    const confirmModalTitle = document.getElementById('confirmModalTitle');
+    const confirmModalMessage = document.getElementById('confirmModalMessage');
+    const confirmActionBtn = document.getElementById('confirmActionBtn');
+    const cancelConfirm = document.getElementById('cancelConfirm');
+
+    let pendingForm = null;
+
     document.querySelectorAll('.confirm-action').forEach(btn => {
       btn.addEventListener('click', (e) => {
+        e.preventDefault();
         const action = btn.dataset.action;
-        const message = action === 'block'
-          ? 'Are you sure you want to block this user?'
-          : 'Are you sure you want to unblock this user?';
+        pendingForm = btn.closest('form');
 
-        if (!confirm(message)) {
-          e.preventDefault();
+        if (action === 'block') {
+          confirmModalTitle.textContent = 'Block User';
+          confirmModalMessage.textContent = 'Are you sure you want to block this user? They will no longer be able to log in until you unblock their account.';
+          confirmActionBtn.textContent = 'Block User';
+        } else {
+          confirmModalTitle.textContent = 'Unblock User';
+          confirmModalMessage.textContent = 'Are you sure you want to unblock this user? They will regain access to their account immediately.';
+          confirmActionBtn.textContent = 'Unblock User';
         }
+
+        confirmModal.classList.add('active');
       });
     });
+
+    if (cancelConfirm) {
+      cancelConfirm.addEventListener('click', () => {
+        confirmModal.classList.remove('active');
+        pendingForm = null;
+      });
+    }
+
+    if (confirmActionBtn) {
+      confirmActionBtn.addEventListener('click', () => {
+        if (pendingForm) {
+          pendingForm.submit();
+        }
+      });
+    }
+
+    // Close modal if clicking outside the box
+    if (confirmModal) {
+      confirmModal.addEventListener('click', (e) => {
+        if (e.target === confirmModal) {
+          confirmModal.classList.remove('active');
+          pendingForm = null;
+        }
+      });
+    }
   </script>
 
 </body>
+
 </html>

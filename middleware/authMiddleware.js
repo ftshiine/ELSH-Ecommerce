@@ -1,33 +1,28 @@
-const isAdminLoggedIn = (req, res, next) => {
-  if (req.session.admin) {
-    next();
-  } else {
-    res.redirect('/admin/login');
+const requireAuth = (role) => (req, res, next) => {
+  const sessionUser = role === 'admin' ? req.session.admin : req.session.user;
+  const redirectUrl = role === 'admin' ? '/admin/login' : '/login';
+
+  if (sessionUser) {
+    return next();
   }
+  return res.redirect(redirectUrl);
 };
 
-const isAdminLoggedOut = (req, res, next) => {
-  if (!req.session.admin) {
-    next();
-  } else {
-    res.redirect('/admin/dashboard');
+const requireGuest = (role) => (req, res, next) => {
+  const sessionUser = role === 'admin' ? req.session.admin : req.session.user;
+  const redirectUrl = role === 'admin' ? '/admin/dashboard' : '/home';
+
+  if (!sessionUser) {
+    return next();
   }
+  return res.redirect(redirectUrl);
 };
 
-const isUserLoggedIn = (req, res, next) => {
-  if (req.session.user) {
-    next();
-  } else {
-    res.redirect('/login');
-  }
+const preventCache = (req, res, next) => {
+  res.set('Cache-Control', 'no-store, no-cache, must-revalidate, private');
+  res.set('Pragma', 'no-cache');
+  res.set('Expires', '-1');
+  next();
 };
 
-const isUserLoggedOut = (req, res, next) => {
-  if (!req.session.user) {
-    next();
-  } else {
-    res.redirect('/home');
-  }
-};
-
-export { isAdminLoggedIn, isAdminLoggedOut, isUserLoggedIn, isUserLoggedOut };
+export { requireAuth, requireGuest, preventCache };

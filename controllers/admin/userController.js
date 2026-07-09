@@ -29,9 +29,17 @@ const blockUnblockUser = async (req, res) => {
     const search = req.query.search || '';
     const page = req.query.page || 1;
 
-    await toggleBlockUser(userId);
+    const user = await toggleBlockUser(userId);
 
-    res.redirect(`/admin/users?page=${page}&search=${search}`);
+    if (user.isActive) {
+      req.session.success = 'User unblocked successfully.';
+    } else {
+      req.session.success = 'User blocked successfully.';
+    }
+
+    req.session.save(() => {
+      res.redirect(`/admin/users?page=${page}&search=${search}`);
+    });
   } catch (error) {
     console.error('Block/Unblock error:', error);
     res.redirect('/admin/users');

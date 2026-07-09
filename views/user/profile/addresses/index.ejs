@@ -24,6 +24,10 @@
       <div class="alert-error"><%= error %></div>
     <% } %>
 
+    <% if (locals.success) { %>
+      <div class="address-success"><%= locals.success %></div>
+    <% } %>
+
     <% if (addresses && addresses.length > 0) { %>
       <div class="address-grid">
         <% addresses.forEach(address => { %>

@@ -17,16 +17,14 @@
   box-shadow: 0 4px 24px rgba(0,0,0,0.06);
 }
 
-.auth-card h1 {
-  font-family: 'Playfair Display', serif;
+.auth-card h1 {
   font-size: 32px;
   font-weight: 400;
   color: #2c2c2c;
   margin-bottom: 8px;
 }
 
-.auth-subtitle {
-  font-family: 'Inter', sans-serif;
+.auth-subtitle {
   font-size: 13px;
   color: #888;
   margin-bottom: 32px;
@@ -39,8 +37,7 @@
   padding: 10px 14px;
   border-radius: 8px;
   font-size: 13px;
-  margin-bottom: 20px;
-  font-family: 'Inter', sans-serif;
+  margin-bottom: 20px;
 }
 
 /* ── FORM ── */
@@ -55,8 +52,7 @@
 }
 
 .form-group label {
-  display: block;
-  font-family: 'Inter', sans-serif;
+  display: block;
   font-size: 10px;
   font-weight: 600;
   letter-spacing: 1.2px;
@@ -72,8 +68,7 @@
   font-size: 14px;
   background: #fafaf7;
   color: #333;
-  outline: none;
-  font-family: 'Inter', sans-serif;
+  outline: none;
   transition: border 0.2s;
 }
 
@@ -105,8 +100,7 @@
   padding: 14px 0;
   font-size: 14px;
   color: #333;
-  outline: none;
-  font-family: 'Inter', sans-serif;
+  outline: none;
 }
 
 .toggle-eye {
@@ -134,8 +128,7 @@
   flex-shrink: 0;
 }
 
-.form-checkbox label {
-  font-family: 'Inter', sans-serif;
+.form-checkbox label {
   font-size: 12px;
   color: #888;
   line-height: 1.6;
@@ -157,8 +150,7 @@
   background-color: #4a5240;
   color: #ffffff;
   border: none;
-  border-radius: 8px;
-  font-family: 'Inter', sans-serif;
+  border-radius: 8px;
   font-size: 12px;
   font-weight: 600;
   letter-spacing: 1.5px;
@@ -192,8 +184,7 @@
 .auth-divider span {
   position: relative;
   background: #ffffff;
-  padding: 0 12px;
-  font-family: 'Inter', sans-serif;
+  padding: 0 12px;
   font-size: 10px;
   letter-spacing: 1.5px;
   color: #aaa;
@@ -209,8 +200,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 10px;
-  font-family: 'Inter', sans-serif;
+  gap: 10px;
   font-size: 13px;
   font-weight: 500;
   color: #333;
@@ -231,8 +221,7 @@
 
 /* ── SWITCH ── */
 .auth-switch {
-  text-align: center;
-  font-family: 'Inter', sans-serif;
+  text-align: center;
   font-size: 13px;
   color: #888;
 }
@@ -272,8 +261,7 @@
   margin-bottom: 32px;
 }
 
-.login-brand h2 {
-  font-family: 'Playfair Display', serif;
+.login-brand h2 {
   font-size: 22px;
   font-weight: 400;
   color: #2c2c2c;
@@ -281,8 +269,7 @@
   margin-bottom: 4px;
 }
 
-.login-brand h3 {
-  font-family: 'Playfair Display', serif;
+.login-brand h3 {
   font-size: 28px;
   font-weight: 400;
   font-style: italic;
@@ -302,8 +289,7 @@
   margin-bottom: 0;
 }
 
-.forgot-link {
-  font-family: 'Inter', sans-serif;
+.forgot-link {
   font-size: 12px;
   color: #4a5240;
   text-decoration: none;

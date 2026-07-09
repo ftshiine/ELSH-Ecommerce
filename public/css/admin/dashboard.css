@@ -14,8 +14,7 @@
 
 .page-header h1 {
   font-size: 26px;
-  color: #2c2c2c;
-  font-family: 'Georgia', serif;
+  color: #2c2c2c;
   font-weight: normal;
 }
 
@@ -89,8 +88,7 @@
 .stat-value {
   font-size: 22px;
   font-weight: bold;
-  color: #2c2c2c;
-  font-family: 'Georgia', serif;
+  color: #2c2c2c;
 }
 
 .stat-change {
@@ -133,8 +131,7 @@
 }
 
 .card-header h2 {
-  font-size: 16px;
-  font-family: 'Georgia', serif;
+  font-size: 16px;
   font-weight: normal;
   color: #2c2c2c;
 }

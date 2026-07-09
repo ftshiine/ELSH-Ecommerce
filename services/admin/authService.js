@@ -9,4 +9,9 @@ const verifyPassword = async (enteredPassword, storedPassword) => {
   return await bcrypt.compare(enteredPassword, storedPassword);
 };
 
-export { findAdminByEmail, verifyPassword };
+const updatePassword = async (email, newPassword) => {
+  const hashedPassword = await bcrypt.hash(newPassword, 10);
+  return await User.findOneAndUpdate({ email, role: 'admin' }, { password: hashedPassword });
+};
+
+export { findAdminByEmail, verifyPassword, updatePassword };

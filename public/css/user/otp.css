@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500&family=Inter:wght@300;400;500;600&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500&display=swap');
 
 * {
   margin: 0;
@@ -12,7 +12,8 @@ body {
   display: flex;
   align-items: center;
   justify-content: center;
-  font-family: 'Inter', sans-serif;
+
+  font-family: "SF Pro Display", "SF Pro Text", -apple-system, BlinkMacSystemFont, "Helvetica Neue", Helvetica, Arial, sans-serif;
 }
 
 /* ── OTP WRAPPER ── */
@@ -56,16 +57,14 @@ body {
 }
 
 /* ── HEADING ── */
-.otp-card h1 {
-  font-family: 'Playfair Display', serif;
+.otp-card h1 {
   font-size: 28px;
   font-weight: 400;
   color: #2c2c2c;
   margin-bottom: 12px;
 }
 
-.otp-card p {
-  font-family: 'Inter', sans-serif;
+.otp-card p {
   font-size: 13px;
   color: #888;
   line-height: 1.7;
@@ -104,8 +103,7 @@ body {
   color: #2c2c2c;
   background: #fafaf7;
   outline: none;
-  transition: border 0.2s;
-  font-family: 'Inter', sans-serif;
+  transition: border 0.2s;
 }
 
 .otp-box:focus {
@@ -120,8 +118,7 @@ body {
   background-color: #4a5240;
   color: #ffffff;
   border: none;
-  border-radius: 10px;
-  font-family: 'Inter', sans-serif;
+  border-radius: 10px;
   font-size: 12px;
   font-weight: 600;
   letter-spacing: 2px;
@@ -135,8 +132,7 @@ body {
 }
 
 /* ── RESEND ── */
-.otp-resend p {
-  font-family: 'Inter', sans-serif;
+.otp-resend p {
   font-size: 13px;
   color: #888;
   margin-bottom: 8px;
@@ -155,16 +151,14 @@ body {
   cursor: default;
 }
 
-.timer-text {
-  font-family: 'Inter', sans-serif;
+.timer-text {
   font-size: 10px;
   letter-spacing: 1.5px;
   color: #aaa;
 }
 
 /* ── FOOTER ── */
-.otp-footer {
-  font-family: 'Inter', sans-serif;
+.otp-footer {
   font-size: 10px;
   letter-spacing: 1.5px;
   color: #aaa;

@@ -5,11 +5,12 @@
 }
 
 body {
-  background-color: #f5f5ee;
-  font-family: 'Georgia', serif;
+  background-color: #f5f5ee;
   min-height: 100vh;
   display: flex;
   flex-direction: column;
+
+  font-family: "SF Pro Display", "SF Pro Text", -apple-system, BlinkMacSystemFont, "Helvetica Neue", Helvetica, Arial, sans-serif;
 }
 
 
@@ -39,8 +40,7 @@ body {
 .card p {
   font-size: 14px;
   color: #888;
-  margin-bottom: 32px;
-  font-family: sans-serif;
+  margin-bottom: 32px;
 }
 
 .error-msg {
@@ -49,8 +49,7 @@ body {
   padding: 10px 14px;
   border-radius: 8px;
   font-size: 13px;
-  margin-bottom: 20px;
-  font-family: sans-serif;
+  margin-bottom: 20px;
 }
 
 .form-group {
@@ -62,8 +61,7 @@ body {
   font-size: 11px;
   letter-spacing: 1.2px;
   color: #555;
-  margin-bottom: 8px;
-  font-family: sans-serif;
+  margin-bottom: 8px;
   font-weight: 600;
 }
 
@@ -79,8 +77,7 @@ body {
   font-size: 14px;
   background: #fafaf7;
   color: #333;
-  outline: none;
-  font-family: sans-serif;
+  outline: none;
   transition: border 0.2s;
 }
 
@@ -108,8 +105,7 @@ body {
 .password-label-row label {
   font-size: 11px;
   letter-spacing: 1.2px;
-  color: #555;
-  font-family: sans-serif;
+  color: #555;
   font-weight: 600;
 }
 
@@ -117,8 +113,7 @@ body {
   font-size: 11px;
   color: #7a8c6a;
   text-decoration: none;
-  letter-spacing: 0.8px;
-  font-family: sans-serif;
+  letter-spacing: 0.8px;
   font-weight: 600;
 }
 
@@ -136,8 +131,7 @@ body {
   font-size: 13px;
   letter-spacing: 1.5px;
   cursor: pointer;
-  margin-top: 12px;
-  font-family: sans-serif;
+  margin-top: 12px;
   font-weight: 600;
   transition: background 0.2s;
 }
@@ -157,16 +151,14 @@ body {
 
 .card-footer span {
   font-size: 12px;
-  color: #aaa;
-  font-family: sans-serif;
+  color: #aaa;
 }
 
 .card-footer .links a {
   font-size: 11px;
   color: #555;
   text-decoration: none;
-  letter-spacing: 0.8px;
-  font-family: sans-serif;
+  letter-spacing: 0.8px;
   font-weight: 600;
   margin-left: 16px;
 }

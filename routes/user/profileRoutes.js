@@ -2,7 +2,8 @@ import express from 'express';
 import multer from 'multer';
 import path from 'path';
 import { loadProfile, loadEditProfile, editProfile, removePhoto, editEmailRequest, verifyEmailOtp } from '../../controllers/user/profileController.js';
-import { isUserLoggedIn } from '../../middleware/authMiddleware.js';
+import { loadChangePassword, changePassword, authSendForgotPasswordOTP } from '../../controllers/user/passwordController.js';
+import { requireAuth } from '../../middleware/authMiddleware.js';
 
 const router = express.Router();
 
@@ -29,11 +30,16 @@ const fileFilter = (req, file, cb) => {
 
 const upload = multer({ storage, fileFilter, limits: { fileSize: 5 * 1024 * 1024 } });
 
-router.get('/profile', isUserLoggedIn, loadProfile);
-router.get('/profile/edit', isUserLoggedIn, loadEditProfile);
-router.post('/profile/edit', isUserLoggedIn, upload.single('profileImage'), editProfile);
-router.post('/profile/remove-photo', isUserLoggedIn, removePhoto);
-router.post('/profile/edit-email-request', isUserLoggedIn, express.json(), editEmailRequest);
-router.post('/profile/verify-email-otp', isUserLoggedIn, express.json(), verifyEmailOtp);
+router.get('/profile', requireAuth('user'), loadProfile);
+router.get('/profile/edit', requireAuth('user'), loadEditProfile);
+router.post('/profile/edit', requireAuth('user'), upload.single('profileImage'), editProfile);
+router.post('/profile/remove-photo', requireAuth('user'), removePhoto);
+router.post('/profile/edit-email-request', requireAuth('user'), express.json(), editEmailRequest);
+router.post('/profile/verify-email-otp', requireAuth('user'), express.json(), verifyEmailOtp);
+
+// Change Password routes
+router.get('/profile/change-password', requireAuth('user'), loadChangePassword);
+router.post('/profile/change-password', requireAuth('user'), changePassword);
+router.post('/profile/forgot-password/init', requireAuth('user'), authSendForgotPasswordOTP);
 
 export default router;

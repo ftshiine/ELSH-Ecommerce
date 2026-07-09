@@ -10,14 +10,15 @@ body {
   background-color: #f5f5ee;
   margin: 0;
   padding: 0;
+
+  font-family: "SF Pro Display", "SF Pro Text", -apple-system, BlinkMacSystemFont, "Helvetica Neue", Helvetica, Arial, sans-serif;
 }
 
 /* ── BREADCRUMB ── */
 .breadcrumb {
   display: flex;
   align-items: center;
-  gap: 8px;
-  font-family: 'Inter', sans-serif;
+  gap: 8px;
   font-size: 10px;
   font-weight: 600;
   letter-spacing: 1.5px;
@@ -34,16 +35,14 @@ body {
   margin-bottom: 32px;
 }
 
-.profile-page-header h1 {
-  font-family: 'Playfair Display', serif;
+.profile-page-header h1 {
   font-size: 40px;
   font-weight: 400;
   color: #2c2c2c;
   margin-bottom: 8px;
 }
 
-.profile-page-header p {
-  font-family: 'Inter', sans-serif;
+.profile-page-header p {
   font-size: 13px;
   color: #888;
 }
@@ -88,13 +87,11 @@ body {
   color: #ffffff;
   display: flex;
   align-items: center;
-  justify-content: center;
-  font-family: 'Playfair Display', serif;
+  justify-content: center;
   font-size: 28px;
 }
 
-.profile-info h2 {
-  font-family: 'Playfair Display', serif;
+.profile-info h2 {
   font-size: 26px;
   font-weight: 400;
   color: #2c2c2c;
@@ -107,8 +104,7 @@ body {
   gap: 16px;
 }
 
-.tier-badge {
-  font-family: 'Inter', sans-serif;
+.tier-badge {
   font-size: 11px;
   font-weight: 600;
   color: #4a5240;
@@ -117,8 +113,7 @@ body {
   border-radius: 20px;
 }
 
-.member-since {
-  font-family: 'Inter', sans-serif;
+.member-since {
   font-size: 11px;
   letter-spacing: 1px;
   color: #aaa;
@@ -132,8 +127,7 @@ body {
   margin-bottom: 40px;
 }
 
-.details-section h3 {
-  font-family: 'Inter', sans-serif;
+.details-section h3 {
   font-size: 10px;
   font-weight: 600;
   letter-spacing: 1.5px;
@@ -146,8 +140,7 @@ body {
 }
 
 .detail-item label {
-  display: block;
-  font-family: 'Inter', sans-serif;
+  display: block;
   font-size: 10px;
   font-weight: 600;
   letter-spacing: 1.2px;
@@ -155,8 +148,7 @@ body {
   margin-bottom: 4px;
 }
 
-.detail-item p {
-  font-family: 'Inter', sans-serif;
+.detail-item p {
   font-size: 15px;
   color: #2c2c2c;
 }
@@ -169,16 +161,14 @@ body {
   border-bottom: 1px solid #f5f5ee;
 }
 
-.detail-item-row label {
-  font-family: 'Inter', sans-serif;
+.detail-item-row label {
   font-size: 10px;
   font-weight: 600;
   letter-spacing: 1.2px;
   color: #aaa;
 }
 
-.status-active {
-  font-family: 'Inter', sans-serif;
+.status-active {
   font-size: 13px;
   color: #4a5240;
   font-weight: 600;
@@ -197,8 +187,7 @@ body {
   border-top: 1px solid #f0f0e8;
 }
 
-.btn-edit-profile {
-  font-family: 'Inter', sans-serif;
+.btn-edit-profile {
   font-size: 11px;
   font-weight: 600;
   letter-spacing: 1.5px;
@@ -214,8 +203,7 @@ body {
   background-color: #3a4230;
 }
 
-.btn-change-password {
-  font-family: 'Inter', sans-serif;
+.btn-change-password {
   font-size: 11px;
   font-weight: 600;
   letter-spacing: 1.5px;
@@ -245,16 +233,14 @@ body {
   margin-bottom: 24px;
 }
 
-.edit-card-header h2 {
-  font-family: 'Playfair Display', serif;
+.edit-card-header h2 {
   font-size: 20px;
   font-weight: 400;
   color: #2c2c2c;
   margin-bottom: 6px;
 }
 
-.edit-card-header p {
-  font-family: 'Inter', sans-serif;
+.edit-card-header p {
   font-size: 13px;
   color: #888;
 }
@@ -271,8 +257,7 @@ body {
 }
 
 .section-label {
-  display: block;
-  font-family: 'Inter', sans-serif;
+  display: block;
   font-size: 10px;
   font-weight: 600;
   letter-spacing: 1.5px;
@@ -307,8 +292,7 @@ body {
   gap: 10px;
 }
 
-.btn-upload {
-  font-family: 'Inter', sans-serif;
+.btn-upload {
   font-size: 11px;
   font-weight: 600;
   letter-spacing: 1.5px;
@@ -325,8 +309,7 @@ body {
   background-color: #3a4230;
 }
 
-.btn-remove-photo {
-  font-family: 'Inter', sans-serif;
+.btn-remove-photo {
   font-size: 12px;
   color: #c0392b;
   background: none;
@@ -355,8 +338,7 @@ body {
   gap: 8px;
 }
 
-.form-group label {
-  font-family: 'Inter', sans-serif;
+.form-group label {
   font-size: 13px;
   color: #555;
 }
@@ -365,8 +347,7 @@ body {
 .form-group select {
   padding: 12px 16px;
   border: 1.5px solid #e0e0d8;
-  border-radius: 8px;
-  font-family: 'Inter', sans-serif;
+  border-radius: 8px;
   font-size: 14px;
   color: #333;
   background: #fafaf7;
@@ -385,8 +366,7 @@ body {
   cursor: not-allowed;
 }
 
-.input-hint {
-  font-family: 'Inter', sans-serif;
+.input-hint {
   font-size: 11px;
   color: #aaa;
 }
@@ -407,8 +387,7 @@ body {
   padding: 10px 14px;
   border-radius: 8px;
   font-size: 13px;
-  margin-bottom: 20px;
-  font-family: 'Inter', sans-serif;
+  margin-bottom: 20px;
 }
 
 /* ── EDIT ACTIONS ── */
@@ -421,8 +400,7 @@ body {
   margin-top: 24px;
 }
 
-.btn-cancel {
-  font-family: 'Inter', sans-serif;
+.btn-cancel {
   font-size: 11px;
   font-weight: 600;
   letter-spacing: 1.5px;
@@ -435,8 +413,7 @@ body {
   color: #2c2c2c;
 }
 
-.btn-save {
-  font-family: 'Inter', sans-serif;
+.btn-save {
   font-size: 11px;
   font-weight: 600;
   letter-spacing: 1.5px;
@@ -456,8 +433,7 @@ body {
 /* ── BREADCRUMB LINK ── */
 .breadcrumb-link {
   color: #aaa;
-  text-decoration: none;
-  font-family: 'Inter', sans-serif;
+  text-decoration: none;
   font-size: 10px;
   font-weight: 600;
   letter-spacing: 1.5px;
@@ -518,16 +494,14 @@ body {
   margin-bottom: 24px;
 }
 
-.otp-modal-header h2 {
-  font-family: 'Playfair Display', serif;
+.otp-modal-header h2 {
   font-size: 26px;
   font-weight: 400;
   color: #2c2c2c;
   margin-bottom: 12px;
 }
 
-.otp-modal-header p {
-  font-family: 'Inter', sans-serif;
+.otp-modal-header p {
   font-size: 13px;
   color: #888;
   line-height: 1.5;
@@ -540,8 +514,7 @@ body {
 
 .otp-modal-error {
   color: #c0392b;
-  background: #fdf3f2;
-  font-family: 'Inter', sans-serif;
+  background: #fdf3f2;
   font-size: 13px;
   padding: 12px;
   border-radius: 8px;
@@ -560,8 +533,7 @@ body {
   width: 46px;
   height: 56px;
   border: 1.5px solid #e0e0d8;
-  border-radius: 8px;
-  font-family: 'Inter', sans-serif;
+  border-radius: 8px;
   font-size: 20px;
   font-weight: 600;
   text-align: center;
@@ -576,8 +548,7 @@ body {
 }
 
 .btn-verify-modal {
-  width: 100%;
-  font-family: 'Inter', sans-serif;
+  width: 100%;
   font-size: 12px;
   font-weight: 600;
   letter-spacing: 1.5px;
@@ -596,8 +567,7 @@ body {
 }
 
 .otp-resend {
-  text-align: center;
-  font-family: 'Inter', sans-serif;
+  text-align: center;
   font-size: 13px;
   color: #888;
 }

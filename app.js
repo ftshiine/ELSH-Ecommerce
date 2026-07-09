@@ -12,6 +12,7 @@ import homeRoutes from './routes/user/homeRoutes.js';
 import profileRoutes from './routes/user/profileRoutes.js';
 import addressRoutes from './routes/user/addressRoutes.js';
 import passport from './config/passport.js';
+import { preventCache } from './middleware/authMiddleware.js';
 
 dotenv.config();
 
@@ -31,14 +32,6 @@ app.use(express.static('public'));
 app.set('view engine', 'ejs');
 app.set('views', './views');
 
-// Global no-cache middleware
-app.use((req, res, next) => {
-  res.set("Cache-Control", "no-store, no-cache, must-revalidate, private");
-  res.set("Pragma", "no-cache");
-  res.set("Expires", "0");
-  next();
-});
-
 // Session
 app.use(session({
   secret: process.env.SESSION_SECRET,
@@ -55,6 +48,9 @@ app.use(session({
 
 // Passport initialization (MUST be after session middleware)
 app.use(passport.initialize());
+
+// Global Cache-Control for all dynamic routes (prevents bfcache restoration of authenticated data)
+app.use(preventCache);
 
 // Flash messages middleware
 app.use((req, res, next) => {

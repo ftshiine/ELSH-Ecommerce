@@ -1,32 +1,42 @@
 import express from 'express';
 import passport from 'passport';
 import { loadSignup, signup, loadOTP, verifyOTPHandler, resendOTP, loadLogin, login, logout } from '../../controllers/user/authController.js';
-import { isUserLoggedIn, isUserLoggedOut } from '../../middleware/authMiddleware.js';
+import { loadForgotPassword, sendForgotPasswordOTP, loadForgotOTP, verifyForgotOTP, resendForgotOTP, loadResetPassword, resetPassword } from '../../controllers/user/passwordController.js';
+import { requireAuth, requireGuest } from '../../middleware/authMiddleware.js';
 
 const router = express.Router();
 
 // Signup routes
-router.get('/signup', isUserLoggedOut, loadSignup);
-router.post('/signup', isUserLoggedOut, signup);
+router.get('/signup', requireGuest('user'), loadSignup);
+router.post('/signup', requireGuest('user'), signup);
 
 // OTP routes
-router.get('/otp', isUserLoggedOut, loadOTP);
-router.post('/otp', isUserLoggedOut, verifyOTPHandler);
-router.post('/otp/resend', isUserLoggedOut, resendOTP);
+router.get('/otp', requireGuest('user'), loadOTP);
+router.post('/otp', requireGuest('user'), verifyOTPHandler);
+router.post('/otp/resend', requireGuest('user'), resendOTP);
 
 // Login routes
-router.get('/login', isUserLoggedOut, loadLogin);
-router.post('/login', isUserLoggedOut, login);
+router.get('/login', requireGuest('user'), loadLogin);
+router.post('/login', requireGuest('user'), login);
 
 // Logout route
-router.get('/logout', isUserLoggedIn, logout);
+router.get('/logout', requireAuth('user'), logout);
+
+// Forgot Password routes
+router.get('/forgot-password', requireGuest('user'), loadForgotPassword);
+router.post('/forgot-password', requireGuest('user'), sendForgotPasswordOTP);
+router.get('/forgot-password/otp', loadForgotOTP);
+router.post('/forgot-password/otp', verifyForgotOTP);
+router.post('/forgot-password/otp/resend', resendForgotOTP);
+router.get('/forgot-password/reset', loadResetPassword);
+router.post('/forgot-password/reset', resetPassword);
 
 // Google OAuth routes
-router.get('/auth/google', isUserLoggedOut, passport.authenticate('google', { scope: ['profile', 'email'] }));
+router.get('/auth/google', requireGuest('user'), passport.authenticate('google', { scope: ['profile', 'email'] }));
 
 // Google OAuth callback with proper cache prevention
 router.get('/auth/google/callback',
-  isUserLoggedOut,
+  requireGuest('user'),
   passport.authenticate('google', { failureRedirect: '/login', session: false }),
   (req, res) => {
     // Set user session from Google profile

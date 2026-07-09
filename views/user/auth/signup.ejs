@@ -104,6 +104,19 @@
     window.addEventListener('pagehide', function() {
       document.querySelectorAll('form').forEach(form => form.reset());
     });
+
+    // Prevent double submission
+    document.getElementById('signupForm').addEventListener('submit', function(e) {
+      const btn = this.querySelector('button[type="submit"]');
+      if (btn.classList.contains('processing')) {
+        e.preventDefault();
+        return;
+      }
+      btn.classList.add('processing');
+      btn.innerHTML = 'PROCESSING...';
+      btn.style.opacity = '0.7';
+      btn.style.cursor = 'not-allowed';
+    });
   </script>
 
 </body>

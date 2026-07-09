@@ -33,9 +33,17 @@ const login = async (req, res) => {
 };
 
 const logout = (req, res) => {
-  req.session.destroy(() => {
+  if (req.session) {
+    req.session.destroy((err) => {
+      if (err) {
+        console.error('Session destroy error during admin logout:', err);
+      }
+      res.clearCookie('connect.sid');
+      res.redirect('/admin/login');
+    });
+  } else {
     res.redirect('/admin/login');
-  });
+  }
 };
 
 export { loadLogin, login, logout };
