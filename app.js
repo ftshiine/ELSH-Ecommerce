@@ -46,10 +46,10 @@ app.use(session({
   },
 }));
 
-// Passport initialization (MUST be after session middleware)
+// Passport initialization 
 app.use(passport.initialize());
 
-// Global Cache-Control for all dynamic routes (prevents bfcache restoration of authenticated data)
+// Global Cache-Control for all dynamic routes 
 app.use(preventCache);
 
 // Flash messages middleware

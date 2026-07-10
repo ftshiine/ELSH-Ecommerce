@@ -6,7 +6,7 @@ const processingEmails = new Set();
 const abuseTracker = new Map(); // email -> { count, windowStart }
 
 const sendOTP = async (email) => {
-  // 1. Concurrency Lock
+  
   if (processingEmails.has(email)) {
     throw new Error('OTP request is already processing. Please wait.');
   }
