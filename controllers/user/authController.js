@@ -1,6 +1,6 @@
 import { findUserByEmail, findUserByUsername, createUser, validateAccountStatus } from '../../services/user/authService.js';
 import { sendOTP, verifyOTP } from '../../services/user/otpService.js';
-import { validateSignup, validateLogin } from '../../utils/validation.js';
+import { validate } from '../../utils/validation.js';
 import bcrypt from 'bcrypt';
 
 const loadSignup = (req, res) => {
@@ -13,21 +13,21 @@ const signup = async (req, res) => {
     const { fullName, username, email, phone, password, confirmPassword } = req.body;
 
     // Validate inputs
-    const errors = validateSignup({ fullName, username, email, phone, password, confirmPassword });
-    if (errors.length > 0) {
-      return res.render('user/auth/signup', { error: errors[0] });
+    const validation = validate(req.body, ['fullName', 'username', 'email', 'phone', 'password', 'confirmPassword']);
+    if (!validation.isValid) {
+      return res.render('user/auth/signup', { error: 'Please correct the highlighted fields.', fieldErrors: validation.errors });
     }
 
     // Check existing email
     const existingEmail = await findUserByEmail(email);
     if (existingEmail) {
-      return res.render('user/auth/signup', { error: 'Email already registered' });
+      return res.render('user/auth/signup', { error: 'Please correct the highlighted fields.', fieldErrors: { email: 'Email already registered' } });
     }
 
     // Check existing username
     const existingUsername = await findUserByUsername(username);
     if (existingUsername) {
-      return res.render('user/auth/signup', { error: 'Username already taken' });
+      return res.render('user/auth/signup', { error: 'Please correct the highlighted fields.', fieldErrors: { username: 'Username already taken' } });
     }
 
     await createUser({ fullName, username, email, phone, password });
@@ -49,7 +49,7 @@ const loadOTP = (req, res) => {
   }
   const now = Date.now();
   const otpSendAt = req.session.otpSendAt || now;
-  const elapsed = Math.floor((now - otpSendAt)/1000);
+  const elapsed = Math.floor((now - otpSendAt) / 1000);
   const remaining = Math.max(59 - elapsed, 0);
 
   res.render('user/auth/otp', { error: null, remaining });
@@ -65,7 +65,7 @@ const verifyOTPHandler = async (req, res) => {
 
     const result = verifyOTP(email, otp);
 
-   if (!result.success) {
+    if (!result.success) {
       const now = Date.now();
       const otpSentAt = req.session.otpSentAt || now;
       const elapsed = Math.floor((now - otpSentAt) / 1000);
@@ -89,45 +89,52 @@ const verifyOTPHandler = async (req, res) => {
   }
 };
 
-const resendOTP = async (req,res) => {
-  try{
+const resendOTP = async (req, res) => {
+  try {
     const email = req.session.pendingEmail;
-    if(!email) return res.status(400).json({success:false});
+    if (!email) return res.status(400).json({ success: false });
 
     await sendOTP(email);
     req.session.otpSentAt = Date.now();
-    res.status(200).json({success:true});
+    res.status(200).json({ success: true });
 
-  }catch(error){
+  } catch (error) {
 
-    console.error('Resend OTP error:',error);
-    res.status(500).json({success:false});
+    console.error('Resend OTP error:', error);
+    res.status(500).json({ success: false });
   }
 }
 
-const loadLogin = (req,res) => {
+const loadLogin = (req, res) => {
   res.render('user/auth/login');
 }
 
-const login = async (req,res) => {
-  try{
-    const {email,password} = req.body;
+const login = async (req, res) => {
+  try {
+    const { email, password } = req.body;
 
-    const errors = validateLogin({email,password});
-    if(errors.length > 0){
-      return res.render('user/auth/login', {error: errors[0]})
+    const validationRes = validate(req.body, ['email']);
+    // We only validate email format, but password is required
+    if (!password || password.trim().length === 0) {
+      if (!validationRes.errors) validationRes.errors = {};
+      validationRes.errors.password = 'Password is required';
+      validationRes.isValid = false;
     }
 
-    if(!email || !password){
-      return res.render('user/auth/login',{error: 'All fields are required'});
+    if (!validationRes.isValid) {
+      return res.render('user/auth/login', { error: 'Please correct the highlighted fields.', fieldErrors: validationRes.errors })
+    }
+
+    if (!email || !password) {
+      return res.render('user/auth/login', { error: 'All fields are required' });
     }
 
     const user = await findUserByEmail(email);
-    
+
     // We only check if user is found for password mismatch, but we run full validation later.
     // Actually, if the account doesn't exist, we don't want to show "Account does not exist" in login, we show "Invalid email or password" for security.
-    if(!user){
-      return res.render('user/auth/login',{error: 'Invalid email or password'});
+    if (!user) {
+      return res.render('user/auth/login', { error: 'Invalid email or password' });
     }
 
     const validation = validateAccountStatus(user);
@@ -135,12 +142,12 @@ const login = async (req,res) => {
       return res.render('user/auth/login', { error: validation.message });
     }
 
-    const isMatch = await bcrypt.compare(password,user.password);
-    if(!isMatch){
-      return res.render('user/auth/login',{error: 'Invalid email or password'});
+    const isMatch = await bcrypt.compare(password, user.password);
+    if (!isMatch) {
+      return res.render('user/auth/login', { error: 'Invalid email or password' });
     }
 
-    req.session.user ={
+    req.session.user = {
       id: user._id,
       fullName: user.fullName,
       email: user.email,
@@ -149,13 +156,13 @@ const login = async (req,res) => {
 
     res.redirect('/home');
 
-  }catch(error){
-    console.error('Login error:',error);
-    res.render('user/auth/login', {error: 'Something went wrong'})
+  } catch (error) {
+    console.error('Login error:', error);
+    res.render('user/auth/login', { error: 'Something went wrong' })
   }
 };
 
-const logout = (req,res) => {
+const logout = (req, res) => {
   if (req.session) {
     // Delete only the User session state
     delete req.session.user;
@@ -190,4 +197,10 @@ const logout = (req,res) => {
   }
 }
 
-export { loadSignup, signup, loadOTP, verifyOTPHandler, resendOTP,loadLogin,login,logout };
+export { loadSignup, signup, loadOTP, verifyOTPHandler, resendOTP, loadLogin, login, logout };
+
+
+
+
+
+

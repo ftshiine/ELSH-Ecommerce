@@ -1,7 +1,5 @@
 import express from 'express';
 import dotenv from 'dotenv';
-import session from 'express-session';
-import MongoStore from 'connect-mongo';
 import connectDB from './config/db.js';
 import adminAuthRoutes from './routes/admin/authRoutes.js';
 import dashboardRoutes from './routes/admin/dashboardRoutes.js';
@@ -13,6 +11,8 @@ import profileRoutes from './routes/user/profileRoutes.js';
 import addressRoutes from './routes/user/addressRoutes.js';
 import passport from './config/passport.js';
 import { preventCache } from './middleware/authMiddleware.js';
+import { formStateMiddleware } from './middleware/formMiddleware.js';
+import sessionConfig from './config/session.js';
 
 dotenv.config();
 
@@ -25,6 +25,8 @@ connectDB();
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
+app.use(sessionConfig)
+
 // Static files
 app.use(express.static('public'));
 
@@ -32,25 +34,15 @@ app.use(express.static('public'));
 app.set('view engine', 'ejs');
 app.set('views', './views');
 
-// Session
-app.use(session({
-  secret: process.env.SESSION_SECRET,
-  resave: false,
-  saveUninitialized: false,
-  store: MongoStore.create({
-    mongoUrl: process.env.MONGO_URI,
-  }),
-  cookie: {
-    maxAge: 1000 * 60 * 60 * 24,
-    httpOnly: true,
-  },
-}));
 
 // Passport initialization 
 app.use(passport.initialize());
 
 // Global Cache-Control for all dynamic routes 
 app.use(preventCache);
+
+// Global Form State preservation middleware
+app.use(formStateMiddleware);
 
 // Flash messages middleware
 app.use((req, res, next) => {

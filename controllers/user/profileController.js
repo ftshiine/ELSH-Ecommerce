@@ -1,6 +1,7 @@
 import { getUserById, updateUser, removeProfileImage } from "../../services/user/profileService.js";
 import { sendOTP, verifyOTP } from "../../services/user/otpService.js";
 import User from "../../models/User.js";
+import { validate } from "../../utils/validation.js";
 
 const loadProfile = async (req,res) => {
     try{
@@ -36,12 +37,17 @@ const editProfile = async (req, res) => {
     const { fullName, phone, dateOfBirth, gender, email } = req.body;
 
     // Validation
-    if (!fullName || fullName.trim().length < 2) {
-      return res.render('user/profile/edit', { user, error: 'Full name must be at least 2 characters', success: null });
+    const validationFields = ['fullName'];
+    if (phone) validationFields.push('phone');
+
+    const validation = validate(req.body, validationFields);
+    
+    if (req.uploadError) {
+      return res.render('user/profile/edit', { user, error: req.uploadError, fieldErrors: validation.errors || {}, success: null });
     }
 
-    if (phone && !/^\+?[0-9]{10,15}$/.test(phone.trim().replace(/\s/g, ''))) {
-      return res.render('user/profile/edit', { user, error: 'Please enter a valid phone number', success: null });
+    if (!validation.isValid) {
+      return res.render('user/profile/edit', { user, error: 'Please correct the highlighted fields.', fieldErrors: validation.errors, success: null });
     }
 
     const updateData = {
@@ -51,12 +57,12 @@ const editProfile = async (req, res) => {
       gender: gender || null,
     };
 
-    if (email && email.trim() !== user.email) {
+    if (!user.googleId && email && email.trim() !== user.email) {
       if (req.session.verifiedNewEmail === email.trim()) {
         updateData.email = email.toLowerCase().trim();
         delete req.session.verifiedNewEmail;
       } else {
-        return res.render('user/profile/edit', { user, error: 'Email verification required.' });
+        return res.render('user/profile/edit', { user, error: 'Please correct the highlighted fields.', fieldErrors: { email: 'Email verification required.' } });
       }
     }
 
@@ -97,12 +103,18 @@ const removePhoto = async (req, res) => {
 const editEmailRequest = async (req, res) => {
     try {
         const { newEmail } = req.body;
-        if (!newEmail || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(newEmail)) {
-            return res.json({ success: false, message: 'Invalid email address format' });
+        const validation = validate({ email: newEmail }, ['email']);
+
+        if (!validation.isValid) {
+            return res.json({ success: false, message: validation.errors.email });
         }
         
         const emailLower = newEmail.toLowerCase().trim();
         const currentUser = await getUserById(req.session.user.id);
+        
+        if (currentUser.googleId) {
+            return res.json({ success: false, message: 'Google OAuth users cannot change their email' });
+        }
         
         if (emailLower === currentUser.email) {
             return res.json({ success: false, message: 'This is already your email' });

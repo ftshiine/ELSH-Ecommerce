@@ -39,3 +39,13 @@ const validateAccountStatus = (user) => {
 };
 
 export { findUserByEmail, findUserByUsername, createUser, updatePassword, validateAccountStatus };
+
+
+
+
+
+
+
+
+
+

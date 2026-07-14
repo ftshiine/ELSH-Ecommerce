@@ -121,9 +121,11 @@
                 EDIT PROFILE
               </a>
 
+              <% if (!user.googleId) { %>
               <a href="/profile/change-password" class="btn-change-password">
                 CHANGE PASSWORD
               </a>
+              <% } %>
             </div>
 
           </div>

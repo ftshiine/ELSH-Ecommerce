@@ -1,4 +1,5 @@
 import { findAdminByEmail, verifyPassword } from '../../services/admin/authService.js';
+import { validate } from '../../utils/validation.js';
 
 const loadLogin = (req, res) => {
   res.render('admin/auth/login', { error: null });
@@ -7,6 +8,18 @@ const loadLogin = (req, res) => {
 const login = async (req, res) => {
   try {
     const { email, password } = req.body;
+
+    const validationRes = validate(req.body, ['email']);
+    if(!password || password.trim().length === 0){
+      if(!validationRes.errors) validationRes.errors = {};
+      validationRes.errors.password = 'Password is required';
+      validationRes.isValid = false;
+    }
+
+    if (!validationRes.isValid) {
+      const firstError = Object.values(validationRes.errors)[0];
+      return res.render('admin/auth/login', { error: firstError });
+    }
 
     const admin = await findAdminByEmail(email);
     if (!admin) {

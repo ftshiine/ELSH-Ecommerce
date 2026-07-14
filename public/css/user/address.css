@@ -242,11 +242,24 @@ body {
   text-transform: uppercase;
 }
 
-.form-group input,
-.form-group select {
-  padding: 8px 0 12px;
-  border: none;
+.input-wrapper {
+  display: flex;
+  align-items: center;
+  width: 100%;
   border-bottom: 1px solid #e0e0d8;
+  padding: 8px 0 12px;
+  transition: border-color 0.2s;
+}
+
+.input-wrapper:focus-within {
+  border-color: #4a5240;
+}
+
+.input-wrapper input,
+.input-wrapper select {
+  flex: 1;
+  width: 100%;
+  border: none;
   background: transparent;
 
   font-size: 13px;
@@ -409,4 +422,21 @@ input:checked + .slider:before {
   border-radius: 8px;
   font-size: 13px;
   margin-bottom: 20px;
+}
+
+.input-wrapper.has-error {
+  border-color: #d9534f;
+}
+.form-group input.has-error {
+  border-color: #d9534f;
+}
+.form-group select.has-error {
+  border-color: #d9534f;
+}
+.field-error {
+  color: #d9534f;
+  font-size: 12px;
+  margin-top: 6px;
+  display: block;
+  line-height: 1.4;
 }

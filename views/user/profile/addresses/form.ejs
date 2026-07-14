@@ -25,70 +25,112 @@
     <% } %>
 
     <div class="form-card">
-      <form action="/profile/addresses/<%= address ? 'edit/' + address._id : 'add' %>" method="POST">
+      <form action="/profile/addresses/<%= address ? 'edit/' + address._id : 'add' %>" method="POST" id="addressForm">
         
         <div class="form-row">
           <div class="form-group">
             <label>FULL NAME</label>
-            <input type="text" name="fullName" placeholder="Julianne Moore" value="<%= address ? address.fullName : '' %>" required>
+            <div class="input-wrapper <%= locals.fieldErrors?.fullName ? 'has-error' : '' %>">
+              <input type="text" name="fullName" placeholder="Julianne Moore" value="<%= locals.formData?.fullName || (address ? address.fullName : '') %>" required>
+            </div>
+            <% if (locals.fieldErrors?.fullName) { %>
+              <div class="field-error"><%= locals.fieldErrors.fullName %></div>
+            <% } %>
           </div>
           <div class="form-group">
             <label>PHONE NUMBER</label>
-            <input type="text" name="phone" placeholder="+1 (555) 000-0000" value="<%= address ? address.phone : '' %>" required>
+            <div class="input-wrapper <%= locals.fieldErrors?.phone ? 'has-error' : '' %>">
+              <input type="text" name="phone" placeholder="+1 (555) 000-0000" value="<%= locals.formData?.phone || (address ? address.phone : '') %>" required>
+            </div>
+            <% if (locals.fieldErrors?.phone) { %>
+              <div class="field-error"><%= locals.fieldErrors.phone %></div>
+            <% } %>
           </div>
         </div>
 
         <div class="form-row">
           <div class="form-group full-width">
             <label>ADDRESS LINE 1</label>
-            <input type="text" name="addressLine1" placeholder="Apartment, suite, unit, or building" value="<%= address ? address.addressLine1 : '' %>" required>
+            <div class="input-wrapper <%= locals.fieldErrors?.addressLine1 ? 'has-error' : '' %>">
+              <input type="text" name="addressLine1" placeholder="Apartment, suite, unit, or building" value="<%= locals.formData?.addressLine1 || (address ? address.addressLine1 : '') %>" required>
+            </div>
+            <% if (locals.fieldErrors?.addressLine1) { %>
+              <div class="field-error"><%= locals.fieldErrors.addressLine1 %></div>
+            <% } %>
           </div>
         </div>
 
         <div class="form-row">
           <div class="form-group full-width">
             <label>LANDMARK (OPTIONAL)</label>
-            <input type="text" name="landmark" placeholder="Near the botanical conservatory" value="<%= address ? address.landmark : '' %>">
+            <div class="input-wrapper <%= locals.fieldErrors?.landmark ? 'has-error' : '' %>">
+              <input type="text" name="landmark" placeholder="Near the botanical conservatory" value="<%= locals.formData?.landmark || (address ? address.landmark : '') %>">
+            </div>
+            <% if (locals.fieldErrors?.landmark) { %>
+              <div class="field-error"><%= locals.fieldErrors.landmark %></div>
+            <% } %>
           </div>
         </div>
 
         <div class="form-row" style="grid-template-columns: 1fr 1fr; gap: 24px;">
           <div class="form-group">
             <label>COUNTRY</label>
-            <select name="country" id="countrySelect" required>
-              <option value="India" <%= !address || address.country === 'India' ? 'selected' : '' %>>India</option>
-            </select>
+            <% const selectedCountry = locals.formData?.country || (address ? address.country : 'India') %>
+            <div class="input-wrapper">
+              <select name="country" id="countrySelect" required>
+                <option value="India" <%= selectedCountry === 'India' ? 'selected' : '' %>>India</option>
+              </select>
+            </div>
+            <% if (locals.fieldErrors?.country) { %>
+              <div class="field-error"><%= locals.fieldErrors.country %></div>
+            <% } %>
           </div>
           <div class="form-group">
             <label>STATE</label>
-            <select name="state" id="stateSelect" required>
-              <option value="" disabled <%= !address ? 'selected' : '' %>>Select State</option>
-              <% 
-                const states = [
-                  'Andhra Pradesh', 'Arunachal Pradesh', 'Assam', 'Bihar', 'Chhattisgarh', 
-                  'Goa', 'Gujarat', 'Haryana', 'Himachal Pradesh', 'Jharkhand', 'Karnataka', 
-                  'Kerala', 'Madhya Pradesh', 'Maharashtra', 'Manipur', 'Meghalaya', 'Mizoram', 
-                  'Nagaland', 'Odisha', 'Punjab', 'Rajasthan', 'Sikkim', 'Tamil Nadu', 'Telangana', 
-                  'Tripura', 'Uttar Pradesh', 'Uttarakhand', 'West Bengal', 
-                  'Andaman and Nicobar Islands', 'Chandigarh', 'Dadra and Nagar Haveli and Daman and Diu', 
-                  'Delhi', 'Jammu and Kashmir', 'Ladakh', 'Lakshadweep', 'Puducherry'
-                ];
-                states.forEach(s => { 
-              %>
-                <option value="<%= s %>" <%= address && address.state === s ? 'selected' : '' %>><%= s %></option>
-              <% }) %>
-            </select>
+            <% const selectedState = locals.formData?.state || (address ? address.state : '') %>
+            <div class="input-wrapper">
+              <select name="state" id="stateSelect" required>
+                <option value="" disabled <%= !selectedState ? 'selected' : '' %>>Select State</option>
+                <% 
+                  const states = [
+                    'Andhra Pradesh', 'Arunachal Pradesh', 'Assam', 'Bihar', 'Chhattisgarh', 
+                    'Goa', 'Gujarat', 'Haryana', 'Himachal Pradesh', 'Jharkhand', 'Karnataka', 
+                    'Kerala', 'Madhya Pradesh', 'Maharashtra', 'Manipur', 'Meghalaya', 'Mizoram', 
+                    'Nagaland', 'Odisha', 'Punjab', 'Rajasthan', 'Sikkim', 'Tamil Nadu', 'Telangana', 
+                    'Tripura', 'Uttar Pradesh', 'Uttarakhand', 'West Bengal', 
+                    'Andaman and Nicobar Islands', 'Chandigarh', 'Dadra and Nagar Haveli and Daman and Diu', 
+                    'Delhi', 'Jammu and Kashmir', 'Ladakh', 'Lakshadweep', 'Puducherry'
+                  ];
+                  states.forEach(s => { 
+                %>
+                  <option value="<%= s %>" <%= selectedState === s ? 'selected' : '' %>><%= s %></option>
+                <% }) %>
+              </select>
+            </div>
+            <% if (locals.fieldErrors?.state) { %>
+              <div class="field-error"><%= locals.fieldErrors.state %></div>
+            <% } %>
           </div>
         </div>
 
         <div class="form-row" style="grid-template-columns: 1fr 1fr; gap: 24px;">
           <div class="form-group">
             <label>CITY</label>
-            <input type="text" name="city" placeholder="Mumbai" value="<%= address ? address.city : '' %>" required>
+            <div class="input-wrapper <%= locals.fieldErrors?.city ? 'has-error' : '' %>">
+              <input type="text" name="city" placeholder="Mumbai" value="<%= locals.formData?.city || (address ? address.city : '') %>" required>
+            </div>
+            <% if (locals.fieldErrors?.city) { %>
+              <div class="field-error"><%= locals.fieldErrors.city %></div>
+            <% } %>
           </div>
           <div class="form-group">
             <label>PINCODE</label>
-            <input type="text" name="pincode" placeholder="400001" value="<%= address ? address.pincode : '' %>" required>
+            <div class="input-wrapper <%= locals.fieldErrors?.pincode ? 'has-error' : '' %>">
+              <input type="text" name="pincode" placeholder="400001" value="<%= locals.formData?.pincode || (address ? address.pincode : '') %>" required>
+            </div>
+            <% if (locals.fieldErrors?.pincode) { %>
+              <div class="field-error"><%= locals.fieldErrors.pincode %></div>
+            <% } %>
           </div>
         </div>
 
@@ -98,7 +140,8 @@
             <p>All future deliveries will default to this sanctuary.</p>
           </div>
           <label class="switch">
-            <input type="checkbox" name="isPrimary" <%= address && address.isPrimary ? 'checked' : '' %>>
+            <% const isPrimaryChecked = locals.formData ? (locals.formData.isPrimary === 'on') : (address && address.isPrimary) %>
+            <input type="checkbox" name="isPrimary" <%= isPrimaryChecked ? 'checked' : '' %>>
             <span class="slider"></span>
           </label>
         </div>
@@ -135,6 +178,14 @@
           });
         }
       });
+    });
+  </script>
+  <script src="/js/validation.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      if (window.ELSHValidator) {
+        window.ELSHValidator.attachToForm('addressForm', ['fullName', 'phone', 'addressLine1', 'landmark', 'country', 'state', 'city', 'pincode']);
+      }
     });
   </script>
 </body>

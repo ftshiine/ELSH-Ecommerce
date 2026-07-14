@@ -1,4 +1,5 @@
 import { getAddressesByUser, getAddressById, createAddress, updateAddress, deleteAddress, setPrimaryAddress } from '../../services/user/addressService.js';
+import { validate } from '../../utils/validation.js';
 
 export const loadAddresses = async (req, res) => {
   try {
@@ -18,18 +19,13 @@ export const addAddress = async (req, res) => {
   try {
     const { fullName, phone, addressLine1, landmark, country, city, state, pincode, isPrimary } = req.body;
     
-    // Basic validation
-    if (!fullName || !phone || !addressLine1 || !country || !city || !state || !pincode) {
+    const validation = validate(req.body, ['fullName', 'phone', 'addressLine1', 'landmark', 'country', 'city', 'state', 'pincode']);
+    
+    if (!validation.isValid) {
       return res.render('user/profile/addresses/form', { 
-        address: req.body, 
-        error: 'Please fill out all required fields.'
-      });
-    }
-
-    if (!/^\+?[0-9]{10,15}$/.test(phone.trim().replace(/\s/g, ''))) {
-      return res.render('user/profile/addresses/form', { 
-        address: req.body, 
-        error: 'Please enter a valid phone number'
+        address: null, 
+        error: 'Please correct the highlighted fields.',
+        fieldErrors: validation.errors
       });
     }
 
@@ -43,7 +39,8 @@ export const addAddress = async (req, res) => {
     });
   } catch (error) {
     console.error('Add address error:', error);
-    res.render('user/profile/addresses/form', { address: req.body, error: 'Failed to add address.' });
+    // Since it's a POST and there's an error, we can render the form.
+    res.render('user/profile/addresses/form', { address: null, error: 'Failed to add address.' });
   }
 };
 
@@ -63,17 +60,13 @@ export const editAddress = async (req, res) => {
   try {
     const { fullName, phone, addressLine1, landmark, country, city, state, pincode, isPrimary } = req.body;
 
-    if (!fullName || !phone || !addressLine1 || !country || !city || !state || !pincode) {
-      return res.render('user/profile/addresses/form', { 
-        address: { _id: req.params.id, ...req.body }, 
-        error: 'Please fill out all required fields.'
-      });
-    }
+    const validation = validate(req.body, ['fullName', 'phone', 'addressLine1', 'landmark', 'country', 'city', 'state', 'pincode']);
 
-    if (!/^\+?[0-9]{10,15}$/.test(phone.trim().replace(/\s/g, ''))) {
+    if (!validation.isValid) {
       return res.render('user/profile/addresses/form', { 
-        address: { _id: req.params.id, ...req.body }, 
-        error: 'Please enter a valid phone number'
+        address: { _id: req.params.id }, 
+        error: 'Please correct the highlighted fields.',
+        fieldErrors: validation.errors
       });
     }
 

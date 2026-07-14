@@ -1,5 +1,6 @@
 import { findAdminByEmail, updatePassword } from '../../services/admin/authService.js';
 import { sendOTP, verifyOTP } from '../../services/user/otpService.js';
+import { validate } from '../../utils/validation.js';
 
 const loadForgotPassword = (req, res) => {
   res.render('admin/auth/forgot-password', { error: null, success: null });
@@ -100,12 +101,10 @@ const resetPassword = async (req, res) => {
       return res.redirect('/admin/forgot-password');
     }
 
-    if (newPassword !== confirmPassword) {
-      return res.render('admin/auth/reset-password', { error: 'Passwords do not match' });
-    }
-
-    if (newPassword.length < 8 || !/[0-9!@#$%^&*]/.test(newPassword)) {
-      return res.render('admin/auth/reset-password', { error: 'Password does not meet requirements' });
+    const validation = validate({ password: newPassword, confirmPassword }, ['password', 'confirmPassword']);
+    if (!validation.isValid) {
+      const firstError = Object.values(validation.errors)[0];
+      return res.render('admin/auth/reset-password', { error: firstError });
     }
 
     await updatePassword(email, newPassword);

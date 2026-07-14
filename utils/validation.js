@@ -1,66 +1,152 @@
-const validateSignup = (data) => {
-  const { fullName, username, email, phone, password, confirmPassword } = data;
-  const errors = [];
+export const rules = {
+  fullName: (value) => {
+    if (!value || value.trim().length < 3 || value.trim().length > 50) {
+      return 'Full name must be between 3 and 50 characters';
+    }
+    if (!/^[a-zA-Z\s]+$/.test(value.trim())) {
+      return 'Full name can only contain letters and spaces';
+    }
+    if (/\s{2,}/.test(value.trim())) {
+      return 'Multiple consecutive spaces are not allowed';
+    }
+    return null;
+  },
 
-  // Full Name — only letters and spaces, 2-50 chars
-  if (!fullName || fullName.trim().length < 2 || fullName.trim().length > 50) {
-    errors.push('Full name must be between 2 and 50 characters');
-  } else if (!/^[a-zA-Z\s]+$/.test(fullName.trim())) {
-    errors.push('Full name can only contain letters and spaces');
+  username: (value) => {
+    if (!value || value.trim().length < 4 || value.trim().length > 20) {
+      return 'Username must be between 4 and 20 characters';
+    }
+    if (!/^[a-zA-Z]/.test(value.trim())) {
+      return 'Username must start with a letter';
+    }
+    if (!/^[a-zA-Z0-9_.]+$/.test(value.trim())) {
+      return 'Username can only contain letters, numbers, underscores and periods';
+    }
+    if (/\s/.test(value)) {
+      return 'Username cannot contain spaces';
+    }
+    if (/__/.test(value) || /\.\./.test(value)) {
+      return 'Username cannot contain consecutive underscores or periods';
+    }
+    return null;
+  },
+
+  email: (value) => {
+    if (!value || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value.trim())) {
+      return 'Please enter a valid email address';
+    }
+    return null;
+  },
+
+  phone: (value) => {
+    if (!value || !/^\d{10}$/.test(value.trim())) {
+      return 'Please enter a valid phone number (exactly 10 digits)';
+    }
+    return null;
+  },
+
+  password: (value) => {
+    if (!value || value.length < 8 || value.length > 64) {
+      return 'Password must be between 8 and 64 characters';
+    }
+    if (!/(?=.*[A-Z])/.test(value)) {
+      return 'Password must contain at least one uppercase letter';
+    }
+    if (!/(?=.*[a-z])/.test(value)) {
+      return 'Password must contain at least one lowercase letter';
+    }
+    if (!/(?=.*[0-9])/.test(value)) {
+      return 'Password must contain at least one number';
+    }
+    if (!/(?=.*[!@#$%^&*()_+=\-{}\[\]:;"'<>,.?/|\\])/.test(value)) {
+      return 'Password must contain at least one special character';
+    }
+    if (/\s/.test(value)) {
+      return 'Password cannot contain spaces';
+    }
+    return null;
+  },
+
+  confirmPassword: (value, data) => {
+    if (!value) return 'Please confirm your password';
+    if (value !== data.password && value !== data.newPassword) {
+      return 'Passwords do not match';
+    }
+    return null;
+  },
+
+  addressLine1: (value) => {
+    if (!value || value.trim().length < 5) {
+      return 'Address must be at least 5 characters long';
+    }
+    return null;
+  },
+
+  landmark: (value) => {
+    if (value && value.trim().length > 100) {
+      return 'Landmark is too long';
+    }
+    return null;
+  },
+
+  city: (value) => {
+    if (!value || value.trim().length < 2) {
+      return 'City is required';
+    }
+    if (!/^[a-zA-Z\s\-\']+$/.test(value.trim())) {
+      return 'City can only contain letters and spaces';
+    }
+    return null;
+  },
+
+  state: (value) => {
+    if (!value || value.trim() === '') {
+      return 'Please select a state';
+    }
+    return null;
+  },
+
+  country: (value) => {
+    if (!value || value.trim() === '') {
+      return 'Please select a country';
+    }
+    return null;
+  },
+
+  pincode: (value) => {
+    if (!value || !/^\d{6}$/.test(value.trim())) {
+      return 'Pincode must be exactly 6 digits';
+    }
+    return null;
   }
-
-  // Username — only letters, numbers, underscores, 3-20 chars
-  if (!username || username.trim().length < 3 || username.trim().length > 20) {
-    errors.push('Username must be between 3 and 20 characters');
-  } else if (!/^[a-zA-Z0-9_]+$/.test(username.trim())) {
-    errors.push('Username can only contain letters, numbers and underscores');
-  }
-
-  // Email
-  if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim())) {
-    errors.push('Please enter a valid email address');
-  }
-
-  // Phone — 10 digits, optional country code
-  if (!phone || !/^\+?[0-9]{10,15}$/.test(phone.trim().replace(/\s/g, ''))) {
-    errors.push('Please enter a valid phone number (10-15 digits)');
-  }
-
-  // Password — min 8 chars, at least 1 uppercase, 1 number, 1 special char
-  if (!password || password.length < 8) {
-    errors.push('Password must be at least 8 characters');
-  } else if (!/(?=.*[A-Z])/.test(password)) {
-    errors.push('Password must contain at least one uppercase letter');
-  } else if (!/(?=.*[0-9])/.test(password)) {
-    errors.push('Password must contain at least one number');
-  } else if (!/(?=.*[!@#$%^&*])/.test(password)) {
-    errors.push('Password must contain at least one special character (!@#$%^&*)');
-  }
-
-  // Confirm Password
-  if (password !== confirmPassword) {
-    errors.push('Passwords do not match');
-  }
-
-  return errors;
 };
 
-const validateLogin = (data) => {
-  const {email, password} = data;
-  const errors = [];
+/**
+ * Validates an object of data against the specified fields
+ * @param {Object} data - The data to validate (e.g. req.body)
+ * @param {Array} fieldsToValidate - Array of field names to validate
+ * @returns {Object} { isValid: boolean, errors: Object }
+ */
+export const validate = (data, fieldsToValidate) => {
+  const errors = {};
 
-  //Email
-  if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim())) {
-    errors.push('Please enter a valid email address');
-  }
+  fieldsToValidate.forEach((field) => {
+    if (rules[field]) {
+      const error = rules[field](data[field], data);
+      if (error) {
+        errors[field] = error;
+      }
+    }
+  });
 
-  // Password
-  if (!password || password.trim().length === 0) {
-    errors.push('Password is required');
-  }
+  return {
+    isValid: Object.keys(errors).length === 0,
+    errors,
+  };
+};
 
-  return errors;
-
-}
-
-export { validateSignup, validateLogin };
+// Exporting isValidPhone separately for backward compatibility if needed in some places, 
+// though we aim to replace all its usages with validate().
+export const isValidPhone = (phone) => {
+  return rules.phone(phone) === null;
+};

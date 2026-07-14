@@ -100,7 +100,19 @@
   padding: 14px 0;
   font-size: 14px;
   color: #333;
-  outline: none;
+  outline: none;
+}
+
+.input-wrapper.has-error {
+  border-color: #d9534f;
+}
+
+.field-error {
+  color: #d9534f;
+  font-size: 12px;
+  margin-top: 6px;
+  display: block;
+  line-height: 1.4;
 }
 
 .toggle-eye {

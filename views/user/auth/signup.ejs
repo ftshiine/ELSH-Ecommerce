@@ -24,51 +24,69 @@
         <div class="form-row">
           <div class="form-group">
             <label>FULL NAME</label>
-            <div class="input-wrapper">
-              <input type="text" name="fullName" placeholder="Evelyn" required />
+            <div class="input-wrapper <%= locals.fieldErrors?.fullName ? 'has-error' : '' %>">
+              <input type="text" name="fullName" placeholder="Evelyn" value="<%= locals.formData?.fullName || '' %>" />
             </div>
+            <% if (locals.fieldErrors?.fullName) { %>
+              <div class="field-error"><%= locals.fieldErrors.fullName %></div>
+            <% } %>
           </div>
           <div class="form-group">
             <label>USER NAME</label>
-            <div class="input-wrapper">
-              <input type="text" name="username" placeholder="Sterling" required />
+            <div class="input-wrapper <%= locals.fieldErrors?.username ? 'has-error' : '' %>">
+              <input type="text" name="username" placeholder="Sterling" value="<%= locals.formData?.username || '' %>" />
             </div>
+            <% if (locals.fieldErrors?.username) { %>
+              <div class="field-error"><%= locals.fieldErrors.username %></div>
+            <% } %>
           </div>
         </div>
 
         <div class="form-group">
           <label>EMAIL ADDRESS</label>
-          <div class="input-wrapper">
-            <input type="email" name="email" placeholder="evelyn@studio.com" required />
+          <div class="input-wrapper <%= locals.fieldErrors?.email ? 'has-error' : '' %>">
+            <input type="email" name="email" placeholder="evelyn@studio.com" value="<%= locals.formData?.email || '' %>" />
           </div>
+          <% if (locals.fieldErrors?.email) { %>
+            <div class="field-error"><%= locals.fieldErrors.email %></div>
+          <% } %>
         </div>
 
         <div class="form-group">
           <label>PHONE NUMBER</label>
-          <div class="input-wrapper">
-            <input type="tel" name="phone" placeholder="+1 (555) 000-0000" required />
+          <div class="input-wrapper <%= locals.fieldErrors?.phone ? 'has-error' : '' %>">
+            <input type="tel" name="phone" id="phone" required pattern="[0-9]{10}" minlength="10" maxlength="10" placeholder="5550000000" title="Please enter exactly 10 digits" value="<%= locals.formData?.phone || '' %>" />
           </div>
+          <% if (locals.fieldErrors?.phone) { %>
+            <div class="field-error"><%= locals.fieldErrors.phone %></div>
+          <% } %>
         </div>
 
         <div class="form-row">
           <div class="form-group">
             <label>PASSWORD</label>
-            <div class="input-wrapper">
-              <input type="password" name="password" id="password" placeholder="••••••••" required />
+            <div class="input-wrapper <%= locals.fieldErrors?.password ? 'has-error' : '' %>">
+              <input type="password" name="password" id="password" placeholder="••••••••" />
               <span class="toggle-eye" onclick="togglePass('password')">👁</span>
             </div>
+            <% if (locals.fieldErrors?.password) { %>
+              <div class="field-error"><%= locals.fieldErrors.password %></div>
+            <% } %>
           </div>
           <div class="form-group">
             <label>CONFIRM PASSWORD</label>
-            <div class="input-wrapper">
-              <input type="password" name="confirmPassword" id="confirmPassword" placeholder="••••••••" required />
+            <div class="input-wrapper <%= locals.fieldErrors?.confirmPassword ? 'has-error' : '' %>">
+              <input type="password" name="confirmPassword" id="confirmPassword" placeholder="••••••••" />
               <span class="toggle-eye" onclick="togglePass('confirmPassword')">👁</span>
             </div>
+            <% if (locals.fieldErrors?.confirmPassword) { %>
+              <div class="field-error"><%= locals.fieldErrors.confirmPassword %></div>
+            <% } %>
           </div>
         </div>
 
         <div class="form-checkbox">
-          <input type="checkbox" id="terms" name="terms" required />
+          <input type="checkbox" id="terms" name="terms" />
           <label for="terms">I accept the <a href="#">Terms and Conditions</a> and have read the <a href="#">Privacy Policy</a>.</label>
         </div>
 
@@ -98,24 +116,28 @@
       input.type = input.type === 'password' ? 'text' : 'password';
     }
 
+    // Strip non-digit characters from phone input and limit to 10
+    const phoneInput = document.getElementById('phone');
+    if (phoneInput) {
+      phoneInput.addEventListener('input', function(e) {
+        this.value = this.value.replace(/\D/g, '').slice(0, 10);
+      });
+    }
+
 
 
     // Optional: clear form when leaving the page
     window.addEventListener('pagehide', function() {
       document.querySelectorAll('form').forEach(form => form.reset());
     });
+  </script>
 
-    // Prevent double submission
-    document.getElementById('signupForm').addEventListener('submit', function(e) {
-      const btn = this.querySelector('button[type="submit"]');
-      if (btn.classList.contains('processing')) {
-        e.preventDefault();
-        return;
+  <script src="/js/validation.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      if (window.ELSHValidator) {
+        window.ELSHValidator.attachToForm('signupForm', ['fullName', 'username', 'email', 'phone', 'password', 'confirmPassword']);
       }
-      btn.classList.add('processing');
-      btn.innerHTML = 'PROCESSING...';
-      btn.style.opacity = '0.7';
-      btn.style.cursor = 'not-allowed';
     });
   </script>
 

@@ -1,5 +1,6 @@
 import { findUserByEmail, updatePassword } from '../../services/user/authService.js';
 import { sendOTP, verifyOTP } from '../../services/user/otpService.js';
+import { validate } from '../../utils/validation.js';
 import bcrypt from 'bcrypt';
 
 const loadForgotPassword = (req, res) => {
@@ -35,6 +36,12 @@ const authSendForgotPasswordOTP = async (req, res) => {
   try {
     const email = req.session.user.email;
     const user = await findUserByEmail(email);
+
+    if (user && user.googleId) {
+      req.session.error = 'This account uses Google Sign-In. Your password is managed by your Google account.';
+      return res.redirect('/profile');
+    }
+
     if (user && user.isActive) {
       await sendOTP(user.email);
       req.session.resetEmailUser = user.email;
@@ -120,12 +127,10 @@ const resetPassword = async (req, res) => {
       return res.redirect('/forgot-password');
     }
 
-    if (newPassword !== confirmPassword) {
-      return res.render('user/auth/reset-password', { error: 'Passwords do not match' });
-    }
-
-    if (newPassword.length < 8 || !/[0-9!@#$%^&*]/.test(newPassword)) {
-      return res.render('user/auth/reset-password', { error: 'Password does not meet requirements' });
+    const validation = validate({ password: newPassword, confirmPassword }, ['password', 'confirmPassword']);
+    if (!validation.isValid) {
+      const firstError = Object.values(validation.errors)[0];
+      return res.render('user/auth/reset-password', { error: firstError });
     }
 
     await updatePassword(email, newPassword);
@@ -149,8 +154,18 @@ const resetPassword = async (req, res) => {
   }
 };
 
-const loadChangePassword = (req, res) => {
-  res.render('user/profile/change-password', { error: null, success: null });
+const loadChangePassword = async (req, res) => {
+  try {
+    const user = await findUserByEmail(req.session.user.email);
+    if (user && user.googleId) {
+      req.session.error = 'This account uses Google Sign-In. Your password is managed by your Google account.';
+      return res.redirect('/profile');
+    }
+    res.render('user/profile/change-password', { error: null, success: null });
+  } catch (error) {
+    console.error('Load change password error:', error);
+    res.redirect('/profile');
+  }
 };
 
 const changePassword = async (req, res) => {
@@ -168,6 +183,11 @@ const changePassword = async (req, res) => {
       return res.redirect('/login');
     }
 
+    if (user.googleId) {
+      req.session.error = 'This account uses Google Sign-In. Your password is managed by your Google account.';
+      return res.redirect('/profile');
+    }
+
     // Verify current password
     const isMatch = await bcrypt.compare(currentPassword, user.password);
     if (!isMatch) {
@@ -175,16 +195,17 @@ const changePassword = async (req, res) => {
     }
 
     // Validate new password
-    if (newPassword !== confirmPassword) {
-      return res.render('user/profile/change-password', { error: 'New passwords do not match', success: null });
+    const validation = validate({ password: newPassword, confirmPassword }, ['password', 'confirmPassword']);
+    if (!validation.isValid) {
+      if (validation.errors.password) {
+        validation.errors.newPassword = validation.errors.password;
+        delete validation.errors.password;
+      }
+      return res.render('user/profile/change-password', { error: 'Please correct the highlighted fields.', fieldErrors: validation.errors, success: null });
     }
 
     if (newPassword === currentPassword) {
-      return res.render('user/profile/change-password', { error: 'New password must be different from current password', success: null });
-    }
-
-    if (newPassword.length < 8 || !/[0-9!@#$%^&*]/.test(newPassword) || !/[A-Z]/.test(newPassword) || !/[a-z]/.test(newPassword)) {
-      return res.render('user/profile/change-password', { error: 'Password does not meet the security requirements', success: null });
+      return res.render('user/profile/change-password', { error: null, fieldErrors: { password: 'New password must be different from current password' }, success: null });
     }
 
     // Update password (hashing happens inside updatePassword service)
