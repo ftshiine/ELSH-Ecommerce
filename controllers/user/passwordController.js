@@ -15,7 +15,7 @@ const sendForgotPasswordOTP = async (req, res) => {
     }
 
     const user = await findUserByEmail(email.toLowerCase().trim());
-    
+
     // Always show success message to prevent email enumeration, but only send OTP if user exists and is active.
     if (user && user.isActive) {
       await sendOTP(user.email);
@@ -24,7 +24,7 @@ const sendForgotPasswordOTP = async (req, res) => {
       return res.redirect('/forgot-password/otp');
     }
 
-    // If user doesn't exist or is blocked, show generic message
+    e
     res.render('user/auth/forgot-password', { error: null, success: 'If an account exists, an email was sent.' });
   } catch (error) {
     console.error('Forgot password error:', error);
@@ -135,7 +135,7 @@ const resetPassword = async (req, res) => {
 
     await updatePassword(email, newPassword);
 
-    // Clear session variables
+    
     delete req.session.resetEmailUser;
     delete req.session.resetOtpSentAtUser;
     delete req.session.otpVerifiedUser;
@@ -188,13 +188,12 @@ const changePassword = async (req, res) => {
       return res.redirect('/profile');
     }
 
-    // Verify current password
     const isMatch = await bcrypt.compare(currentPassword, user.password);
     if (!isMatch) {
       return res.render('user/profile/change-password', { error: 'Current password is incorrect', success: null });
     }
 
-    // Validate new password
+    
     const validation = validate({ password: newPassword, confirmPassword }, ['password', 'confirmPassword']);
     if (!validation.isValid) {
       if (validation.errors.password) {
@@ -208,7 +207,7 @@ const changePassword = async (req, res) => {
       return res.render('user/profile/change-password', { error: null, fieldErrors: { password: 'New password must be different from current password' }, success: null });
     }
 
-    // Update password (hashing happens inside updatePassword service)
+    
     await updatePassword(userEmail, newPassword);
 
     req.session.success = 'Password updated successfully.';
@@ -220,13 +219,13 @@ const changePassword = async (req, res) => {
   }
 };
 
-export { 
-  loadForgotPassword, 
-  sendForgotPasswordOTP, 
-  loadForgotOTP, 
-  verifyForgotOTP, 
-  resendForgotOTP, 
-  loadResetPassword, 
+export {
+  loadForgotPassword,
+  sendForgotPasswordOTP,
+  loadForgotOTP,
+  verifyForgotOTP,
+  resendForgotOTP,
+  loadResetPassword,
   resetPassword,
   authSendForgotPasswordOTP,
   loadChangePassword,

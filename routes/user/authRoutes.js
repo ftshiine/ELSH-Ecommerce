@@ -34,12 +34,12 @@ router.post('/forgot-password/reset', resetPassword);
 // Google OAuth routes
 router.get('/auth/google', requireGuest('user'), passport.authenticate('google', { scope: ['profile', 'email'] }));
 
-// Google OAuth callback with proper cache prevention
+
 router.get('/auth/google/callback',
   requireGuest('user'),
   passport.authenticate('google', { failureRedirect: '/login', session: false }),
   (req, res) => {
-    // Set user session from Google profile
+   
     req.session.user = {
       id: req.user._id,
       fullName: req.user.fullName,

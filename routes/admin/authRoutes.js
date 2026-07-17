@@ -5,11 +5,11 @@ import { requireAuth, requireGuest } from '../../middleware/authMiddleware.js';
 
 const router = express.Router();
 
-router.get('/login',requireGuest('admin'), loadLogin);
-router.post('/login',requireGuest('admin'), login);
-router.get('/logout',requireAuth('admin'), logout);
+router.get('/login', requireGuest('admin'), loadLogin);
+router.post('/login', requireGuest('admin'), login);
+router.get('/logout', requireAuth('admin'), logout);
 
-// Forgot Password routes
+
 router.get('/forgot-password', requireGuest('admin'), loadForgotPassword);
 router.post('/forgot-password', requireGuest('admin'), sendForgotPasswordOTP);
 router.get('/forgot-password/otp', requireGuest('admin'), loadForgotOTP);

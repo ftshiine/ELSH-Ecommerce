@@ -14,8 +14,8 @@ const sendForgotPasswordOTP = async (req, res) => {
     }
 
     const admin = await findAdminByEmail(email.toLowerCase().trim());
+
     
-    // Always show success message to prevent email enumeration, but only send OTP if admin exists and is active.
     if (admin && admin.isActive) {
       await sendOTP(admin.email);
       req.session.resetEmailAdmin = admin.email;
@@ -23,8 +23,8 @@ const sendForgotPasswordOTP = async (req, res) => {
       return res.redirect('/admin/forgot-password/otp');
     }
 
-    // If admin doesn't exist or is blocked, show generic message
-    res.render('admin/auth/forgot-password', { error: null, success: 'If an account exists, an email was sent.' });
+    
+    res.render('admin/auth/forgot-password', { error: null, success: 'Invalid credentials.' });
   } catch (error) {
     console.error('Admin Forgot password error:', error);
     res.render('admin/auth/forgot-password', { error: 'Something went wrong', success: null });
@@ -109,7 +109,7 @@ const resetPassword = async (req, res) => {
 
     await updatePassword(email, newPassword);
 
-    // Clear session variables
+    
     delete req.session.resetEmailAdmin;
     delete req.session.resetOtpSentAtAdmin;
     delete req.session.otpVerifiedAdmin;
@@ -123,12 +123,12 @@ const resetPassword = async (req, res) => {
   }
 };
 
-export { 
-  loadForgotPassword, 
-  sendForgotPasswordOTP, 
-  loadForgotOTP, 
-  verifyForgotOTP, 
-  resendForgotOTP, 
-  loadResetPassword, 
-  resetPassword 
+export {
+  loadForgotPassword,
+  sendForgotPasswordOTP,
+  loadForgotOTP,
+  verifyForgotOTP,
+  resendForgotOTP,
+  loadResetPassword,
+  resetPassword
 };

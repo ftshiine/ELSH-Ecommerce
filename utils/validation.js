@@ -145,8 +145,7 @@ export const validate = (data, fieldsToValidate) => {
   };
 };
 
-// Exporting isValidPhone separately for backward compatibility if needed in some places, 
-// though we aim to replace all its usages with validate().
+
 export const isValidPhone = (phone) => {
   return rules.phone(phone) === null;
 };

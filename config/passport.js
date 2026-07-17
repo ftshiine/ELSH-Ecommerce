@@ -17,7 +17,7 @@ passport.use(
     },
     async (req, accessToken, refreshToken, profile, done) => {
       try {
-        // Check if user already exists
+        
         let user = await User.findOne({ googleId: profile.id });
 
         if (user) {
@@ -29,7 +29,7 @@ passport.use(
           return done(null, user);
         }
 
-        // Check if email already registered
+        
         user = await User.findOne({ email: profile.emails[0].value });
 
         if (user) {
@@ -38,14 +38,14 @@ passport.use(
             req.session.error = validation.message;
             return done(null, false);
           }
+
           
-          // Link Google account to existing active user
           user.googleId = profile.id;
           await user.save();
           return done(null, user);
         }
 
-        // Create new user
+        
         user = new User({
           fullName: profile.displayName,
           username: profile.emails[0].value.split('@')[0],

@@ -18,12 +18,12 @@ export const loadAddAddress = (req, res) => {
 export const addAddress = async (req, res) => {
   try {
     const { fullName, phone, addressLine1, landmark, country, city, state, pincode, isPrimary } = req.body;
-    
+
     const validation = validate(req.body, ['fullName', 'phone', 'addressLine1', 'landmark', 'country', 'city', 'state', 'pincode']);
-    
+
     if (!validation.isValid) {
-      return res.render('user/profile/addresses/form', { 
-        address: null, 
+      return res.render('user/profile/addresses/form', {
+        address: null,
         error: 'Please correct the highlighted fields.',
         fieldErrors: validation.errors
       });
@@ -32,14 +32,14 @@ export const addAddress = async (req, res) => {
     await createAddress(req.session.user.id, {
       fullName, phone, addressLine1, landmark, country, city, state, pincode, isPrimary: isPrimary === 'on'
     });
-    
+
     req.session.success = 'Address added successfully.';
     req.session.save(() => {
       res.redirect('/profile/addresses');
     });
   } catch (error) {
     console.error('Add address error:', error);
-    // Since it's a POST and there's an error, we can render the form.
+    
     res.render('user/profile/addresses/form', { address: null, error: 'Failed to add address.' });
   }
 };
@@ -48,7 +48,7 @@ export const loadEditAddress = async (req, res) => {
   try {
     const address = await getAddressById(req.params.id, req.session.user.id);
     if (!address) return res.redirect('/profile/addresses');
-    
+
     res.render('user/profile/addresses/form', { address });
   } catch (error) {
     console.error('Load edit address error:', error);
@@ -63,8 +63,8 @@ export const editAddress = async (req, res) => {
     const validation = validate(req.body, ['fullName', 'phone', 'addressLine1', 'landmark', 'country', 'city', 'state', 'pincode']);
 
     if (!validation.isValid) {
-      return res.render('user/profile/addresses/form', { 
-        address: { _id: req.params.id }, 
+      return res.render('user/profile/addresses/form', {
+        address: { _id: req.params.id },
         error: 'Please correct the highlighted fields.',
         fieldErrors: validation.errors
       });
@@ -73,7 +73,7 @@ export const editAddress = async (req, res) => {
     await updateAddress(req.params.id, req.session.user.id, {
       fullName, phone, addressLine1, landmark, country, city, state, pincode, isPrimary: isPrimary === 'on'
     });
-    
+
     req.session.success = 'Address updated successfully.';
     req.session.save(() => {
       res.redirect('/profile/addresses');

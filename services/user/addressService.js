@@ -39,7 +39,7 @@ export const deleteAddress = async (id, userId) => {
   const wasPrimary = address.isPrimary;
   await Address.deleteOne({ _id: id, userId });
 
-  // If deleted was primary, assign primary to the most recently created one
+  
   if (wasPrimary) {
     const nextAddress = await Address.findOne({ userId }).sort({ createdAt: -1 });
     if (nextAddress) {

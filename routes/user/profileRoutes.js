@@ -43,8 +43,10 @@ const handleUpload = (req, res, next) => {
     next();
   });
 };
-
+//profile routes
 router.get('/profile', requireAuth('user'), loadProfile);
+
+//edit profile routes
 router.get('/profile/edit', requireAuth('user'), loadEditProfile);
 router.post('/profile/edit', requireAuth('user'), handleUpload, editProfile);
 router.post('/profile/remove-photo', requireAuth('user'), removePhoto);

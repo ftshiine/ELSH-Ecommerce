@@ -1,7 +1,4 @@
-/**
- * Centralized Client-Side Validation Utility
- * Mirrors backend rules from utils/validation.js
- */
+
 
 window.ELSHValidator = {
   rules: {
@@ -131,11 +128,7 @@ window.ELSHValidator = {
     }
   },
 
-  /**
-   * Validates a form element based on name attributes.
-   * Finds inputs that match the fields and sets error messages below them.
-   * Form should have .input-wrapper and .field-error adjacent or similar structure.
-   */
+
   validateForm: function(formElement, fieldsToValidate) {
     let isValid = true;
     const data = {};
@@ -148,11 +141,11 @@ window.ELSHValidator = {
       }
     });
     
-    // Clear old errors
+   
     formElement.querySelectorAll('.field-error-dynamic').forEach(el => el.remove());
     formElement.querySelectorAll('.has-error').forEach(el => el.classList.remove('has-error'));
 
-    // Validate
+    
     fieldsToValidate.forEach(field => {
       const input = formElement.querySelector(`[name="${field}"]`);
       if (!input) return;
@@ -168,7 +161,7 @@ window.ELSHValidator = {
         const wrapper = input.closest('.input-wrapper');
         if (wrapper) {
           wrapper.classList.add('has-error');
-          // check if error exists statically
+          
           const next = wrapper.nextElementSibling;
           if (next && next.classList.contains('field-error')) {
             next.textContent = error;
@@ -199,12 +192,12 @@ window.ELSHValidator = {
     if (!form) return;
 
     form.addEventListener('submit', function(e) {
-      // Validate
+      
       const isValid = window.ELSHValidator.validateForm(form, fieldsToValidate);
       
       if (!isValid) {
         e.preventDefault();
-        // Stop processing animations if any
+        
         const btn = form.querySelector('button[type="submit"]');
         if (btn && btn.classList.contains('processing')) {
            btn.classList.remove('processing');
@@ -213,7 +206,7 @@ window.ELSHValidator = {
            btn.style.cursor = 'pointer';
         }
       } else {
-        // Validation passed, add processing state
+        
         const btn = form.querySelector('button[type="submit"]');
         if (btn && !btn.classList.contains('processing')) {
            btn.setAttribute('data-original-text', btn.innerHTML);

@@ -12,19 +12,19 @@ const signup = async (req, res) => {
   try {
     const { fullName, username, email, phone, password, confirmPassword } = req.body;
 
-    // Validate inputs
+    
     const validation = validate(req.body, ['fullName', 'username', 'email', 'phone', 'password', 'confirmPassword']);
     if (!validation.isValid) {
       return res.render('user/auth/signup', { error: 'Please correct the highlighted fields.', fieldErrors: validation.errors });
     }
 
-    // Check existing email
+    
     const existingEmail = await findUserByEmail(email);
     if (existingEmail) {
       return res.render('user/auth/signup', { error: 'Please correct the highlighted fields.', fieldErrors: { email: 'Email already registered' } });
     }
 
-    // Check existing username
+
     const existingUsername = await findUserByUsername(username);
     if (existingUsername) {
       return res.render('user/auth/signup', { error: 'Please correct the highlighted fields.', fieldErrors: { username: 'Username already taken' } });
@@ -73,7 +73,7 @@ const verifyOTPHandler = async (req, res) => {
       return res.render('user/auth/otp', { error: result.message, remaining });
     }
 
-    // Activate user
+    
     await findUserByEmail(email).then(user => {
       user.isActive = true;
       return user.save();
@@ -114,7 +114,7 @@ const login = async (req, res) => {
     const { email, password } = req.body;
 
     const validationRes = validate(req.body, ['email']);
-    // We only validate email format, but password is required
+    
     if (!password || password.trim().length === 0) {
       if (!validationRes.errors) validationRes.errors = {};
       validationRes.errors.password = 'Password is required';
@@ -131,8 +131,7 @@ const login = async (req, res) => {
 
     const user = await findUserByEmail(email);
 
-    // We only check if user is found for password mismatch, but we run full validation later.
-    // Actually, if the account doesn't exist, we don't want to show "Account does not exist" in login, we show "Invalid email or password" for security.
+    
     if (!user) {
       return res.render('user/auth/login', { error: 'Invalid email or password' });
     }
@@ -164,26 +163,26 @@ const login = async (req, res) => {
 
 const logout = (req, res) => {
   if (req.session) {
-    // Delete only the User session state
+    
     delete req.session.user;
 
     const handleSessionDestruction = () => {
       if (!req.session.admin) {
-        // If no Admin is logged in, it's safe to destroy the entire session
+        
         req.session.destroy((err) => {
           if (err) console.error('Session destroy error during user logout:', err);
           res.clearCookie('connect.sid');
           return res.redirect('/login');
         });
       } else {
-        // Admin is still logged in, so just save the modified session
+
         req.session.save(() => {
           return res.redirect('/login');
         });
       }
     };
 
-    // If Passport session exists, log out properly
+    
     if (req.logout) {
       req.logout({ keepSessionInfo: true }, (err) => {
         if (err) console.error('Passport logout error:', err);

@@ -18,33 +18,33 @@ dotenv.config();
 
 const app = express();
 
-// Connect to MongoDB
+
 connectDB();
 
-// Middlewares
+
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 app.use(sessionConfig)
 
-// Static files
+
 app.use(express.static('public'));
 
-// View engine
+
 app.set('view engine', 'ejs');
 app.set('views', './views');
 
 
-// Passport initialization 
+ 
 app.use(passport.initialize());
 
-// Global Cache-Control for all dynamic routes 
+ 
 app.use(preventCache);
 
-// Global Form State preservation middleware
+
 app.use(formStateMiddleware);
 
-// Flash messages middleware
+
 app.use((req, res, next) => {
   res.locals.success = req.session.success || null;
   res.locals.error = req.session.error || null;
@@ -53,7 +53,7 @@ app.use((req, res, next) => {
   next();
 });
 
-// Routes
+
 // Admin
 app.use('/admin', adminAuthRoutes);
 app.use('/admin', dashboardRoutes);

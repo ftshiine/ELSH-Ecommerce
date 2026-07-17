@@ -9,24 +9,24 @@ const requireAuth = (role) => async (req, res, next) => {
     return res.redirect(redirectUrl);
   }
 
-  // Real-time Account Status Validation for Users
+  
   if (role === 'user') {
     try {
       const user = await User.findById(sessionUser.id);
       const validation = validateAccountStatus(user);
-      
+
       if (!validation.isValid) {
-        // Targeted invalidation: Remove only the User session state
-        delete req.session.user;
         
+        delete req.session.user;
+
         if (req.logout) {
           req.logout({ keepSessionInfo: true }, (err) => {
             if (err) console.error('Passport logout error during account block:', err);
           });
         }
-        
+
         req.session.error = validation.message;
-        
+
         return req.session.save(() => {
           return res.redirect('/login');
         });

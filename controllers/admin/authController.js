@@ -10,8 +10,8 @@ const login = async (req, res) => {
     const { email, password } = req.body;
 
     const validationRes = validate(req.body, ['email']);
-    if(!password || password.trim().length === 0){
-      if(!validationRes.errors) validationRes.errors = {};
+    if (!password || password.trim().length === 0) {
+      if (!validationRes.errors) validationRes.errors = {};
       validationRes.errors.password = 'Password is required';
       validationRes.isValid = false;
     }
@@ -47,10 +47,10 @@ const login = async (req, res) => {
 
 const logout = (req, res) => {
   if (req.session) {
-    // Delete only the Admin session state
+   
     delete req.session.admin;
 
-    // If no User session exists, it's safe to destroy the entire session
+   
     if (!req.session.user && !req.session.passport) {
       req.session.destroy((err) => {
         if (err) console.error('Session destroy error during admin logout:', err);
@@ -58,7 +58,7 @@ const logout = (req, res) => {
         return res.redirect('/admin/login');
       });
     } else {
-      // User is still logged in, so just save the modified session
+      
       req.session.save(() => {
         return res.redirect('/admin/login');
       });
