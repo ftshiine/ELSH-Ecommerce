@@ -5,15 +5,12 @@ const findUserByEmail = async (email) => {
   return await User.findOne({ email });
 };
 
-const findUserByUsername = async (username) => {
-  return await User.findOne({ username });
-};
+
 
 const createUser = async (userData) => {
   const hashedPassword = await bcrypt.hash(userData.password, 10);
   const user = new User({
     fullName: userData.fullName,
-    username: userData.username,
     email: userData.email,
     phone: userData.phone,
     password: hashedPassword,
@@ -38,7 +35,7 @@ const validateAccountStatus = (user) => {
   return { isValid: true };
 };
 
-export { findUserByEmail, findUserByUsername, createUser, updatePassword, validateAccountStatus };
+export { findUserByEmail, createUser, updatePassword, validateAccountStatus };
 
 
 

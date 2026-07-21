@@ -22,8 +22,7 @@ export const addAddress = async (req, res) => {
     const validation = validate(req.body, ['fullName', 'phone', 'addressLine1', 'landmark', 'country', 'city', 'state', 'pincode']);
 
     if (!validation.isValid) {
-      return res.render('user/profile/addresses/form', {
-        address: null,
+      return res.redirectWithState('/profile/addresses/add', {
         error: 'Please correct the highlighted fields.',
         fieldErrors: validation.errors
       });
@@ -40,7 +39,7 @@ export const addAddress = async (req, res) => {
   } catch (error) {
     console.error('Add address error:', error);
     
-    res.render('user/profile/addresses/form', { address: null, error: 'Failed to add address.' });
+    res.redirectWithState('/profile/addresses/add', { error: 'Failed to add address.' });
   }
 };
 
@@ -63,8 +62,7 @@ export const editAddress = async (req, res) => {
     const validation = validate(req.body, ['fullName', 'phone', 'addressLine1', 'landmark', 'country', 'city', 'state', 'pincode']);
 
     if (!validation.isValid) {
-      return res.render('user/profile/addresses/form', {
-        address: { _id: req.params.id },
+      return res.redirectWithState(`/profile/addresses/edit/${req.params.id}`, {
         error: 'Please correct the highlighted fields.',
         fieldErrors: validation.errors
       });

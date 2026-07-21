@@ -50,11 +50,11 @@
 
             <div class="address-actions">
               <a href="/profile/addresses/edit/<%= address._id %>" class="btn-action">Edit</a>
-              <form action="/profile/addresses/delete/<%= address._id %>" method="POST" class="action-form" onsubmit="return confirm('Are you sure you want to remove this ritual site?');">
+              <form action="/profile/addresses/<%= address._id %>?_method=DELETE" method="POST" class="action-form" onsubmit="return confirm('Are you sure you want to remove this ritual site?');">
                 <button type="submit" class="btn-action btn-delete">Remove</button>
               </form>
               <% if (!address.isPrimary) { %>
-                <form action="/profile/addresses/primary/<%= address._id %>" method="POST" class="action-form primary-form">
+                <form action="/profile/addresses/<%= address._id %>/primary?_method=PATCH" method="POST" class="action-form primary-form">
                   <button type="submit" class="btn-action" style="color: #4a5240;">Set as Primary</button>
                 </form>
               <% } %>

@@ -2,6 +2,13 @@
 
 window.ELSHValidator = {
   rules: {
+    terms: function(value, data) {
+      if (!data.termsChecked) {
+        return 'You must accept the Terms and Conditions and Privacy Policy';
+      }
+      return null;
+    },
+
     fullName: function(value) {
       if (!value || value.trim().length < 3 || value.trim().length > 50) {
         return 'Full name must be between 3 and 50 characters';
@@ -11,25 +18,6 @@ window.ELSHValidator = {
       }
       if (/\s{2,}/.test(value.trim())) {
         return 'Multiple consecutive spaces are not allowed';
-      }
-      return null;
-    },
-  
-    username: function(value) {
-      if (!value || value.trim().length < 4 || value.trim().length > 20) {
-        return 'Username must be between 4 and 20 characters';
-      }
-      if (!/^[a-zA-Z]/.test(value.trim())) {
-        return 'Username must start with a letter';
-      }
-      if (!/^[a-zA-Z0-9_.]+$/.test(value.trim())) {
-        return 'Username can only contain letters, numbers, underscores and periods';
-      }
-      if (/\s/.test(value)) {
-        return 'Username cannot contain spaces';
-      }
-      if (/__/.test(value) || /\.\./.test(value)) {
-        return 'Username cannot contain consecutive underscores or periods';
       }
       return null;
     },
@@ -49,8 +37,8 @@ window.ELSHValidator = {
     },
   
     password: function(value) {
-      if (!value || value.length < 8 || value.length > 64) {
-        return 'Password must be between 8 and 64 characters';
+      if (!value || value.length < 8 || value.length > 20) {
+        return 'Password must be between 8 and 20 characters';
       }
       if (!/(?=.*[A-Z])/.test(value)) {
         return 'Password must contain at least one uppercase letter';
@@ -138,6 +126,9 @@ window.ELSHValidator = {
       const input = formElement.querySelector(`[name="${field}"]`);
       if (input) {
         data[field] = input.value;
+        if (input.type === 'checkbox') {
+          data[`${field}Checked`] = input.checked;
+        }
       }
     });
     
@@ -158,7 +149,7 @@ window.ELSHValidator = {
       if (error) {
         isValid = false;
         
-        const wrapper = input.closest('.input-wrapper');
+        const wrapper = input.closest('.input-wrapper') || input.closest('.form-checkbox');
         if (wrapper) {
           wrapper.classList.add('has-error');
           
@@ -174,7 +165,7 @@ window.ELSHValidator = {
           }
         }
       } else {
-        const wrapper = input.closest('.input-wrapper');
+        const wrapper = input.closest('.input-wrapper') || input.closest('.form-checkbox');
         if (wrapper) {
           const next = wrapper.nextElementSibling;
           if (next && next.classList.contains('field-error')) {

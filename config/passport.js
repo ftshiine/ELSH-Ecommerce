@@ -48,7 +48,6 @@ passport.use(
         
         user = new User({
           fullName: profile.displayName,
-          username: profile.emails[0].value.split('@')[0],
           email: profile.emails[0].value,
           googleId: profile.id,
           profileImage: profile.photos[0].value,

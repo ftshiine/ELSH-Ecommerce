@@ -1,391 +1,231 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>ELSH | Edit Profile</title>
   <link rel="stylesheet" href="/css/user/profile.css" />
 </head>
+
 <body>
 
   <%- include('../partials/home-navbar') %>
 
-  <div class="profile-wrapper">
+    <div class="profile-wrapper">
 
-    <div class="breadcrumb">
-      <span>ACCOUNT</span>
-      <span>›</span>
-      <a href="/profile" class="breadcrumb-link">MY PROFILE</a>
-      <span>›</span>
-      <span class="breadcrumb-active">EDIT PROFILE</span>
-    </div>
-
-    <div class="edit-card">
-
-      <div class="edit-card-header">
-        <h2>Manage Profile</h2>
-        <p>Update your personal information and account details.</p>
+      <div class="breadcrumb">
+        <span>ACCOUNT</span>
+        <span>›</span>
+        <a href="/profile" class="breadcrumb-link">MY PROFILE</a>
+        <span>›</span>
+        <span class="breadcrumb-active">EDIT PROFILE</span>
       </div>
 
-      <div class="edit-divider"></div>
+      <div class="edit-card">
 
-      <% if (locals.error) { %>
-        <div class="auth-error"><%= locals.error %></div>
-      <% } %>
-      <% if (locals.success) { %>
-        <div class="auth-success"><%= locals.success %></div>
-      <% } %>
-
-      <form id="removePhotoForm" action="/profile/remove-photo" method="POST" style="display:none;"></form>
-
-      <form id="editProfileForm" action="/profile/edit" method="POST" enctype="multipart/form-data">
-
-        <div class="edit-section">
-          <label class="section-label">PROFILE PHOTO</label>
-          <div class="photo-upload-row">
-            <div class="edit-avatar">
-              <% if (user.profileImage) { %>
-                <img src="<%= user.profileImage %>" alt="Profile" id="avatarPreview" />
-              <% } else { %>
-                <div class="avatar-placeholder" id="avatarPlaceholder"><%= user.fullName.charAt(0).toUpperCase() %></div>
-                <img src="" alt="Profile" id="avatarPreview" style="display:none;" />
-              <% } %>
-            </div>
-            <div class="photo-actions">
-              <label for="profileImage" class="btn-upload">UPLOAD NEW PHOTO</label>
-              
-              <button type="submit" form="removePhotoForm" class="btn-remove-photo">Remove Photo</button>
-            </div>
-          </div>
+        <div class="edit-card-header">
+          <h2>Manage Profile</h2>
+          <p>Update your personal information and account details.</p>
         </div>
 
         <div class="edit-divider"></div>
 
-        <div class="edit-section">
-          <label class="section-label">PERSONAL INFORMATION</label>
-
-          <div class="edit-form-row">
-            <div class="form-group">
-              <label>Full Name</label>
-              <div class="input-wrapper <%= locals.fieldErrors?.fullName ? 'has-error' : '' %>">
-                <input type="text" name="fullName" value="<%= locals.formData?.fullName || user.fullName || '' %>" placeholder="Your full name" required />
-              </div>
-              <% if (locals.fieldErrors?.fullName) { %>
-                <div class="field-error"><%= locals.fieldErrors.fullName %></div>
-              <% } %>
-            </div>
-            <div class="form-group">
-              <label>Phone</label>
-              <div class="input-wrapper <%= locals.fieldErrors?.phone ? 'has-error' : '' %>">
-                <input type="tel" name="phone" value="<%= locals.formData?.phone || user.phone || '' %>" placeholder="+1 (555) 000-0000" />
-              </div>
-              <% if (locals.fieldErrors?.phone) { %>
-                <div class="field-error"><%= locals.fieldErrors.phone %></div>
-              <% } %>
-            </div>
+        <% if (locals.error) { %>
+          <div class="auth-error">
+            <%= locals.error %>
           </div>
-
-          <div class="edit-form-row">
-            <% if (user.googleId) { %>
-              <div class="form-group">
-                <label>Account Authentication</label>
-                <div style="font-size: 0.85rem; color: #666; margin-bottom: 0.5rem; line-height: 1.4;">
-                  This account was created using Google Sign-In.<br>
-                  Your email address and password are managed by your Google account and cannot be changed from ELSH.
-                </div>
-                <div class="input-wrapper" style="background-color: #f5f5f5; border: 1px solid #ddd; padding: 0.8rem 1rem; border-radius: 4px; display: flex; align-items: center;">
-                  <span style="color: #666; font-size: 0.9rem; flex-grow: 1;">[<%= user.email %>]</span>
-                </div>
-                <input type="hidden" name="email" value="<%= user.email %>" id="emailInput" data-original="<%= user.email %>" />
-              </div>
-            <% } else { %>
-              <div class="form-group">
-                <label>Email</label>
-                <div class="input-wrapper <%= locals.fieldErrors?.email ? 'has-error' : '' %>">
-                  <input type="email" name="email" id="emailInput" value="<%= locals.formData?.email || user.email || '' %>" data-original="<%= user.email %>" required />
-                </div>
-                <% if (locals.fieldErrors?.email) { %>
-                  <div class="field-error"><%= locals.fieldErrors.email %></div>
-                <% } %>
-              </div>
-            <% } %>
-            <div class="form-group">
-              <label>Gender</label>
-              <% const selectedGender = locals.formData?.gender || user.gender || '' %>
-              <div class="input-wrapper">
-                <select name="gender">
-                  <option value="">Select Gender</option>
-                  <option value="Male" <%= selectedGender === 'Male' ? 'selected' : '' %>>Male</option>
-                  <option value="Female" <%= selectedGender === 'Female' ? 'selected' : '' %>>Female</option>
-                  <option value="Other" <%= selectedGender === 'Other' ? 'selected' : '' %>>Other</option>
-                  <option value="Prefer not to say" <%= selectedGender === 'Prefer not to say' ? 'selected' : '' %>>Prefer not to say</option>
-                </select>
-              </div>
-            </div>
-          </div>
-
-          <div class="edit-form-row">
-            <div class="form-group">
-              <label>Date of Birth</label>
-              <% const dobValue = locals.formData?.dateOfBirth || (user.dateOfBirth ? new Date(user.dateOfBirth).toISOString().split('T')[0] : '') %>
-              <div class="input-wrapper">
-                <input type="date" name="dateOfBirth" value="<%= dobValue %>" />
-              </div>
-            </div>
-          </div>
-
-        </div>
-
-        <div class="edit-actions">
-          <a href="/profile" class="btn-cancel">CANCEL</a>
-          <% if (!user.googleId) { %>
-          <a href="/profile/change-password" class="btn-cancel" style="border-color: #556B5B; color: #556B5B; text-decoration: none; padding: 0.8rem 1.5rem; text-transform: uppercase; font-size: 0.8rem; font-weight: 500; transition: all 0.3s ease; margin-right: 0.5rem;">CHANGE PASSWORD</a>
           <% } %>
-          <button type="submit" class="btn-save">SAVE CHANGES</button>
-        </div>
+            <% if (locals.success) { %>
+              <div class="auth-success">
+                <%= locals.success %>
+              </div>
+              <% } %>
 
-        <input type="file" id="profileImage" name="profileImage" accept="image/*" style="display:none;" />
-      </form>
+                <form id="removePhotoForm" action="/profile/photo?_method=DELETE" method="POST" style="display:none;"></form>
+                <form id="changeEmailForm" action="/profile/email/initiate" method="POST" style="display:none;"></form>
+                <form id="editProfileForm" action="/profile?_method=PUT" method="POST" enctype="multipart/form-data">
+
+                  <div class="edit-section">
+                    <label class="section-label">PROFILE PHOTO</label>
+                    <div class="photo-upload-row">
+                      <div class="edit-avatar">
+                        <% if (user.profileImage) { %>
+                          <img src="<%= user.profileImage %>" alt="Profile" id="avatarPreview" />
+                          <% } else { %>
+                            <div class="avatar-placeholder" id="avatarPlaceholder">
+                              <%= user.fullName.charAt(0).toUpperCase() %>
+                            </div>
+                            <img src="" alt="Profile" id="avatarPreview" style="display:none;" />
+                            <% } %>
+                      </div>
+                      <div class="photo-actions">
+                        <label for="profileImage" class="btn-upload">UPLOAD NEW PHOTO</label>
+                        <% if (user.profileImage) { %>
+                          <button type="submit" form="removePhotoForm" class="btn-remove-photo">Remove Photo</button>
+                          <% } %>
+
+                      </div>
+                    </div>
+                    <div id="imageUploadError" class="field-error" style="display:none; margin-top: 0.5rem;"></div>
+                  </div>
+
+                  <div class="edit-divider"></div>
+
+                  <div class="edit-section">
+                    <label class="section-label">PERSONAL INFORMATION</label>
+
+                    <div class="edit-form-row">
+                      <div class="form-group">
+                        <label>Full Name</label>
+                        <div class="input-wrapper <%= locals.fieldErrors?.fullName ? 'has-error' : '' %>">
+                          <input type="text" name="fullName"
+                            value="<%= locals.formData?.fullName || user.fullName || '' %>" placeholder="Your full name"
+                            required />
+                        </div>
+                        <% if (locals.fieldErrors?.fullName) { %>
+                          <div class="field-error">
+                            <%= locals.fieldErrors.fullName %>
+                          </div>
+                          <% } %>
+                      </div>
+                      <div class="form-group">
+                        <label>Phone</label>
+                        <div class="input-wrapper <%= locals.fieldErrors?.phone ? 'has-error' : '' %>">
+                          <input type="tel" name="phone" value="<%= locals.formData?.phone || user.phone || '' %>"
+                            placeholder="+1 (555) 000-0000" />
+                        </div>
+                        <% if (locals.fieldErrors?.phone) { %>
+                          <div class="field-error">
+                            <%= locals.fieldErrors.phone %>
+                          </div>
+                          <% } %>
+                      </div>
+                    </div>
+
+                    <div class="edit-form-row">
+                      <% if (user.googleId) { %>
+                        <div class="form-group">
+                          <label>Account Authentication</label>
+                          <div style="font-size: 0.85rem; color: #666; margin-bottom: 0.5rem; line-height: 1.4;">
+                            This account was created using Google Sign-In.<br>
+                            Your email address and password are managed by your Google account and cannot be changed
+                            from ELSH.
+                          </div>
+                          <div class="input-wrapper"
+                            style="background-color: #f5f5f5; border: 1px solid #ddd; padding: 0.8rem 1rem; border-radius: 4px; display: flex; align-items: center;">
+                            <span style="color: #666; font-size: 0.9rem; flex-grow: 1;">[<%= user.email %>]</span>
+                          </div>
+                          <input type="hidden" name="email" value="<%= user.email %>" id="emailInput"
+                            data-original="<%= user.email %>" />
+                        </div>
+                        <% } else { %>
+                          <div class="form-group">
+                            <label>Email Address</label>
+                            <div style="display: flex; gap: 1rem; align-items: center;">
+                              <div class="input-wrapper"
+                                style="background-color: #f5f5f5; border: 1px solid #ddd; padding: 0.8rem 1rem; border-radius: 4px; flex-grow: 1;">
+                                <span style="color: #666; font-size: 0.9rem;">
+                                  <%= user.email %>
+                                </span>
+                              </div>
+                              <button type="submit" form="changeEmailForm" class="btn-cancel"
+                                style="border-color: #556B5B; color: #556B5B; background: transparent; cursor: pointer; padding: 0.8rem 1.5rem; text-transform: uppercase; font-size: 0.8rem; font-weight: 500; transition: all 0.3s ease; white-space: nowrap; height: auto;">CHANGE</button>
+                            </div>
+                          </div>
+                          <% } %>
+                            <div class="form-group">
+                              <label>Gender</label>
+                              <% const selectedGender=locals.formData?.gender || user.gender || '' %>
+                                <div class="input-wrapper">
+                                  <select name="gender">
+                                    <option value="">Select Gender</option>
+                                    <option value="Male" <%=selectedGender==='Male' ? 'selected' : '' %>>Male</option>
+                                    <option value="Female" <%=selectedGender==='Female' ? 'selected' : '' %>>Female
+                                    </option>
+                                    <option value="Other" <%=selectedGender==='Other' ? 'selected' : '' %>>Other
+                                    </option>
+                                    <option value="Prefer not to say" <%=selectedGender==='Prefer not to say'
+                                      ? 'selected' : '' %>>Prefer not to say</option>
+                                  </select>
+                                </div>
+                            </div>
+                    </div>
+
+                    <div class="edit-form-row">
+                      <div class="form-group">
+                        <label>Date of Birth</label>
+                        <% const dobValue=locals.formData?.dateOfBirth || (user.dateOfBirth ? new
+                          Date(user.dateOfBirth).toISOString().split('T')[0] : '' ) %>
+                          <div class="input-wrapper">
+                            <input type="date" name="dateOfBirth" value="<%= dobValue %>" />
+                          </div>
+                      </div>
+                    </div>
+
+                  </div>
+
+                  <div class="edit-actions">
+                    <a href="/profile" class="btn-cancel">CANCEL</a>
+                    <button type="submit" class="btn-save">SAVE CHANGES</button>
+                  </div>
+
+                  <input type="file" id="profileImage" name="profileImage" accept="image/*" style="display:none;" />
+                </form>
+      </div>
     </div>
-  </div>
 
-  <!-- OTP Modal Overlay -->
-  <div class="otp-modal-overlay" id="otpModalOverlay" style="display: none;">
-    <div class="otp-modal">
-      <button type="button" class="otp-modal-close" id="closeOtpModal">&times;</button>
-      <div class="otp-modal-header">
-        <h2>Verify Your Email</h2>
-        <p>Enter the verification code sent to <br><strong id="maskedEmail"></strong></p>
-      </div>
-      
-      <div class="otp-modal-error" id="modalError" style="display: none;"></div>
+    <%- include('../partials/footer') %>
 
-      <div class="otp-inputs" id="modalOtpInputs">
-        <input type="text" maxlength="1" class="otp-box" inputmode="numeric" pattern="[0-9]*" />
-        <input type="text" maxlength="1" class="otp-box" inputmode="numeric" pattern="[0-9]*" />
-        <input type="text" maxlength="1" class="otp-box" inputmode="numeric" pattern="[0-9]*" />
-        <input type="text" maxlength="1" class="otp-box" inputmode="numeric" pattern="[0-9]*" />
-        <input type="text" maxlength="1" class="otp-box" inputmode="numeric" pattern="[0-9]*" />
-        <input type="text" maxlength="1" class="otp-box" inputmode="numeric" pattern="[0-9]*" />
-      </div>
+      <script>
+        const profileImageInput = document.getElementById('profileImage');
+        const avatarPreview = document.getElementById('avatarPreview');
+        const avatarPlaceholder = document.getElementById('avatarPlaceholder');
 
-      <button type="button" class="btn-verify-modal" id="verifyOtpBtn">Verify OTP</button>
+        const imageUploadError = document.getElementById('imageUploadError');
 
-      <div class="otp-resend">
-        <p>Didn't receive a code? <a href="#" id="modalResendBtn" class="resend-link disabled">Resend Code</a></p>
-        <p class="timer-text" id="modalTimerText">
-          RESEND AVAILABLE IN <span id="modalCountdown">59</span>S
-        </p>
-      </div>
-    </div>
-  </div>
-
-  <%- include('../partials/footer') %>
-
-  <script>
-    // Preview profile image before upload
-    const profileImageInput = document.getElementById('profileImage');
-    const avatarPreview = document.getElementById('avatarPreview');
-    const avatarPlaceholder = document.getElementById('avatarPlaceholder');
-
-    profileImageInput.addEventListener('change', (e) => {
-      const file = e.target.files[0];
-      if (file) {
-        const reader = new FileReader();
-        reader.onload = (e) => {
-          avatarPreview.src = e.target.result;
-          avatarPreview.style.display = 'block';
-          if (avatarPlaceholder) avatarPlaceholder.style.display = 'none';
-        };
-        reader.readAsDataURL(file);
-      }
-    });
-
-    // --- OTP Modal Logic ---
-    const editProfileForm = document.getElementById('editProfileForm');
-    const emailInput = document.getElementById('emailInput');
-    const originalEmail = emailInput.getAttribute('data-original');
-    
-    const otpModalOverlay = document.getElementById('otpModalOverlay');
-    const closeOtpModal = document.getElementById('closeOtpModal');
-    const modalError = document.getElementById('modalError');
-    const maskedEmail = document.getElementById('maskedEmail');
-    const verifyOtpBtn = document.getElementById('verifyOtpBtn');
-    const modalResendBtn = document.getElementById('modalResendBtn');
-    const modalTimerText = document.getElementById('modalTimerText');
-    const modalCountdown = document.getElementById('modalCountdown');
-    
-    let timerInterval;
-    let seconds = 59;
-    let pendingNewEmail = '';
-
-    const startTimer = () => {
-      clearInterval(timerInterval);
-      seconds = 59;
-      modalCountdown.textContent = seconds;
-      modalTimerText.style.display = 'block';
-      modalResendBtn.classList.add('disabled');
-      
-      timerInterval = setInterval(() => {
-        seconds--;
-        modalCountdown.textContent = seconds;
-        if (seconds <= 0) {
-          clearInterval(timerInterval);
-          modalTimerText.style.display = 'none';
-          modalResendBtn.classList.remove('disabled');
-        }
-      }, 1000);
-    };
-
-    // Intercept form submission
-    let isSubmitting = false;
-    const submitBtn = editProfileForm.querySelector('.btn-save');
-
-    editProfileForm.addEventListener('submit', async (e) => {
-      e.preventDefault();
-      
-      if (window.ELSHValidator && !window.ELSHValidator.validateForm(editProfileForm, ['fullName', 'phone', 'email'])) {
-          return;
-      }
-
-      if (isSubmitting) return;
-
-      const newEmail = emailInput.value.trim();
-      const original = originalEmail.trim();
-      
-      if (newEmail !== original) {
-        isSubmitting = true;
-        const originalBtnText = submitBtn.textContent;
-        submitBtn.textContent = 'PROCESSING...';
-        submitBtn.style.opacity = '0.7';
-
-        try {
-          const response = await fetch('/profile/edit-email-request', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ newEmail })
-          });
-          
-          const result = await response.json();
-          if (result.success) {
-            // Show Modal
-            pendingNewEmail = newEmail;
-            
-            // Mask email (e.g. joh*****@gmail.com)
-            const [local, domain] = newEmail.split('@');
-            const masked = local.slice(0, 3) + '*****@' + domain;
-            maskedEmail.textContent = masked;
-            
-            modalError.style.display = 'none';
-            otpModalOverlay.style.display = 'flex';
-            startTimer();
-          } else {
-            alert(result.message || 'Error processing email update');
+        profileImageInput.addEventListener('change', (e) => {
+          const file = e.target.files[0];
+          if (file) {
+            if (file.size > 5 * 1024 * 1024) {
+              imageUploadError.textContent = 'Profile image is too large. Choose a different image.';
+              imageUploadError.style.display = 'block';
+              profileImageInput.value = '';
+              return;
+            }
+            imageUploadError.style.display = 'none';
+            const reader = new FileReader();
+            reader.onload = (e) => {
+              avatarPreview.src = e.target.result;
+              avatarPreview.style.display = 'block';
+              if (avatarPlaceholder) avatarPlaceholder.style.display = 'none';
+            };
+            reader.readAsDataURL(file);
           }
-        } catch (err) {
-          alert('Network error. Please try again.');
-        } finally {
-          isSubmitting = false;
-          submitBtn.textContent = originalBtnText;
-          submitBtn.style.opacity = '1';
-        }
-      } else {
-        // No email change, submit normally
-        editProfileForm.submit();
-      }
-    });
+        });
 
-    closeOtpModal.addEventListener('click', () => {
-      otpModalOverlay.style.display = 'none';
-      clearInterval(timerInterval);
-    });
 
-    // Handle OTP Box Input
-    const otpBoxes = document.querySelectorAll('#modalOtpInputs .otp-box');
-    otpBoxes.forEach((box, index) => {
-      box.addEventListener('keypress', (e) => {
-        if (!/[0-9]/.test(e.key)) e.preventDefault();
-      });
-      box.addEventListener('input', () => {
-        box.value = box.value.replace(/[^0-9]/g, '');
-        if (box.value.length === 1 && index < otpBoxes.length - 1) {
-          otpBoxes[index + 1].focus();
-        }
-      });
-      box.addEventListener('keydown', (e) => {
-        if (e.key === 'Backspace' && box.value === '' && index > 0) {
-          otpBoxes[index - 1].focus();
-        }
-      });
-      // Paste support
-      box.addEventListener('paste', (e) => {
-        e.preventDefault();
-        const pastedData = e.clipboardData.getData('text').replace(/[^0-9]/g, '').slice(0, 6);
-        for (let i = 0; i < pastedData.length; i++) {
-          if (otpBoxes[index + i]) {
-            otpBoxes[index + i].value = pastedData[i];
-            if (index + i < otpBoxes.length - 1) otpBoxes[index + i + 1].focus();
+        const editProfileForm = document.getElementById('editProfileForm');
+        const submitBtn = editProfileForm.querySelector('.btn-save');
+        let isSubmitting = false;
+
+        editProfileForm.addEventListener('submit', (e) => {
+          if (window.ELSHValidator && !window.ELSHValidator.validateForm(editProfileForm, ['fullName', 'phone'])) {
+            e.preventDefault();
+            return;
           }
-        }
-      });
-    });
 
-    // Verify OTP
-    verifyOtpBtn.addEventListener('click', async () => {
-      const otp = Array.from(otpBoxes).map(b => b.value).join('');
-      if (otp.length < 6) {
-        modalError.textContent = 'Please enter a 6-digit code';
-        modalError.style.display = 'block';
-        return;
-      }
-      
-      try {
-        const response = await fetch('/profile/verify-email-otp', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ email: pendingNewEmail, otp })
+          if (isSubmitting) {
+            e.preventDefault();
+            return;
+          }
+          isSubmitting = true;
+          submitBtn.textContent = 'PROCESSING...';
+          submitBtn.style.opacity = '0.7';
         });
-        const result = await response.json();
-        
-        if (result.success) {
-          // Proceed with main form update
-          editProfileForm.submit();
-        } else {
-          modalError.textContent = result.message || 'Invalid OTP';
-          modalError.style.display = 'block';
-        }
-      } catch (err) {
-        modalError.textContent = 'Network error';
-        modalError.style.display = 'block';
-      }
-    });
-
-    // Resend OTP
-    modalResendBtn.addEventListener('click', async (e) => {
-      e.preventDefault();
-      if (modalResendBtn.classList.contains('disabled')) return;
-      
-      try {
-        const response = await fetch('/profile/edit-email-request', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ newEmail: pendingNewEmail })
-        });
-        const result = await response.json();
-        if (result.success) {
-          startTimer();
-          modalError.style.display = 'none';
-        } else {
-          modalError.textContent = result.message || 'Failed to resend';
-          modalError.style.display = 'block';
-        }
-      } catch (err) {
-        modalError.textContent = 'Network error';
-        modalError.style.display = 'block';
-      }
-    });
-  </script>
-  <script src="/js/validation.js"></script>
+      </script>
+      <script src="/js/validation.js"></script>
 
 </body>
+
 </html>

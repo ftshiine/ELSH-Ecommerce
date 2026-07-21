@@ -100,7 +100,7 @@
                               </td>
                               <td>
                                 <form
-                                  action="/admin/users/block-unblock/<%= user._id %>?page=<%= currentPage %>&search=<%= search %>"
+                                  action="/admin/users/<%= user._id %>/status?_method=PATCH&page=<%= currentPage %>&search=<%= search %>"
                                   method="POST" class="block-form">
                                   <button type="submit"
                                     class="action-btn confirm-action <%= user.isActive ? 'block-action' : 'unblock-action' %>"

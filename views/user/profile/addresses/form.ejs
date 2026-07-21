@@ -25,13 +25,13 @@
     <% } %>
 
     <div class="form-card">
-      <form action="/profile/addresses/<%= address ? 'edit/' + address._id : 'add' %>" method="POST" id="addressForm">
+      <form action="/profile/addresses/<%= address ? address._id + '?_method=PUT' : 'add' %>" method="POST" id="addressForm">
         
         <div class="form-row">
           <div class="form-group">
             <label>FULL NAME</label>
             <div class="input-wrapper <%= locals.fieldErrors?.fullName ? 'has-error' : '' %>">
-              <input type="text" name="fullName" placeholder="Julianne Moore" value="<%= locals.formData?.fullName || (address ? address.fullName : '') %>" required>
+              <input type="text" name="fullName" placeholder="Julianne Moore" value="<%= locals.formData?.fullName || (address ? address.fullName : '') %>">
             </div>
             <% if (locals.fieldErrors?.fullName) { %>
               <div class="field-error"><%= locals.fieldErrors.fullName %></div>
@@ -40,7 +40,7 @@
           <div class="form-group">
             <label>PHONE NUMBER</label>
             <div class="input-wrapper <%= locals.fieldErrors?.phone ? 'has-error' : '' %>">
-              <input type="text" name="phone" placeholder="+1 (555) 000-0000" value="<%= locals.formData?.phone || (address ? address.phone : '') %>" required>
+              <input type="text" name="phone" placeholder="+1 (555) 000-0000" value="<%= locals.formData?.phone || (address ? address.phone : '') %>">
             </div>
             <% if (locals.fieldErrors?.phone) { %>
               <div class="field-error"><%= locals.fieldErrors.phone %></div>
@@ -52,7 +52,7 @@
           <div class="form-group full-width">
             <label>ADDRESS LINE 1</label>
             <div class="input-wrapper <%= locals.fieldErrors?.addressLine1 ? 'has-error' : '' %>">
-              <input type="text" name="addressLine1" placeholder="Apartment, suite, unit, or building" value="<%= locals.formData?.addressLine1 || (address ? address.addressLine1 : '') %>" required>
+              <input type="text" name="addressLine1" placeholder="Apartment, suite, unit, or building" value="<%= locals.formData?.addressLine1 || (address ? address.addressLine1 : '') %>">
             </div>
             <% if (locals.fieldErrors?.addressLine1) { %>
               <div class="field-error"><%= locals.fieldErrors.addressLine1 %></div>
@@ -77,7 +77,7 @@
             <label>COUNTRY</label>
             <% const selectedCountry = locals.formData?.country || (address ? address.country : 'India') %>
             <div class="input-wrapper">
-              <select name="country" id="countrySelect" required>
+              <select name="country" id="countrySelect">
                 <option value="India" <%= selectedCountry === 'India' ? 'selected' : '' %>>India</option>
               </select>
             </div>
@@ -89,7 +89,7 @@
             <label>STATE</label>
             <% const selectedState = locals.formData?.state || (address ? address.state : '') %>
             <div class="input-wrapper">
-              <select name="state" id="stateSelect" required>
+              <select name="state" id="stateSelect">
                 <option value="" disabled <%= !selectedState ? 'selected' : '' %>>Select State</option>
                 <% 
                   const states = [
@@ -117,7 +117,7 @@
           <div class="form-group">
             <label>CITY</label>
             <div class="input-wrapper <%= locals.fieldErrors?.city ? 'has-error' : '' %>">
-              <input type="text" name="city" placeholder="Mumbai" value="<%= locals.formData?.city || (address ? address.city : '') %>" required>
+              <input type="text" name="city" placeholder="Mumbai" value="<%= locals.formData?.city || (address ? address.city : '') %>">
             </div>
             <% if (locals.fieldErrors?.city) { %>
               <div class="field-error"><%= locals.fieldErrors.city %></div>
@@ -126,7 +126,7 @@
           <div class="form-group">
             <label>PINCODE</label>
             <div class="input-wrapper <%= locals.fieldErrors?.pincode ? 'has-error' : '' %>">
-              <input type="text" name="pincode" placeholder="400001" value="<%= locals.formData?.pincode || (address ? address.pincode : '') %>" required>
+              <input type="text" name="pincode" placeholder="400001" value="<%= locals.formData?.pincode || (address ? address.pincode : '') %>">
             </div>
             <% if (locals.fieldErrors?.pincode) { %>
               <div class="field-error"><%= locals.fieldErrors.pincode %></div>

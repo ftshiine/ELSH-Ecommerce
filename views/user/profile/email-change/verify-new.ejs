@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>ELSH | Verify New Email</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="stylesheet" href="/css/user/change-password.css" />
+  <style>
+    .otp-inputs { display: flex; justify-content: space-between; margin: 1.5rem 0; }
+    .otp-box { width: 45px; height: 50px; font-size: 1.5rem; text-align: center; border: 1px solid #ddd; border-radius: 4px; }
+    .otp-box:focus { border-color: #556B5B; outline: none; }
+    .timer-text { font-size: 0.8rem; color: #666; margin-top: 1rem; text-align: center; }
+  </style>
+</head>
+<body>
+
+  <%- include('../../partials/home-navbar') %>
+
+  <div class="password-wrapper">
+
+    <div class="password-header">
+      <h2>Change Email Address</h2>
+      <p>Step 2 of 2: Verify your new email address.</p>
+    </div>
+
+    <div class="password-card" style="max-width: 500px; margin: 0 auto;">
+
+      <div class="password-form-area" style="width: 100%; border: none;">
+        <h3 style="text-align: center;">Security Verification</h3>
+        <p style="text-align: center; font-size: 0.9rem; color: #666; margin-bottom: 1.5rem;">
+          We've sent a 6-digit code to <strong><%= newEmail %></strong>.
+        </p>
+
+        <% if (locals.error) { %>
+          <div class="auth-error"><%= locals.error %></div>
+        <% } %>
+
+        <form action="/profile/email/verify-new" method="POST" id="verifyNewForm">
+          <div class="otp-inputs">
+            <input type="text" maxlength="1" class="otp-box" name="otp1" inputmode="numeric" pattern="[0-9]*" required />
+            <input type="text" maxlength="1" class="otp-box" name="otp2" inputmode="numeric" pattern="[0-9]*" required />
+            <input type="text" maxlength="1" class="otp-box" name="otp3" inputmode="numeric" pattern="[0-9]*" required />
+            <input type="text" maxlength="1" class="otp-box" name="otp4" inputmode="numeric" pattern="[0-9]*" required />
+            <input type="text" maxlength="1" class="otp-box" name="otp5" inputmode="numeric" pattern="[0-9]*" required />
+            <input type="text" maxlength="1" class="otp-box" name="otp6" inputmode="numeric" pattern="[0-9]*" required />
+          </div>
+
+          <button type="submit" class="btn-primary" id="verifyBtn">VERIFY & SAVE</button>
+        </form>
+        
+        <div style="text-align: center; margin-top: 1rem;">
+          <form action="/profile/email/cancel" method="POST" style="display: inline;">
+            <button type="submit" class="btn-secondary" style="border: none; background: transparent; text-decoration: underline; padding: 0;">CANCEL</button>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <%- include('../../partials/footer') %>
+
+  <script>
+    const boxes = document.querySelectorAll('.otp-box');
+    boxes.forEach((box, index) => {
+      box.addEventListener('keypress', (e) => {
+        if (!/[0-9]/.test(e.key)) e.preventDefault();
+      });
+      box.addEventListener('input', () => {
+        box.value = box.value.replace(/[^0-9]/g, '');
+        if (box.value.length === 1 && index < boxes.length - 1) {
+          boxes[index + 1].focus();
+        }
+      });
+      box.addEventListener('keydown', (e) => {
+        if (e.key === 'Backspace' && box.value === '' && index > 0) {
+          boxes[index - 1].focus();
+        }
+      });
+      box.addEventListener('paste', (e) => {
+        e.preventDefault();
+        const pastedData = e.clipboardData.getData('text').replace(/[^0-9]/g, '').slice(0, 6);
+        for (let i = 0; i < pastedData.length; i++) {
+          if (boxes[index + i]) {
+            boxes[index + i].value = pastedData[i];
+            if (index + i < boxes.length - 1) boxes[index + i + 1].focus();
+          }
+        }
+      });
+    });
+  </script>
+</body>
+</html>

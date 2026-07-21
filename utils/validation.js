@@ -12,21 +12,9 @@ export const rules = {
     return null;
   },
 
-  username: (value) => {
-    if (!value || value.trim().length < 4 || value.trim().length > 20) {
-      return 'Username must be between 4 and 20 characters';
-    }
-    if (!/^[a-zA-Z]/.test(value.trim())) {
-      return 'Username must start with a letter';
-    }
-    if (!/^[a-zA-Z0-9_.]+$/.test(value.trim())) {
-      return 'Username can only contain letters, numbers, underscores and periods';
-    }
-    if (/\s/.test(value)) {
-      return 'Username cannot contain spaces';
-    }
-    if (/__/.test(value) || /\.\./.test(value)) {
-      return 'Username cannot contain consecutive underscores or periods';
+  terms: (value) => {
+    if (value !== 'on' && value !== true && value !== 'true') {
+      return 'You must accept the Terms and Conditions and Privacy Policy';
     }
     return null;
   },
@@ -46,8 +34,8 @@ export const rules = {
   },
 
   password: (value) => {
-    if (!value || value.length < 8 || value.length > 64) {
-      return 'Password must be between 8 and 64 characters';
+    if (!value || value.length < 8 || value.length > 20) {
+      return 'Password must be between 8 and 20 characters';
     }
     if (!/(?=.*[A-Z])/.test(value)) {
       return 'Password must contain at least one uppercase letter';

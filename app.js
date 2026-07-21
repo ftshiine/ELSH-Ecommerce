@@ -1,4 +1,5 @@
 import express from 'express';
+import methodOverride from 'method-override';
 import dotenv from 'dotenv';
 import connectDB from './config/db.js';
 import adminAuthRoutes from './routes/admin/authRoutes.js';
@@ -24,6 +25,7 @@ connectDB();
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+app.use(methodOverride('_method'));
 
 app.use(sessionConfig)
 
@@ -46,8 +48,8 @@ app.use(formStateMiddleware);
 
 
 app.use((req, res, next) => {
-  res.locals.success = req.session.success || null;
-  res.locals.error = req.session.error || null;
+  res.locals.success = req.session.success || res.locals.success || null;
+  res.locals.error = req.session.error || res.locals.error || null;
   delete req.session.success;
   delete req.session.error;
   next();

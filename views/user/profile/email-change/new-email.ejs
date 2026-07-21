@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>ELSH | Enter New Email</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="stylesheet" href="/css/user/change-password.css" />
+</head>
+<body>
+
+  <%- include('../../partials/home-navbar') %>
+
+  <div class="password-wrapper">
+
+    <div class="password-header">
+      <h2>Change Email Address</h2>
+      <p>Enter your new email address below.</p>
+    </div>
+
+    <div class="password-card" style="max-width: 500px; margin: 0 auto;">
+
+      <div class="password-form-area" style="width: 100%; border: none;">
+        <h3 style="text-align: center;">New Email Address</h3>
+
+        <% if (locals.error) { %>
+          <div class="auth-error"><%= locals.error %></div>
+        <% } %>
+
+        <form action="/profile/email/new" method="POST" id="newEmailForm">
+          <div class="form-group">
+            <label>NEW EMAIL</label>
+            <div class="input-wrapper <%= locals.fieldErrors?.newEmail ? 'has-error' : '' %>">
+              <input type="email" name="newEmail" id="newEmail" value="<%= locals.formData?.newEmail || '' %>" placeholder="Enter new email address" required />
+            </div>
+            <% if (locals.fieldErrors?.newEmail) { %>
+              <div class="field-error"><%= locals.fieldErrors.newEmail %></div>
+            <% } %>
+          </div>
+
+          <button type="submit" class="btn-primary" id="continueBtn" style="margin-top: 1.5rem;">CONTINUE</button>
+        </form>
+
+        <div style="text-align: center; margin-top: 1rem;">
+          <form action="/profile/email/cancel" method="POST" style="display: inline;">
+            <button type="submit" class="btn-secondary" style="border: none; background: transparent; text-decoration: underline; padding: 0;">CANCEL</button>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <%- include('../../partials/footer') %>
+
+  <script>
+    document.getElementById('newEmailForm').addEventListener('submit', function(e) {
+      if (window.ELSHValidator && !window.ELSHValidator.validateForm(this, ['email'])) {
+          e.preventDefault();
+          return;
+      }
+      const btn = document.getElementById('continueBtn');
+      if (btn.classList.contains('processing')) {
+        e.preventDefault();
+        return;
+      }
+      btn.classList.add('processing');
+      btn.innerHTML = 'PROCESSING...';
+    });
+  </script>
+  <script src="/js/validation.js"></script>
+</body>
+</html>

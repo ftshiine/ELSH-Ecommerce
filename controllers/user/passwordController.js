@@ -4,31 +4,28 @@ import { validate } from '../../utils/validation.js';
 import bcrypt from 'bcrypt';
 
 const loadForgotPassword = (req, res) => {
-  res.render('user/auth/forgot-password', { error: null, success: null });
+  res.render('user/auth/forgot-password');
 };
 
 const sendForgotPasswordOTP = async (req, res) => {
   try {
     const { email } = req.body;
     if (!email) {
-      return res.render('user/auth/forgot-password', { error: 'Email is required', success: null });
+      return res.redirectWithState('/forgot-password', { error: 'Email is required' });
     }
 
     const user = await findUserByEmail(email.toLowerCase().trim());
 
-    // Always show success message to prevent email enumeration, but only send OTP if user exists and is active.
     if (user && user.isActive) {
       await sendOTP(user.email);
       req.session.resetEmailUser = user.email;
       req.session.resetOtpSentAtUser = Date.now();
       return res.redirect('/forgot-password/otp');
     }
-
-    e
-    res.render('user/auth/forgot-password', { error: null, success: 'If an account exists, an email was sent.' });
+    res.redirectWithState('/forgot-password', { success: 'If an account exists, an email was sent.' });
   } catch (error) {
     console.error('Forgot password error:', error);
-    res.render('user/auth/forgot-password', { error: 'Something went wrong', success: null });
+    res.redirectWithState('/forgot-password', { error: 'Something went wrong' });
   }
 };
 
@@ -66,7 +63,7 @@ const loadForgotOTP = (req, res) => {
   const elapsed = Math.floor((now - otpSentAt) / 1000);
   const remaining = Math.max(59 - elapsed, 0);
 
-  res.render('user/auth/forgot-otp', { error: null, remaining });
+  res.render('user/auth/forgot-otp', { remaining });
 };
 
 const verifyForgotOTP = async (req, res) => {
@@ -84,7 +81,7 @@ const verifyForgotOTP = async (req, res) => {
       const otpSentAt = req.session.resetOtpSentAtUser || now;
       const elapsed = Math.floor((now - otpSentAt) / 1000);
       const remaining = Math.max(59 - elapsed, 0);
-      return res.render('user/auth/forgot-otp', { error: result.message, remaining });
+      return res.redirectWithState('/forgot-password/otp', { error: result.message });
     }
 
     req.session.otpVerifiedUser = true;
@@ -92,7 +89,7 @@ const verifyForgotOTP = async (req, res) => {
 
   } catch (error) {
     console.error('Forgot OTP verify error:', error);
-    res.render('user/auth/forgot-otp', { error: 'Something went wrong', remaining: 0 });
+    res.redirectWithState('/forgot-password/otp', { error: 'Something went wrong' });
   }
 };
 
@@ -115,7 +112,7 @@ const loadResetPassword = (req, res) => {
   if (!req.session.resetEmailUser || !req.session.otpVerifiedUser) {
     return res.redirect('/forgot-password');
   }
-  res.render('user/auth/reset-password', { error: null });
+  res.render('user/auth/reset-password');
 };
 
 const resetPassword = async (req, res) => {
@@ -130,12 +127,12 @@ const resetPassword = async (req, res) => {
     const validation = validate({ password: newPassword, confirmPassword }, ['password', 'confirmPassword']);
     if (!validation.isValid) {
       const firstError = Object.values(validation.errors)[0];
-      return res.render('user/auth/reset-password', { error: firstError });
+      return res.redirectWithState('/forgot-password/reset', { error: firstError });
     }
 
     await updatePassword(email, newPassword);
 
-    
+
     delete req.session.resetEmailUser;
     delete req.session.resetOtpSentAtUser;
     delete req.session.otpVerifiedUser;
@@ -150,7 +147,7 @@ const resetPassword = async (req, res) => {
 
   } catch (error) {
     console.error('Reset password error:', error);
-    res.render('user/auth/reset-password', { error: 'Something went wrong' });
+    res.redirectWithState('/forgot-password/reset', { error: 'Something went wrong' });
   }
 };
 
@@ -161,7 +158,7 @@ const loadChangePassword = async (req, res) => {
       req.session.error = 'This account uses Google Sign-In. Your password is managed by your Google account.';
       return res.redirect('/profile');
     }
-    res.render('user/profile/change-password', { error: null, success: null });
+    res.render('user/profile/change-password');
   } catch (error) {
     console.error('Load change password error:', error);
     res.redirect('/profile');
@@ -171,53 +168,85 @@ const loadChangePassword = async (req, res) => {
 const changePassword = async (req, res) => {
   try {
     const { currentPassword, newPassword, confirmPassword } = req.body;
-    const userId = req.session.user.id;
     const userEmail = req.session.user.email;
+    const fieldErrors = {};
 
+    // 1. Missing Fields
     if (!currentPassword || !newPassword || !confirmPassword) {
-      return res.render('user/profile/change-password', { error: 'All fields are required', success: null });
+      return res.redirectWithState('/profile/change-password', { error: 'All fields are required.' });
     }
 
+    // 2. Password Match
+    if (newPassword !== confirmPassword) {
+      fieldErrors.confirmPassword = 'Passwords do not match.';
+      return res.redirectWithState('/profile/change-password', { 
+        error: 'Please correct the highlighted fields.', 
+        fieldErrors 
+      });
+    }
+
+    // 3. Password History
+    if (newPassword === currentPassword) {
+      fieldErrors.newPassword = 'New password must be different from current password.';
+      return res.redirectWithState('/profile/change-password', { 
+        error: 'Please correct the highlighted fields.', 
+        fieldErrors 
+      });
+    }
+
+    // 4. Password Strength
+    const minLengthRegex = /.{8,}/;
+    const uppercaseRegex = /[A-Z]/;
+    const lowercaseRegex = /[a-z]/;
+    const numberSpecialRegex = /[0-9!@#$%^&*(),.?":{}|<>]/;
+
+    if (!minLengthRegex.test(newPassword)) {
+      fieldErrors.newPassword = 'Password must be at least 8 characters long.';
+    } else if (!uppercaseRegex.test(newPassword) || !lowercaseRegex.test(newPassword)) {
+      fieldErrors.newPassword = 'Password must contain at least one uppercase and one lowercase letter.';
+    } else if (!numberSpecialRegex.test(newPassword)) {
+      fieldErrors.newPassword = 'Password must contain at least one number or special character.';
+    }
+
+    if (Object.keys(fieldErrors).length > 0) {
+      return res.redirectWithState('/profile/change-password', { 
+        error: 'Please correct the highlighted fields.', 
+        fieldErrors 
+      });
+    }
+
+    // Proceed to Database Operations
     const user = await findUserByEmail(userEmail);
     if (!user) {
       return res.redirect('/login');
     }
 
     if (user.googleId) {
-      req.session.error = 'This account uses Google Sign-In. Your password is managed by your Google account.';
+      req.session.error = 'This account uses Google Sign-In. Password is managed by your Google account.';
       return res.redirect('/profile');
     }
 
     const isMatch = await bcrypt.compare(currentPassword, user.password);
     if (!isMatch) {
-      return res.render('user/profile/change-password', { error: 'Current password is incorrect', success: null });
+      fieldErrors.currentPassword = 'Current password is incorrect.';
+      return res.redirectWithState('/profile/change-password', { 
+        error: 'Please correct the highlighted fields.', 
+        fieldErrors 
+      });
     }
 
-    
-    const validation = validate({ password: newPassword, confirmPassword }, ['password', 'confirmPassword']);
-    if (!validation.isValid) {
-      if (validation.errors.password) {
-        validation.errors.newPassword = validation.errors.password;
-        delete validation.errors.password;
-      }
-      return res.render('user/profile/change-password', { error: 'Please correct the highlighted fields.', fieldErrors: validation.errors, success: null });
-    }
-
-    if (newPassword === currentPassword) {
-      return res.render('user/profile/change-password', { error: null, fieldErrors: { password: 'New password must be different from current password' }, success: null });
-    }
-
-    
     await updatePassword(userEmail, newPassword);
 
     req.session.success = 'Password updated successfully.';
     res.redirect('/profile');
 
   } catch (error) {
-    console.error('Change password error:', error);
-    res.render('user/profile/change-password', { error: 'Something went wrong', success: null });
+    console.error('change password error:', error);
+    res.redirectWithState('/profile/change-password', { error: 'Something went wrong.' });
   }
 };
+
+
 
 export {
   loadForgotPassword,

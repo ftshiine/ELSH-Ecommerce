@@ -10,7 +10,7 @@ const sendForgotPasswordOTP = async (req, res) => {
   try {
     const { email } = req.body;
     if (!email) {
-      return res.render('admin/auth/forgot-password', { error: 'Email is required', success: null });
+      return res.redirectWithState('/admin/forgot-password', { error: 'Email is required' });
     }
 
     const admin = await findAdminByEmail(email.toLowerCase().trim());
@@ -24,10 +24,10 @@ const sendForgotPasswordOTP = async (req, res) => {
     }
 
     
-    res.render('admin/auth/forgot-password', { error: null, success: 'Invalid credentials.' });
+    res.redirectWithState('/admin/forgot-password', { success: 'Invalid credentials.' });
   } catch (error) {
     console.error('Admin Forgot password error:', error);
-    res.render('admin/auth/forgot-password', { error: 'Something went wrong', success: null });
+    res.redirectWithState('/admin/forgot-password', { error: 'Something went wrong' });
   }
 };
 
@@ -58,7 +58,7 @@ const verifyForgotOTP = async (req, res) => {
       const otpSentAt = req.session.resetOtpSentAtAdmin || now;
       const elapsed = Math.floor((now - otpSentAt) / 1000);
       const remaining = Math.max(59 - elapsed, 0);
-      return res.render('admin/auth/forgot-otp', { error: result.message, remaining });
+      return res.redirectWithState('/admin/forgot-password/otp', { error: result.message });
     }
 
     req.session.otpVerifiedAdmin = true;
@@ -66,7 +66,7 @@ const verifyForgotOTP = async (req, res) => {
 
   } catch (error) {
     console.error('Admin Forgot OTP verify error:', error);
-    res.render('admin/auth/forgot-otp', { error: 'Something went wrong', remaining: 0 });
+    res.redirectWithState('/admin/forgot-password/otp', { error: 'Something went wrong' });
   }
 };
 
@@ -104,7 +104,7 @@ const resetPassword = async (req, res) => {
     const validation = validate({ password: newPassword, confirmPassword }, ['password', 'confirmPassword']);
     if (!validation.isValid) {
       const firstError = Object.values(validation.errors)[0];
-      return res.render('admin/auth/reset-password', { error: firstError });
+      return res.redirectWithState('/admin/forgot-password/reset', { error: firstError });
     }
 
     await updatePassword(email, newPassword);
@@ -119,7 +119,7 @@ const resetPassword = async (req, res) => {
 
   } catch (error) {
     console.error('Admin Reset password error:', error);
-    res.render('admin/auth/reset-password', { error: 'Something went wrong' });
+    res.redirectWithState('/admin/forgot-password/reset', { error: 'Something went wrong' });
   }
 };
 

@@ -9,20 +9,17 @@ const requireAuth = (role) => async (req, res, next) => {
     return res.redirect(redirectUrl);
   }
 
-  
+
   if (role === 'user') {
     try {
       const user = await User.findById(sessionUser.id);
       const validation = validateAccountStatus(user);
 
       if (!validation.isValid) {
-        
-        delete req.session.user;
 
-        if (req.logout) {
-          req.logout({ keepSessionInfo: true }, (err) => {
-            if (err) console.error('Passport logout error during account block:', err);
-          });
+        delete req.session.user;
+        if (req.session.passport) {
+          delete req.session.passport;
         }
 
         req.session.error = validation.message;

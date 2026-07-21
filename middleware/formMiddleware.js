@@ -1,32 +1,44 @@
 export const formStateMiddleware = (req, res, next) => {
-    const originalRender = res.render;
+    if (req.session.formState) {
+        res.locals.error = req.session.formState.error || res.locals.error || null;
+        res.locals.success = req.session.formState.success || res.locals.success || null;
+        res.locals.fieldErrors = req.session.formState.fieldErrors || null;
+        res.locals.formData = req.session.formState.formData || null;
+        
+        delete req.session.formState;
+    }
 
-    res.render = function (view, options, callback) {
-        options = options || {};
+    res.redirectWithState = function(url, state = {}) {
+        const sensitiveFields = [
+            'password', 'confirmPassword', 'newPassword', 'oldPassword',
+            'otp', 'otp1', 'otp2', 'otp3', 'otp4', 'otp5', 'otp6',
+            'cvv', 'securityCode', 'cardNumber'
+        ];
 
-        if (options.error && req.method === 'POST') {
-            const formData = { ...req.body };
+        let formData = state.formData || (req.body ? { ...req.body } : {});
+        sensitiveFields.forEach(field => {
+            delete formData[field];
+        });
 
-            const sensitiveFields = [
-                'password', 'confirmPassword', 'newPassword', 'oldPassword',
-                'otp', 'otp1', 'otp2', 'otp3', 'otp4', 'otp5', 'otp6',
-                'cvv', 'securityCode', 'cardNumber'
-            ];
-
-            sensitiveFields.forEach(field => {
-                delete formData[field];
-            });
-
-            options.formData = options.formData || formData;
+        let error = state.error;
+        if (state.fieldErrors && Object.keys(state.fieldErrors).length > 0) {
+            const firstErrorKey = Object.keys(state.fieldErrors)[0];
+            error = state.fieldErrors[firstErrorKey];
         }
 
+        req.session.formState = {
+            error: error || null,
+            success: state.success || null,
+            fieldErrors: state.fieldErrors || null,
+            formData: formData
+        };
 
-        if (options.error && options.fieldErrors && Object.keys(options.fieldErrors).length > 0) {
-            const firstErrorKey = Object.keys(options.fieldErrors)[0];
-            options.error = options.fieldErrors[firstErrorKey];
-        }
-
-        originalRender.call(this, view, options, callback);
+        req.session.save((err) => {
+            if (err) {
+                console.error('Session save error during PRG redirect:', err);
+            }
+            res.redirect(url);
+        });
     };
 
     next();

@@ -1,6 +1,6 @@
 import express from 'express';
 import passport from 'passport';
-import { loadSignup, signup, loadOTP, verifyOTPHandler, resendOTP, loadLogin, login, logout } from '../../controllers/user/authController.js';
+import { loadSignup, signup, loadOTP, verifyOTPHandler, resendOTP, loadLogin, login, logout, googleAuthCallback } from '../../controllers/user/authController.js';
 import { loadForgotPassword, sendForgotPasswordOTP, loadForgotOTP, verifyForgotOTP, resendForgotOTP, loadResetPassword, resetPassword } from '../../controllers/user/passwordController.js';
 import { requireAuth, requireGuest } from '../../middleware/authMiddleware.js';
 
@@ -38,38 +38,7 @@ router.get('/auth/google', requireGuest('user'), passport.authenticate('google',
 router.get('/auth/google/callback',
   requireGuest('user'),
   passport.authenticate('google', { failureRedirect: '/login', session: false }),
-  (req, res) => {
-   
-    req.session.user = {
-      id: req.user._id,
-      fullName: req.user.fullName,
-      email: req.user.email,
-      role: req.user.role,
-    };
-
-
-
-    res.send(`
-      <!DOCTYPE html>
-      <html>
-      <head>
-        <title>Authenticating...</title>
-        <script>
-          if (window.opener && !window.opener.closed) {
-            window.opener.location.href = '/home';
-            window.close();
-          } else {
-            window.location.replace('/home');
-          }
-        </script>
-        <noscript>
-          <meta http-equiv="refresh" content="0;url=/home">
-        </noscript>
-      </head>
-      <body></body>
-      </html>
-    `);
-  }
+  googleAuthCallback
 );
 
 export default router;

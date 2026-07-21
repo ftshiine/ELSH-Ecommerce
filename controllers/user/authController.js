@@ -1,4 +1,4 @@
-import { findUserByEmail, findUserByUsername, createUser, validateAccountStatus } from '../../services/user/authService.js';
+import { findUserByEmail, createUser, validateAccountStatus } from '../../services/user/authService.js';
 import { sendOTP, verifyOTP } from '../../services/user/otpService.js';
 import { validate } from '../../utils/validation.js';
 import bcrypt from 'bcrypt';
@@ -10,27 +10,23 @@ const loadSignup = (req, res) => {
 
 const signup = async (req, res) => {
   try {
-    const { fullName, username, email, phone, password, confirmPassword } = req.body;
+    if (req.body.fullName) req.body.fullName = req.body.fullName.trim();
+    if (req.body.email) req.body.email = req.body.email.trim().toLowerCase();
 
-    
-    const validation = validate(req.body, ['fullName', 'username', 'email', 'phone', 'password', 'confirmPassword']);
+    const { fullName, email, phone, password, confirmPassword } = req.body;
+
+    const validation = validate(req.body, ['fullName', 'email', 'phone', 'password', 'confirmPassword', 'terms']);
     if (!validation.isValid) {
-      return res.render('user/auth/signup', { error: 'Please correct the highlighted fields.', fieldErrors: validation.errors });
+      return res.redirectWithState('/signup', { error: 'Please correct the highlighted fields.', fieldErrors: validation.errors });
     }
 
     
     const existingEmail = await findUserByEmail(email);
     if (existingEmail) {
-      return res.render('user/auth/signup', { error: 'Please correct the highlighted fields.', fieldErrors: { email: 'Email already registered' } });
+      return res.redirectWithState('/signup', { error: 'Please correct the highlighted fields.', fieldErrors: { email: 'Email already registered' } });
     }
 
-
-    const existingUsername = await findUserByUsername(username);
-    if (existingUsername) {
-      return res.render('user/auth/signup', { error: 'Please correct the highlighted fields.', fieldErrors: { username: 'Username already taken' } });
-    }
-
-    await createUser({ fullName, username, email, phone, password });
+    await createUser({ fullName, email, phone, password });
     await sendOTP(email);
 
     req.session.pendingEmail = email;
@@ -39,7 +35,7 @@ const signup = async (req, res) => {
 
   } catch (error) {
     console.error('Signup error:', error);
-    res.render('user/auth/signup', { error: 'Something went wrong' });
+    res.redirectWithState('/signup', { error: 'Something went wrong' });
   }
 };
 
@@ -70,7 +66,7 @@ const verifyOTPHandler = async (req, res) => {
       const otpSentAt = req.session.otpSentAt || now;
       const elapsed = Math.floor((now - otpSentAt) / 1000);
       const remaining = Math.max(59 - elapsed, 0);
-      return res.render('user/auth/otp', { error: result.message, remaining });
+      return res.redirectWithState('/otp', { error: result.message });
     }
 
     
@@ -85,7 +81,7 @@ const verifyOTPHandler = async (req, res) => {
 
   } catch (error) {
     console.error('OTP verify error:', error);
-    res.render('user/auth/otp', { error: 'Something went wrong', remaining: 0 });
+    res.redirectWithState('/otp', { error: 'Something went wrong' });
   }
 };
 
@@ -122,28 +118,28 @@ const login = async (req, res) => {
     }
 
     if (!validationRes.isValid) {
-      return res.render('user/auth/login', { error: 'Please correct the highlighted fields.', fieldErrors: validationRes.errors })
+      return res.redirectWithState('/login', { error: 'Please correct the highlighted fields.', fieldErrors: validationRes.errors })
     }
 
     if (!email || !password) {
-      return res.render('user/auth/login', { error: 'All fields are required' });
+      return res.redirectWithState('/login', { error: 'All fields are required' });
     }
 
     const user = await findUserByEmail(email);
 
     
     if (!user) {
-      return res.render('user/auth/login', { error: 'Invalid email or password' });
+      return res.redirectWithState('/login', { error: 'Invalid email or password' });
     }
 
     const validation = validateAccountStatus(user);
     if (!validation.isValid) {
-      return res.render('user/auth/login', { error: validation.message });
+      return res.redirectWithState('/login', { error: validation.message });
     }
 
     const isMatch = await bcrypt.compare(password, user.password);
     if (!isMatch) {
-      return res.render('user/auth/login', { error: 'Invalid email or password' });
+      return res.redirectWithState('/login', { error: 'Invalid email or password' });
     }
 
     req.session.user = {
@@ -157,7 +153,7 @@ const login = async (req, res) => {
 
   } catch (error) {
     console.error('Login error:', error);
-    res.render('user/auth/login', { error: 'Something went wrong' })
+    res.redirectWithState('/login', { error: 'Something went wrong' })
   }
 };
 
@@ -196,7 +192,37 @@ const logout = (req, res) => {
   }
 }
 
-export { loadSignup, signup, loadOTP, verifyOTPHandler, resendOTP, loadLogin, login, logout };
+const googleAuthCallback = (req, res) => {
+  req.session.user = {
+    id: req.user._id,
+    fullName: req.user.fullName,
+    email: req.user.email,
+    role: req.user.role,
+  };
+
+  res.send(`
+    <!DOCTYPE html>
+    <html>
+    <head>
+      <title>Authenticating...</title>
+      <script>
+        if (window.opener && !window.opener.closed) {
+          window.opener.location.href = '/home';
+          window.close();
+        } else {
+          window.location.replace('/home');
+        }
+      </script>
+      <noscript>
+        <meta http-equiv="refresh" content="0;url=/home">
+      </noscript>
+    </head>
+    <body></body>
+    </html>
+  `);
+};
+
+export { loadSignup, signup, loadOTP, verifyOTPHandler, resendOTP, loadLogin, login, logout, googleAuthCallback };
 
 
 

@@ -18,17 +18,17 @@ const login = async (req, res) => {
 
     if (!validationRes.isValid) {
       const firstError = Object.values(validationRes.errors)[0];
-      return res.render('admin/auth/login', { error: firstError });
+      return res.redirectWithState('/admin/login', { error: firstError });
     }
 
     const admin = await findAdminByEmail(email);
     if (!admin) {
-      return res.render('admin/auth/login', { error: 'Invalid email or password' });
+      return res.redirectWithState('/admin/login', { error: 'Invalid email or password' });
     }
 
     const isMatch = await verifyPassword(password, admin.password);
     if (!isMatch) {
-      return res.render('admin/auth/login', { error: 'Invalid email or password' });
+      return res.redirectWithState('/admin/login', { error: 'Invalid email or password' });
     }
 
     req.session.admin = {
@@ -41,7 +41,7 @@ const login = async (req, res) => {
     res.redirect('/admin/dashboard');
   } catch (error) {
     console.error('Admin login error:', error);
-    res.render('admin/auth/login', { error: 'Something went wrong' });
+    res.redirectWithState('/admin/login', { error: 'Something went wrong' });
   }
 };
 
