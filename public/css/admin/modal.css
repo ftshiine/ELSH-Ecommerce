@@ -100,3 +100,13 @@
   background: #c0392b;
   color: #ffffff;
 }
+
+.modal-btn-positive {
+  background: #7a8c6a;
+  color: #ffffff;
+}
+
+.modal-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}

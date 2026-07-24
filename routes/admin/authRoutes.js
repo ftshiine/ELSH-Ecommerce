@@ -1,5 +1,5 @@
 import express from 'express';
-import { loadLogin, login, logout } from '../../controllers/admin/authController.js';
+import { loadLogin,login, logout } from '../../controllers/admin/authController.js';
 import { loadForgotPassword, sendForgotPasswordOTP, loadForgotOTP, verifyForgotOTP, resendForgotOTP, loadResetPassword, resetPassword } from '../../controllers/admin/passwordController.js';
 import { requireAuth, requireGuest } from '../../middleware/authMiddleware.js';
 

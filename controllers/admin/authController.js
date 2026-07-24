@@ -68,4 +68,4 @@ const logout = (req, res) => {
   }
 };
 
-export { loadLogin, login, logout };
+export { loadLogin,login, logout };

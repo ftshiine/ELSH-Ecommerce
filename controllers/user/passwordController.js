@@ -171,30 +171,30 @@ const changePassword = async (req, res) => {
     const userEmail = req.session.user.email;
     const fieldErrors = {};
 
-    // 1. Missing Fields
+
     if (!currentPassword || !newPassword || !confirmPassword) {
       return res.redirectWithState('/profile/change-password', { error: 'All fields are required.' });
     }
 
-    // 2. Password Match
+
     if (newPassword !== confirmPassword) {
       fieldErrors.confirmPassword = 'Passwords do not match.';
-      return res.redirectWithState('/profile/change-password', { 
-        error: 'Please correct the highlighted fields.', 
-        fieldErrors 
+      return res.redirectWithState('/profile/change-password', {
+        error: 'Please correct the highlighted fields.',
+        fieldErrors
       });
     }
 
-    // 3. Password History
+
     if (newPassword === currentPassword) {
       fieldErrors.newPassword = 'New password must be different from current password.';
-      return res.redirectWithState('/profile/change-password', { 
-        error: 'Please correct the highlighted fields.', 
-        fieldErrors 
+      return res.redirectWithState('/profile/change-password', {
+        error: 'Please correct the highlighted fields.',
+        fieldErrors
       });
     }
 
-    // 4. Password Strength
+
     const minLengthRegex = /.{8,}/;
     const uppercaseRegex = /[A-Z]/;
     const lowercaseRegex = /[a-z]/;
@@ -209,13 +209,13 @@ const changePassword = async (req, res) => {
     }
 
     if (Object.keys(fieldErrors).length > 0) {
-      return res.redirectWithState('/profile/change-password', { 
-        error: 'Please correct the highlighted fields.', 
-        fieldErrors 
+      return res.redirectWithState('/profile/change-password', {
+        error: 'Please correct the highlighted fields.',
+        fieldErrors
       });
     }
 
-    // Proceed to Database Operations
+
     const user = await findUserByEmail(userEmail);
     if (!user) {
       return res.redirect('/login');
@@ -229,9 +229,9 @@ const changePassword = async (req, res) => {
     const isMatch = await bcrypt.compare(currentPassword, user.password);
     if (!isMatch) {
       fieldErrors.currentPassword = 'Current password is incorrect.';
-      return res.redirectWithState('/profile/change-password', { 
-        error: 'Please correct the highlighted fields.', 
-        fieldErrors 
+      return res.redirectWithState('/profile/change-password', {
+        error: 'Please correct the highlighted fields.',
+        fieldErrors
       });
     }
 

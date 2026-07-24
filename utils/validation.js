@@ -12,6 +12,19 @@ export const rules = {
     return null;
   },
 
+  username: (value) => {
+    if (!value || value.trim().length < 3 || value.trim().length > 15) {
+      return 'Full name must be between 3 and 15 characters';
+    }
+    if (!/^[a-zA-Z\s]+$/.test(value.trim())) {
+      return 'username can only contain letters';
+    }
+    if (/\s{2,}/.test(value.trim())) {
+      return 'Multiple consecutive spaces are not allowed';
+    }
+    return null;
+  },
+
   terms: (value) => {
     if (value !== 'on' && value !== true && value !== 'true') {
       return 'You must accept the Terms and Conditions and Privacy Policy';

@@ -23,7 +23,7 @@ const createUser = async (userData) => {
 const updatePassword = async (email, newPassword) => {
   const hashedPassword = await bcrypt.hash(newPassword, 10);
   return await User.findOneAndUpdate({ email }, { password: hashedPassword });
-};
+}
 
 const validateAccountStatus = (user) => {
   if (!user) {

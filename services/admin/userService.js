@@ -23,6 +23,7 @@ const getAllUsers = async (search, page, limit) => {
 
 const toggleBlockUser = async (userId) => {
   const user = await User.findById(userId);
+
   user.isActive = !user.isActive;
   await user.save();
   return user;

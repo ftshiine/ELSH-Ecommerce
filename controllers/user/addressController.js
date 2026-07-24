@@ -3,8 +3,16 @@ import { validate } from '../../utils/validation.js';
 
 export const loadAddresses = async (req, res) => {
   try {
-    const addresses = await getAddressesByUser(req.session.user.id);
-    res.render('user/profile/addresses/index', { addresses });
+    const page = parseInt(req.query.page) || 1;
+    const limit = 4;
+    const { addresses, totalAddresses, totalPages } = await getAddressesByUser(req.session.user.id, page, limit);
+
+    res.render('user/profile/addresses/index', {
+      addresses,
+      currentPage: page,
+      totalPages,
+      totalAddresses
+    });
   } catch (error) {
     console.error('Load addresses error:', error);
     res.redirect('/profile');
@@ -19,7 +27,7 @@ export const addAddress = async (req, res) => {
   try {
     const { fullName, phone, addressLine1, landmark, country, city, state, pincode, isPrimary } = req.body;
 
-    const validation = validate(req.body, ['fullName', 'phone', 'addressLine1', 'landmark', 'country', 'city', 'state', 'pincode']);
+    const validation = validate(req.body, ['fullName', 'username', 'phone', 'addressLine1', 'landmark', 'country', 'city', 'state', 'pincode']);
 
     if (!validation.isValid) {
       return res.redirectWithState('/profile/addresses/add', {
@@ -38,7 +46,7 @@ export const addAddress = async (req, res) => {
     });
   } catch (error) {
     console.error('Add address error:', error);
-    
+
     res.redirectWithState('/profile/addresses/add', { error: 'Failed to add address.' });
   }
 };
@@ -107,3 +115,4 @@ export const makePrimary = async (req, res) => {
     res.redirect('/profile/addresses');
   }
 };
+

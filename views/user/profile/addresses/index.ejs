@@ -1,78 +1,161 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>ELSH | Ritual Sites</title>
   <link rel="stylesheet" href="/css/user/address.css" />
 </head>
+
 <body>
 
   <%- include('../../partials/home-navbar') %>
 
-  <div class="address-wrapper">
-    <div class="breadcrumb">
-      <a href="/profile">ACCOUNT</a> &rsaquo; <span class="breadcrumb-active">RITUAL SITES</span>
+    <div class="address-wrapper">
+      <div class="breadcrumb">
+        <a href="/profile">ACCOUNT</a> &rsaquo; <span class="breadcrumb-active">RITUAL SITES</span>
+      </div>
+
+      <div class="page-header">
+        <h1>Ritual Sites</h1>
+        <p>Manage the sanctuaries where your ELSH essentials arrive. We ensure every delivery is handled with
+          intentional care.</p>
+      </div>
+
+      <% if (error) { %>
+        <div class="alert-error">
+          <%= error %>
+        </div>
+        <% } %>
+
+          <% if (locals.success) { %>
+            <div class="address-success">
+              <%= locals.success %>
+            </div>
+            <% } %>
+
+              <% if (addresses && addresses.length> 0) { %>
+                <div class="address-grid">
+                  <% addresses.forEach(address=> { %>
+                    <div class="address-card">
+                      <div class="address-card-header">
+                        <h3 class="address-name">
+                          <%= address.fullName %>
+                        </h3>
+                        <% if (address.isPrimary) { %>
+                          <span class="badge-primary">Primary</span>
+                          <% } %>
+                      </div>
+
+                      <div class="address-details">
+                        <%= address.addressLine1 %><br>
+                          <% if (address.landmark) { %>
+                            <%= address.landmark %><br>
+                              <% } %>
+                                <%= address.city %>, <%= address.state %>
+                                    <%= address.pincode %>
+                                      <div class="address-phone">
+                                        <%= address.phone %>
+                                      </div>
+                      </div>
+
+                      <div class="address-actions">
+                        <a href="/profile/addresses/edit/<%= address._id %>" class="btn-action">Edit</a>
+                        <button type="button" class="btn-action btn-delete"
+                          onclick="openDeleteModal('<%= address._id %>')">Remove</button>
+                        <% if (!address.isPrimary) { %>
+                          <form action="/profile/addresses/<%= address._id %>/primary?_method=PATCH" method="POST"
+                            class="action-form primary-form">
+                            <button type="submit" class="btn-action" style="color: #4a5240;">Set as Primary</button>
+                          </form>
+                          <% } %>
+                      </div>
+                    </div>
+                    <% }) %>
+                </div>
+
+                <% if (totalPages> 1) { %>
+                  <div class="pagination-footer">
+                    <span>Showing page <%= currentPage %> of <%= totalPages %> (<%= totalAddresses %> total
+                            sites)</span>
+                    <div class="pagination">
+                      <a href="/profile/addresses?page=<%= currentPage - 1 %>"
+                        class="page-btn <%= currentPage <= 1 ? 'disabled' : '' %>">‹</a>
+
+                      <% for (let i=1; i <=totalPages; i++) { %>
+                        <a href="/profile/addresses?page=<%= i %>"
+                          class="page-btn <%= currentPage === i ? 'active' : '' %>">
+                          <%= i %>
+                        </a>
+                        <% } %>
+
+                          <a href="/profile/addresses?page=<%= currentPage + 1 %>"
+                            class="page-btn <%= currentPage >= totalPages ? 'disabled' : '' %>">›</a>
+                    </div>
+                  </div>
+                  <% } %>
+
+                    <a href="/profile/addresses/add" class="btn-add-new">ADD NEW RITUAL SITE</a>
+                    <% } else { %>
+                      <div class="empty-state">
+                        <h3>No Ritual Sites Found</h3>
+                        <p>You haven't added any delivery addresses yet.</p>
+                        <a href="/profile/addresses/add" class="btn-add-new">ADD NEW RITUAL SITE</a>
+                      </div>
+                      <% } %>
     </div>
 
-    <div class="page-header">
-      <h1>Ritual Sites</h1>
-      <p>Manage the sanctuaries where your ELSH essentials arrive. We ensure every delivery is handled with intentional care.</p>
-    </div>
+    <%- include('../../partials/footer') %>
 
-    <% if (error) { %>
-      <div class="alert-error"><%= error %></div>
-    <% } %>
-
-    <% if (locals.success) { %>
-      <div class="address-success"><%= locals.success %></div>
-    <% } %>
-
-    <% if (addresses && addresses.length > 0) { %>
-      <div class="address-grid">
-        <% addresses.forEach(address => { %>
-          <div class="address-card">
-            <div class="address-card-header">
-              <h3 class="address-name"><%= address.fullName %></h3>
-              <% if (address.isPrimary) { %>
-                <span class="badge-primary">Primary</span>
-              <% } %>
-            </div>
-            
-            <div class="address-details">
-              <%= address.addressLine1 %><br>
-              <% if (address.landmark) { %>
-                <%= address.landmark %><br>
-              <% } %>
-              <%= address.city %>, <%= address.state %> <%= address.pincode %>
-              <div class="address-phone"><%= address.phone %></div>
-            </div>
-
-            <div class="address-actions">
-              <a href="/profile/addresses/edit/<%= address._id %>" class="btn-action">Edit</a>
-              <form action="/profile/addresses/<%= address._id %>?_method=DELETE" method="POST" class="action-form" onsubmit="return confirm('Are you sure you want to remove this ritual site?');">
-                <button type="submit" class="btn-action btn-delete">Remove</button>
-              </form>
-              <% if (!address.isPrimary) { %>
-                <form action="/profile/addresses/<%= address._id %>/primary?_method=PATCH" method="POST" class="action-form primary-form">
-                  <button type="submit" class="btn-action" style="color: #4a5240;">Set as Primary</button>
-                </form>
-              <% } %>
-            </div>
+      <!-- Delete Confirmation Modal -->
+      <div id="deleteModal" class="delete-modal-overlay">
+        <div class="delete-modal">
+          <h2>Remove Address?</h2>
+          <p>Are you sure you want to remove this address? This action cannot be undone.</p>
+          <div class="delete-modal-actions">
+            <button type="button" class="btn-cancel" onclick="closeDeleteModal()">Cancel</button>
+            <form id="deleteForm" method="POST" class="action-form">
+              <button type="submit" class="btn-remove-modal" id="confirmDeleteBtn">Remove Address</button>
+            </form>
           </div>
-        <% }) %>
+        </div>
       </div>
-      <a href="/profile/addresses/add" class="btn-add-new">ADD NEW RITUAL SITE</a>
-    <% } else { %>
-      <div class="empty-state">
-        <h3>No Ritual Sites Found</h3>
-        <p>You haven't added any delivery addresses yet.</p>
-        <a href="/profile/addresses/add" class="btn-add-new">ADD NEW RITUAL SITE</a>
-      </div>
-    <% } %>
-  </div>
 
-  <%- include('../../partials/footer') %>
+      <script>
+        function openDeleteModal(addressId) {
+          const modal = document.getElementById('deleteModal');
+          const form = document.getElementById('deleteForm');
+          form.action = `/profile/addresses/${addressId}?_method=DELETE`;
+          modal.style.display = 'flex';
+
+          const cancelBtn = modal.querySelector('.btn-cancel');
+          if (cancelBtn) cancelBtn.focus();
+        }
+
+        function closeDeleteModal() {
+          const modal = document.getElementById('deleteModal');
+          modal.style.display = 'none';
+          const form = document.getElementById('deleteForm');
+          form.action = '';
+        }
+
+        document.addEventListener('keydown', function (event) {
+          if (event.key === 'Escape') {
+            const modal = document.getElementById('deleteModal');
+            if (modal.style.display === 'flex') {
+              closeDeleteModal();
+            }
+          }
+        });
+
+        document.getElementById('deleteForm').addEventListener('submit', function () {
+          const btn = document.getElementById('confirmDeleteBtn');
+          btn.disabled = true;
+          btn.textContent = 'Removing...';
+        });
+      </script>
 
 </body>
+
 </html>

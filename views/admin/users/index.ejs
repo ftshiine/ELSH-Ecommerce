@@ -181,29 +181,40 @@
         pendingForm = btn.closest('form');
 
         if (action === 'block') {
-          confirmModalTitle.textContent = 'Block User';
-          confirmModalMessage.textContent = 'Are you sure you want to block this user? They will no longer be able to log in until you unblock their account.';
+          confirmModalTitle.textContent = 'Block User?';
+          confirmModalMessage.innerHTML = 'Are you sure you want to block this user?<br><br>The user will no longer be able to access their account until they are unblocked.';
           confirmActionBtn.textContent = 'Block User';
+          confirmActionBtn.classList.remove('modal-btn-positive');
         } else {
-          confirmModalTitle.textContent = 'Unblock User';
-          confirmModalMessage.textContent = 'Are you sure you want to unblock this user? They will regain access to their account immediately.';
+          confirmModalTitle.textContent = 'Unblock User?';
+          confirmModalMessage.innerHTML = 'Are you sure you want to unblock this user?<br><br>The user will be able to access their account again.';
           confirmActionBtn.textContent = 'Unblock User';
+          confirmActionBtn.classList.add('modal-btn-positive');
         }
 
+        // Reset button state in case it was disabled previously
+        confirmActionBtn.disabled = false;
+
         confirmModal.classList.add('active');
+
+        if (cancelConfirm) cancelConfirm.focus();
       });
     });
 
+    const closeModal = () => {
+      confirmModal.classList.remove('active');
+      pendingForm = null;
+    };
+
     if (cancelConfirm) {
-      cancelConfirm.addEventListener('click', () => {
-        confirmModal.classList.remove('active');
-        pendingForm = null;
-      });
+      cancelConfirm.addEventListener('click', closeModal);
     }
 
     if (confirmActionBtn) {
       confirmActionBtn.addEventListener('click', () => {
         if (pendingForm) {
+          confirmActionBtn.disabled = true;
+          confirmActionBtn.textContent = 'Processing...';
           pendingForm.submit();
         }
       });
@@ -213,11 +224,17 @@
     if (confirmModal) {
       confirmModal.addEventListener('click', (e) => {
         if (e.target === confirmModal) {
-          confirmModal.classList.remove('active');
-          pendingForm = null;
+          closeModal();
         }
       });
     }
+
+    // Escape key to close
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && confirmModal.classList.contains('active')) {
+        closeModal();
+      }
+    });
   </script>
 
 </body>

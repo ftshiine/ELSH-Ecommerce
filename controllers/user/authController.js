@@ -20,7 +20,7 @@ const signup = async (req, res) => {
       return res.redirectWithState('/signup', { error: 'Please correct the highlighted fields.', fieldErrors: validation.errors });
     }
 
-    
+
     const existingEmail = await findUserByEmail(email);
     if (existingEmail) {
       return res.redirectWithState('/signup', { error: 'Please correct the highlighted fields.', fieldErrors: { email: 'Email already registered' } });
@@ -69,7 +69,7 @@ const verifyOTPHandler = async (req, res) => {
       return res.redirectWithState('/otp', { error: result.message });
     }
 
-    
+
     await findUserByEmail(email).then(user => {
       user.isActive = true;
       return user.save();
@@ -110,7 +110,7 @@ const login = async (req, res) => {
     const { email, password } = req.body;
 
     const validationRes = validate(req.body, ['email']);
-    
+
     if (!password || password.trim().length === 0) {
       if (!validationRes.errors) validationRes.errors = {};
       validationRes.errors.password = 'Password is required';
@@ -127,7 +127,7 @@ const login = async (req, res) => {
 
     const user = await findUserByEmail(email);
 
-    
+
     if (!user) {
       return res.redirectWithState('/login', { error: 'Invalid email or password' });
     }
@@ -159,12 +159,12 @@ const login = async (req, res) => {
 
 const logout = (req, res) => {
   if (req.session) {
-    
+
     delete req.session.user;
 
     const handleSessionDestruction = () => {
       if (!req.session.admin) {
-        
+
         req.session.destroy((err) => {
           if (err) console.error('Session destroy error during user logout:', err);
           res.clearCookie('connect.sid');
@@ -178,7 +178,7 @@ const logout = (req, res) => {
       }
     };
 
-    
+
     if (req.logout) {
       req.logout({ keepSessionInfo: true }, (err) => {
         if (err) console.error('Passport logout error:', err);

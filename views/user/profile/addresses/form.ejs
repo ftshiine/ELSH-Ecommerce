@@ -1,192 +1,225 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>ELSH | <%= address ? 'Edit' : 'New' %> Ritual Site</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ELSH | <%= locals.address ? 'Edit' : 'New' %> Ritual Site</title>
   <link rel="stylesheet" href="/css/user/address.css" />
 </head>
+
 <body>
 
   <%- include('../../partials/home-navbar') %>
 
-  <div class="address-wrapper">
-    <div class="breadcrumb">
-      <a href="/profile/addresses">&larr; BACK TO SITES</a>
+    <div class="address-wrapper">
+      <div class="breadcrumb">
+        <a href="/profile/addresses">&larr; BACK TO SITES</a>
+      </div>
+
+      <div class="page-header">
+        <h1>
+          <%= locals.address ? 'Edit' : 'New' %> Ritual Site
+        </h1>
+        <p>Specify the sanctuary where your ELSH essentials should arrive.<br>We ensure every delivery is handled with
+          intentional care.</p>
+      </div>
+
+      <% if (locals.error) { %>
+        <div class="alert-error">
+          <%= locals.error %>
+        </div>
+        <% } %>
+
+          <div class="form-card">
+            <form action="/profile/addresses/<%= locals.address ? locals.address._id + '?_method=PUT' : 'add' %>"
+              method="POST" id="addressForm">
+
+              <div class="form-row">
+                <div class="form-group">
+                  <label>FULL NAME</label>
+                  <div class="input-wrapper <%= locals.fieldErrors?.fullName ? 'has-error' : '' %>">
+                    <input type="text" name="fullName" placeholder="Julianne Moore"
+                      value="<%= locals.formData?.fullName || locals.address?.fullName || '' %>">
+                  </div>
+                  <% if (locals.fieldErrors?.fullName) { %>
+                    <div class="field-error">
+                      <%= locals.fieldErrors?.fullName ? locals.fieldErrors.fullName : '' %>
+                    </div>
+                    <% } %>
+                </div>
+
+                <div class="form-group">
+                  <label>PHONE NUMBER</label>
+                  <div class="input-wrapper <%= locals.fieldErrors?.phone ? 'has-error' : '' %>">
+                    <input type="text" name="phone" placeholder="+1 (555) 000-0000"
+                      value="<%= locals.formData?.phone || locals.address?.phone || '' %>">
+                  </div>
+                  <% if (locals.fieldErrors?.phone) { %>
+                    <div class="field-error">
+                      <%= locals.fieldErrors?.phone ? locals.fieldErrors.phone : '' %>
+                    </div>
+                    <% } %>
+                </div>
+              </div>
+
+              <div class="form-row">
+                <div class="form-group full-width">
+                  <label>ADDRESS LINE 1</label>
+                  <div class="input-wrapper <%= locals.fieldErrors?.addressLine1 ? 'has-error' : '' %>">
+                    <input type="text" name="addressLine1" placeholder="Apartment, suite, unit, or building"
+                      value="<%= locals.formData?.addressLine1 || locals.address?.addressLine1 || '' %>">
+                  </div>
+                  <% if (locals.fieldErrors?.addressLine1) { %>
+                    <div class="field-error">
+                      <%= locals.fieldErrors?.addressLine1 ? locals.fieldErrors.addressLine1 : '' %>
+                    </div>
+                    <% } %>
+                </div>
+              </div>
+
+              <div class="form-row">
+                <div class="form-group full-width">
+                  <label>LANDMARK (OPTIONAL)</label>
+                  <div class="input-wrapper <%= locals.fieldErrors?.landmark ? 'has-error' : '' %>">
+                    <input type="text" name="landmark" placeholder="Near the botanical conservatory"
+                      value="<%= locals.formData?.landmark || locals.address?.landmark || '' %>">
+                  </div>
+                  <% if (locals.fieldErrors?.landmark) { %>
+                    <div class="field-error">
+                      <%= locals.fieldErrors?.landmark ? locals.fieldErrors.landmark : '' %>
+                    </div>
+                    <% } %>
+                </div>
+              </div>
+
+              <div class="form-row" style="grid-template-columns: 1fr 1fr; gap: 24px;">
+                <div class="form-group">
+                  <label>COUNTRY</label>
+                  <% const selectedCountry=locals.formData?.country || locals.address?.country || 'India' ; %>
+                    <div class="input-wrapper">
+                      <select name="country" id="countrySelect">
+                        <option value="India" <%=selectedCountry==='India' ? 'selected' : '' %>>India</option>
+                      </select>
+                    </div>
+                    <% if (locals.fieldErrors?.country) { %>
+                      <div class="field-error">
+                        <%= locals.fieldErrors?.country ? locals.fieldErrors.country : '' %>
+                      </div>
+                      <% } %>
+                </div>
+                <div class="form-group">
+                  <label>STATE</label>
+                  <% const selectedState=locals.formData?.state || locals.address?.state || '' ; %>
+                    <div class="input-wrapper">
+                      <select name="state" id="stateSelect">
+                        <option value="" disabled <%=!selectedState ? 'selected' : '' %>>Select State</option>
+                        <% var indiaStatesList=[ 'Andhra Pradesh' , 'Arunachal Pradesh' , 'Assam' , 'Bihar'
+                          , 'Chhattisgarh' , 'Goa' , 'Gujarat' , 'Haryana' , 'Himachal Pradesh' , 'Jharkhand'
+                          , 'Karnataka' , 'Kerala' , 'Madhya Pradesh' , 'Maharashtra' , 'Manipur' , 'Meghalaya'
+                          , 'Mizoram' , 'Nagaland' , 'Odisha' , 'Punjab' , 'Rajasthan' , 'Sikkim' , 'Tamil Nadu'
+                          , 'Telangana' , 'Tripura' , 'Uttar Pradesh' , 'Uttarakhand' , 'West Bengal'
+                          , 'Andaman and Nicobar Islands' , 'Chandigarh' , 'Dadra and Nagar Haveli and Daman and Diu'
+                          , 'Delhi' , 'Jammu and Kashmir' , 'Ladakh' , 'Lakshadweep' , 'Puducherry' ];
+                          indiaStatesList.forEach(s=> {
+                          %>
+                          <option value="<%= s %>" <%=selectedState===s ? 'selected' : '' %>><%= s %>
+                          </option>
+                          <% }); %>
+                      </select>
+                    </div>
+                    <% if (locals.fieldErrors?.state) { %>
+                      <div class="field-error">
+                        <%= locals.fieldErrors?.state ? locals.fieldErrors.state : '' %>
+                      </div>
+                      <% } %>
+                </div>
+              </div>
+
+              <div class="form-row" style="grid-template-columns: 1fr 1fr; gap: 24px;">
+                <div class="form-group">
+                  <label>CITY</label>
+                  <div class="input-wrapper <%= locals.fieldErrors?.city ? 'has-error' : '' %>">
+                    <input type="text" name="city" placeholder="Mumbai"
+                      value="<%= locals.formData?.city || locals.address?.city || '' %>">
+                  </div>
+                  <% if (locals.fieldErrors?.city) { %>
+                    <div class="field-error">
+                      <%= locals.fieldErrors?.city ? locals.fieldErrors.city : '' %>
+                    </div>
+                    <% } %>
+                </div>
+                <div class="form-group">
+                  <label>PINCODE</label>
+                  <div class="input-wrapper <%= locals.fieldErrors?.pincode ? 'has-error' : '' %>">
+                    <input type="text" name="pincode" placeholder="400001"
+                      value="<%= locals.formData?.pincode || locals.address?.pincode || '' %>">
+                  </div>
+                  <% if (locals.fieldErrors?.pincode) { %>
+                    <div class="field-error">
+                      <%= locals.fieldErrors?.pincode ? locals.fieldErrors.pincode : '' %>
+                    </div>
+                    <% } %>
+                </div>
+              </div>
+
+              <% if (locals.address) { %>
+                <div class="toggle-row">
+                  <div class="toggle-info">
+                    <h4>Set as Primary Ritual Site</h4>
+                    <p>All future deliveries will default to this sanctuary.</p>
+                  </div>
+                  <label class="switch">
+                    <% const isPrimaryChecked=locals.formData ? (locals.formData.isPrimary==='on' ) :
+                      (locals.address?.isPrimary || false); %>
+                      <input type="checkbox" name="isPrimary" <%=isPrimaryChecked ? 'checked' : '' %>>
+                      <span class="slider"></span>
+                  </label>
+                </div>
+                <% } %>
+
+                  <div class="form-actions">
+                    <button type="submit" class="btn-save">SAVE LOCATION</button>
+                    <a href="/profile/addresses" class="btn-cancel">CANCEL</a>
+                  </div>
+
+            </form>
+          </div>
+
     </div>
 
-    <div class="page-header">
-      <h1><%= address ? 'Edit' : 'New' %> Ritual Site</h1>
-      <p>Specify the sanctuary where your ELSH essentials should arrive.<br>We ensure every delivery is handled with intentional care.</p>
-    </div>
+    <%- include('../../partials/footer') %>
 
-    <% if (error) { %>
-      <div class="alert-error"><%= error %></div>
-    <% } %>
+      <script>
+        document.addEventListener('DOMContentLoaded', () => {
+          const countrySelect = document.getElementById('countrySelect');
+          const stateSelect = document.getElementById('stateSelect');
+          const indiaStatesList = "<%- JSON.stringify(indiaStatesList || []) %>";
+          const currentState = "<%= locals.address?.state || '' %>";
 
-    <div class="form-card">
-      <form action="/profile/addresses/<%= address ? address._id + '?_method=PUT' : 'add' %>" method="POST" id="addressForm">
-        
-        <div class="form-row">
-          <div class="form-group">
-            <label>FULL NAME</label>
-            <div class="input-wrapper <%= locals.fieldErrors?.fullName ? 'has-error' : '' %>">
-              <input type="text" name="fullName" placeholder="Julianne Moore" value="<%= locals.formData?.fullName || (address ? address.fullName : '') %>">
-            </div>
-            <% if (locals.fieldErrors?.fullName) { %>
-              <div class="field-error"><%= locals.fieldErrors.fullName %></div>
-            <% } %>
-          </div>
-          <div class="form-group">
-            <label>PHONE NUMBER</label>
-            <div class="input-wrapper <%= locals.fieldErrors?.phone ? 'has-error' : '' %>">
-              <input type="text" name="phone" placeholder="+1 (555) 000-0000" value="<%= locals.formData?.phone || (address ? address.phone : '') %>">
-            </div>
-            <% if (locals.fieldErrors?.phone) { %>
-              <div class="field-error"><%= locals.fieldErrors.phone %></div>
-            <% } %>
-          </div>
-        </div>
-
-        <div class="form-row">
-          <div class="form-group full-width">
-            <label>ADDRESS LINE 1</label>
-            <div class="input-wrapper <%= locals.fieldErrors?.addressLine1 ? 'has-error' : '' %>">
-              <input type="text" name="addressLine1" placeholder="Apartment, suite, unit, or building" value="<%= locals.formData?.addressLine1 || (address ? address.addressLine1 : '') %>">
-            </div>
-            <% if (locals.fieldErrors?.addressLine1) { %>
-              <div class="field-error"><%= locals.fieldErrors.addressLine1 %></div>
-            <% } %>
-          </div>
-        </div>
-
-        <div class="form-row">
-          <div class="form-group full-width">
-            <label>LANDMARK (OPTIONAL)</label>
-            <div class="input-wrapper <%= locals.fieldErrors?.landmark ? 'has-error' : '' %>">
-              <input type="text" name="landmark" placeholder="Near the botanical conservatory" value="<%= locals.formData?.landmark || (address ? address.landmark : '') %>">
-            </div>
-            <% if (locals.fieldErrors?.landmark) { %>
-              <div class="field-error"><%= locals.fieldErrors.landmark %></div>
-            <% } %>
-          </div>
-        </div>
-
-        <div class="form-row" style="grid-template-columns: 1fr 1fr; gap: 24px;">
-          <div class="form-group">
-            <label>COUNTRY</label>
-            <% const selectedCountry = locals.formData?.country || (address ? address.country : 'India') %>
-            <div class="input-wrapper">
-              <select name="country" id="countrySelect">
-                <option value="India" <%= selectedCountry === 'India' ? 'selected' : '' %>>India</option>
-              </select>
-            </div>
-            <% if (locals.fieldErrors?.country) { %>
-              <div class="field-error"><%= locals.fieldErrors.country %></div>
-            <% } %>
-          </div>
-          <div class="form-group">
-            <label>STATE</label>
-            <% const selectedState = locals.formData?.state || (address ? address.state : '') %>
-            <div class="input-wrapper">
-              <select name="state" id="stateSelect">
-                <option value="" disabled <%= !selectedState ? 'selected' : '' %>>Select State</option>
-                <% 
-                  const states = [
-                    'Andhra Pradesh', 'Arunachal Pradesh', 'Assam', 'Bihar', 'Chhattisgarh', 
-                    'Goa', 'Gujarat', 'Haryana', 'Himachal Pradesh', 'Jharkhand', 'Karnataka', 
-                    'Kerala', 'Madhya Pradesh', 'Maharashtra', 'Manipur', 'Meghalaya', 'Mizoram', 
-                    'Nagaland', 'Odisha', 'Punjab', 'Rajasthan', 'Sikkim', 'Tamil Nadu', 'Telangana', 
-                    'Tripura', 'Uttar Pradesh', 'Uttarakhand', 'West Bengal', 
-                    'Andaman and Nicobar Islands', 'Chandigarh', 'Dadra and Nagar Haveli and Daman and Diu', 
-                    'Delhi', 'Jammu and Kashmir', 'Ladakh', 'Lakshadweep', 'Puducherry'
-                  ];
-                  states.forEach(s => { 
-                %>
-                  <option value="<%= s %>" <%= selectedState === s ? 'selected' : '' %>><%= s %></option>
-                <% }) %>
-              </select>
-            </div>
-            <% if (locals.fieldErrors?.state) { %>
-              <div class="field-error"><%= locals.fieldErrors.state %></div>
-            <% } %>
-          </div>
-        </div>
-
-        <div class="form-row" style="grid-template-columns: 1fr 1fr; gap: 24px;">
-          <div class="form-group">
-            <label>CITY</label>
-            <div class="input-wrapper <%= locals.fieldErrors?.city ? 'has-error' : '' %>">
-              <input type="text" name="city" placeholder="Mumbai" value="<%= locals.formData?.city || (address ? address.city : '') %>">
-            </div>
-            <% if (locals.fieldErrors?.city) { %>
-              <div class="field-error"><%= locals.fieldErrors.city %></div>
-            <% } %>
-          </div>
-          <div class="form-group">
-            <label>PINCODE</label>
-            <div class="input-wrapper <%= locals.fieldErrors?.pincode ? 'has-error' : '' %>">
-              <input type="text" name="pincode" placeholder="400001" value="<%= locals.formData?.pincode || (address ? address.pincode : '') %>">
-            </div>
-            <% if (locals.fieldErrors?.pincode) { %>
-              <div class="field-error"><%= locals.fieldErrors.pincode %></div>
-            <% } %>
-          </div>
-        </div>
-
-        <div class="toggle-row">
-          <div class="toggle-info">
-            <h4>Set as Primary Ritual Site</h4>
-            <p>All future deliveries will default to this sanctuary.</p>
-          </div>
-          <label class="switch">
-            <% const isPrimaryChecked = locals.formData ? (locals.formData.isPrimary === 'on') : (address && address.isPrimary) %>
-            <input type="checkbox" name="isPrimary" <%= isPrimaryChecked ? 'checked' : '' %>>
-            <span class="slider"></span>
-          </label>
-        </div>
-
-        <div class="form-actions">
-          <button type="submit" class="btn-save">SAVE LOCATION</button>
-          <a href="/profile/addresses" class="btn-cancel">CANCEL</a>
-        </div>
-
-      </form>
-    </div>
-
-  </div>
-
-  <%- include('../../partials/footer') %>
-
-  <script>
-    document.addEventListener('DOMContentLoaded', () => {
-      const countrySelect = document.getElementById('countrySelect');
-      const stateSelect = document.getElementById('stateSelect');
-      const indiaStates = <%- JSON.stringify(states) %>;
-      const currentState = "<%= address ? address.state : '' %>";
-      
-      countrySelect.addEventListener('change', (e) => {
-        const country = e.target.value;
-        stateSelect.innerHTML = '<option value="" disabled selected>Select State</option>';
-        if (country === 'India') {
-          indiaStates.forEach(s => {
-            const opt = document.createElement('option');
-            opt.value = s;
-            opt.textContent = s;
-            if (s === currentState) opt.selected = true;
-            stateSelect.appendChild(opt);
+          countrySelect.addEventListener('change', (e) => {
+            const country = e.target.value;
+            stateSelect.innerHTML = '<option value="" disabled selected>Select State</option>';
+            if (country === 'India') {
+              indiaStatesList.forEach(s => {
+                const opt = document.createElement('option');
+                opt.value = s;
+                opt.textContent = s;
+                if (s === currentState) opt.selected = true;
+                stateSelect.appendChild(opt);
+              });
+            }
           });
-        }
-      });
-    });
-  </script>
-  <script src="/js/validation.js"></script>
-  <script>
-    document.addEventListener('DOMContentLoaded', () => {
-      if (window.ELSHValidator) {
-        window.ELSHValidator.attachToForm('addressForm', ['fullName', 'phone', 'addressLine1', 'landmark', 'country', 'state', 'city', 'pincode']);
-      }
-    });
-  </script>
+        });
+      </script>
+      <script src="/js/validation.js"></script>
+      <script>
+        document.addEventListener('DOMContentLoaded', () => {
+          if (window.ELSHValidator) {
+            window.ELSHValidator.attachToForm('addressForm', ['fullName', 'phone', 'addressLine1', 'landmark', 'country', 'state', 'city', 'pincode']);
+          }
+        });
+      </script>
 </body>
+
 </html>

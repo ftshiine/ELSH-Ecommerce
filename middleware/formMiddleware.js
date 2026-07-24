@@ -4,11 +4,11 @@ export const formStateMiddleware = (req, res, next) => {
         res.locals.success = req.session.formState.success || res.locals.success || null;
         res.locals.fieldErrors = req.session.formState.fieldErrors || null;
         res.locals.formData = req.session.formState.formData || null;
-        
+
         delete req.session.formState;
     }
 
-    res.redirectWithState = function(url, state = {}) {
+    res.redirectWithState = function (url, state = {}) {
         const sensitiveFields = [
             'password', 'confirmPassword', 'newPassword', 'oldPassword',
             'otp', 'otp1', 'otp2', 'otp3', 'otp4', 'otp5', 'otp6',
@@ -42,4 +42,4 @@ export const formStateMiddleware = (req, res, next) => {
     };
 
     next();
-};
+}; 
