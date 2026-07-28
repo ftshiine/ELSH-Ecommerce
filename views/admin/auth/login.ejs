@@ -22,7 +22,7 @@
         <div class="form-group">
           <label>EMAIL ADDRESS</label>
           <div class="input-wrapper <%= locals.fieldErrors?.email ? 'has-error' : '' %>">
-            <input type="email" name="email" placeholder="admin@elsh.com" value="<%= locals.formData?.email || '' %>" required />
+            <input type="email" name="email" placeholder="admin@elsh.com" value="<%= locals.formData?.email || '' %>" />
             <span class="icon">✉</span>
           </div>
           <% if (locals.fieldErrors?.email) { %>
@@ -36,7 +36,7 @@
             <a href="/admin/forgot-password" class="forgot-link">FORGOT PASSWORD?</a>
           </div>
           <div class="input-wrapper <%= locals.fieldErrors?.password ? 'has-error' : '' %>">
-            <input type="password" name="password" id="passwordInput" placeholder="••••••••" required />
+            <input type="password" name="password" id="passwordInput" placeholder="••••••••" />
             <span class="icon" onclick="togglePassword()">👁</span>
           </div>
           <% if (locals.fieldErrors?.password) { %>
@@ -62,14 +62,6 @@
       const input = document.getElementById('passwordInput');
       input.type = input.type === 'password' ? 'text' : 'password';
     }
-  </script>
-  <script src="/js/validation.js"></script>
-  <script>
-    document.addEventListener('DOMContentLoaded', () => {
-      if (window.ELSHValidator) {
-        window.ELSHValidator.attachToForm('adminLoginForm', ['email', 'password']);
-      }
-    });
   </script>
 
 </body>

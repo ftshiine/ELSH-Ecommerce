@@ -121,9 +121,7 @@ const login = async (req, res) => {
       return res.redirectWithState('/login', { error: 'Please correct the highlighted fields.', fieldErrors: validationRes.errors })
     }
 
-    if (!email || !password) {
-      return res.redirectWithState('/login', { error: 'All fields are required' });
-    }
+
 
     const user = await findUserByEmail(email);
 

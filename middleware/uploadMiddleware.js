@@ -1,8 +1,9 @@
 import multer from 'multer';
 import path from 'path';
+import { CloudinaryStorage } from 'multer-storage-cloudinary';
+import cloudinary from '../config/cloudinary.js';
 
-
-//Multer Storage
+// ---- Local Storage (for User Profile) ----
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
     cb(null, 'public/images/user/profiles/');
@@ -13,8 +14,6 @@ const storage = multer.diskStorage({
   },
 });
 
-
-//select only image
 const fileFilter = (req, file, cb) => {
   const allowedTypes = /jpeg|jpg|png|webp/;
   const isValid = allowedTypes.test(path.extname(file.originalname).toLowerCase());
@@ -25,7 +24,6 @@ const fileFilter = (req, file, cb) => {
   }
 };
 
-//upload
 const upload = multer({ storage, fileFilter, limits: { fileSize: 5 * 1024 * 1024 } });
 
 export const handleProfileUpload = (req, res, next) => {
@@ -41,3 +39,24 @@ export const handleProfileUpload = (req, res, next) => {
     next();
   });
 };
+
+// ---- Cloudinary Storage (for Categories and Products) ----
+
+const categoryStorage = new CloudinaryStorage({
+  cloudinary: cloudinary,
+  params: {
+    folder: 'ELSH/categories',
+    allowed_formats: ['jpg', 'jpeg', 'png', 'webp'],
+  },
+});
+
+const productStorage = new CloudinaryStorage({
+  cloudinary: cloudinary,
+  params: {
+    folder: 'ELSH/products',
+    allowed_formats: ['jpg', 'jpeg', 'png', 'webp'],
+  },
+});
+
+export const uploadCategory = multer({ storage: categoryStorage });
+export const uploadProducts = multer({ storage: productStorage });

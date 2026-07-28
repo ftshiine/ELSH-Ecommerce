@@ -1,0 +1,335 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Admin | Add Product</title>
+  <link rel="stylesheet" href="/css/admin/product-form.css" />
+</head>
+
+<body>
+
+  <div class="admin-layout">
+    <%- include('../partials/sidebar') %>
+      <div class="main-content">
+        <%- include('../partials/topbar') %>
+
+          <div class="page-content">
+            <div class="page-header">
+              <a href="/admin/products" class="back-btn">&larr;</a>
+              <h1>Add Product</h1>
+            </div>
+
+            <form id="addProductForm">
+              <div class="form-layout">
+                <div class="main-column">
+                  <div class="card">
+                    <h2 class="card-title">Basic Information</h2>
+                    <div class="form-group">
+                      <label>Product Name</label>
+                      <div class="input-wrapper">
+                        <input type="text" name="name" class="form-control">
+                      </div>
+                    </div>
+                    <div class="form-group">
+                      <label>Description</label>
+                      <div class="input-wrapper">
+                        <textarea name="description" class="form-control"></textarea>
+                      </div>
+                    </div>
+                    <div class="form-row">
+                      <div class="form-group">
+                        <label>Category</label>
+                        <div class="input-wrapper">
+                          <select name="category" class="form-control">
+                            <option value="">Select Category</option>
+                            <% categories.forEach(cat=> { %>
+                              <option value="<%= cat._id %>">
+                                <%= cat.name %>
+                              </option>
+                              <% }); %>
+                          </select>
+                        </div>
+                      </div>
+                      <div class="form-group">
+                        <label>Brand</label>
+                        <div class="input-wrapper">
+                          <input type="text" name="brand" class="form-control">
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div class="card">
+                    <h2 class="card-title">Pricing & Inventory</h2>
+                    <div class="form-row">
+                      <div class="form-group">
+                        <label>Regular Price (₹)</label>
+                        <div class="input-wrapper">
+                          <input type="number" name="regularPrice" class="form-control" min="0" step="0.01">
+                        </div>
+                      </div>
+                      <div class="form-group">
+                        <label>Sale Price (₹) - Optional</label>
+                        <div class="input-wrapper">
+                          <input type="number" name="salePrice" class="form-control" min="0" step="0.01">
+                        </div>
+                      </div>
+                      <div class="form-group">
+                        <label>Stock Quantity</label>
+                        <div class="input-wrapper">
+                          <input type="number" name="stock" class="form-control" min="0">
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="side-column">
+                  <div class="card">
+                    <h2 class="card-title">Publishing</h2>
+                    <div class="toggle-switch form-group">
+                      <span>Published</span>
+                      <label class="switch">
+                        <input type="checkbox" name="isListed" checked>
+                        <span class="slider"></span>
+                      </label>
+                    </div>
+                    <button type="submit" class="btn btn-primary" id="saveBtn">Save Product</button>
+                    <button type="button" class="btn btn-secondary" id="discardBtn">Discard</button>
+                  </div>
+
+                  <div class="card">
+                    <h2 class="card-title">Images (Min 3)</h2>
+                    <p style="font-size: 12px; color: #888; margin-bottom: 16px;">Square format (1:1). First image will
+                      be the thumbnail.</p>
+                    <div class="image-grid">
+                      <!-- Image 1 -->
+                      <div class="image-upload-area">
+                        <span class="upload-overlay-text">+</span>
+                        <input type="file" id="imgInput1" accept="image/*">
+                        <img id="preview1" class="preview-img">
+                      </div>
+                      <!-- Image 2 -->
+                      <div class="image-upload-area">
+                        <span class="upload-overlay-text">+</span>
+                        <input type="file" id="imgInput2" accept="image/*">
+                        <img id="preview2" class="preview-img">
+                      </div>
+                      <!-- Image 3 -->
+                      <div class="image-upload-area">
+                        <span class="upload-overlay-text">+</span>
+                        <input type="file" id="imgInput3" accept="image/*">
+                        <img id="preview3" class="preview-img">
+                      </div>
+                      <!-- Image 4 -->
+                      <div class="image-upload-area">
+                        <span class="upload-overlay-text">+</span>
+                        <input type="file" id="imgInput4" accept="image/*">
+                        <img id="preview4" class="preview-img">
+                      </div>
+                      <!-- Image 5 -->
+                      <div class="image-upload-area">
+                        <span class="upload-overlay-text">+</span>
+                        <input type="file" id="imgInput5" accept="image/*">
+                        <img id="preview5" class="preview-img">
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </form>
+          </div>
+
+          <!-- Custom Modal -->
+          <div class="modal-overlay" id="customModal">
+            <div class="modal-box">
+              <div class="modal-icon">
+                <img src="/images/icons/admin/triangle-alert.svg" alt="Alert" id="modalIcon" />
+              </div>
+              <h2 class="modal-title" id="modalTitle">Title</h2>
+              <p class="modal-message" id="modalMessage">Message</p>
+              <div class="modal-actions" id="modalActions">
+                <button type="button" class="modal-btn modal-btn-cancel" id="modalCancel">Cancel</button>
+                <button type="button" class="modal-btn modal-btn-confirm" id="modalConfirm">Confirm</button>
+              </div>
+            </div>
+          </div>
+
+      </div>
+  </div>
+
+  <!-- Cropper Modal -->
+  <div class="custom-cropper-overlay" id="cropperModal">
+    <div class="cropper-container-box">
+      <h3 style="margin-top: 0; font-family: 'Playfair Display';">Crop Image</h3>
+      <div class="img-container">
+        <img id="imageToCrop" src="">
+      </div>
+      <div class="cropper-actions">
+        <button type="button" class="btn" style="background: #E0E0E0;" id="cancelCropBtn">Cancel</button>
+        <button type="button" class="btn btn-primary" id="cropBtn">Crop & Save</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.js"></script>
+  <script src="/js/imageCropper.js"></script>
+  <script>
+    // Initialize cropper for each input
+    initializeCropper('imgInput1', 'preview1');
+    initializeCropper('imgInput2', 'preview2');
+    initializeCropper('imgInput3', 'preview3');
+    initializeCropper('imgInput4', 'preview4');
+    initializeCropper('imgInput5', 'preview5');
+
+    // Common Modal Elements
+    const customModal = document.getElementById('customModal');
+    const modalIcon = document.getElementById('modalIcon');
+    const modalTitle = document.getElementById('modalTitle');
+    const modalMessage = document.getElementById('modalMessage');
+    const modalCancel = document.getElementById('modalCancel');
+    const modalConfirm = document.getElementById('modalConfirm');
+
+    const closeModal = () => {
+      customModal.classList.remove('active');
+    };
+
+    const discardBtn = document.getElementById('discardBtn');
+    if (discardBtn) {
+      discardBtn.addEventListener('click', () => {
+        modalIcon.src = '/images/icons/admin/triangle-alert.svg';
+        modalTitle.textContent = 'Discard?';
+        modalMessage.innerHTML = 'Are you sure you want to discard this product? Any filled data will be lost.';
+        modalConfirm.textContent = 'Discard';
+        modalConfirm.classList.remove('modal-btn-positive');
+        modalConfirm.disabled = false;
+        modalCancel.style.display = 'inline-block';
+
+        customModal.classList.add('active');
+        modalCancel.onclick = closeModal;
+
+        modalConfirm.onclick = () => {
+          window.location.href = '/admin/products';
+        };
+      });
+    }
+
+    // Handle form submission
+    document.getElementById('addProductForm').addEventListener('submit', async function (e) {
+      e.preventDefault();
+
+      const saveBtn = document.getElementById('saveBtn');
+
+      const isValid = window.AdminValidator.validateForm(this, {
+        name: 'productName',
+        description: 'description',
+        regularPrice: 'price',
+        salePrice: 'salePrice',
+        stock: 'stock'
+      });
+
+      const category = document.querySelector('select[name="category"]');
+      if (!category.value) {
+        window.AdminValidator.addCustomError(category.closest('.input-wrapper'), 'Please select a category.');
+      }
+
+      const brand = document.querySelector('input[name="brand"]');
+      if (!brand.value.trim()) {
+        window.AdminValidator.addCustomError(brand.closest('.input-wrapper'), 'Brand is required.');
+      }
+
+      const imageGrid = document.querySelector('.image-grid');
+      const validImagesCount = Object.keys(croppedBlobs).length;
+      let hasImageError = false;
+
+      if (validImagesCount < 3) {
+        window.AdminValidator.addCustomError(imageGrid, 'You must upload at least 3 images for the product.');
+        hasImageError = true;
+      } else {
+        const err = imageGrid.parentNode.querySelector('.custom-error-dynamic');
+        if (err) err.remove();
+        imageGrid.classList.remove('has-error');
+      }
+
+      if (!isValid || !category.value || !brand.value.trim() || hasImageError) {
+        return;
+      }
+
+      // Show Confirmation Modal for Creation
+      modalIcon.src = '/images/icons/admin/triangle-alert.svg';
+      modalTitle.textContent = 'Add Product?';
+      modalMessage.innerHTML = 'Are you sure you want to create this new product?';
+      modalConfirm.textContent = 'Create Product';
+      modalConfirm.classList.add('modal-btn-positive');
+      modalConfirm.disabled = false;
+      modalCancel.style.display = 'inline-block';
+
+      customModal.classList.add('active');
+
+      modalCancel.onclick = closeModal;
+
+      modalConfirm.onclick = async () => {
+        modalConfirm.disabled = true;
+        modalConfirm.textContent = 'Creating...';
+        saveBtn.disabled = true;
+
+        const formData = new FormData(this);
+
+        Object.keys(croppedBlobs).forEach((key, index) => {
+          formData.append('images', croppedBlobs[key], `product_img_${index}.webp`);
+        });
+
+        try {
+          const response = await fetch('/admin/products', {
+            method: 'POST',
+            body: formData
+          });
+
+          const data = await response.json();
+
+          if (data.success) {
+            // Show Success Modal
+            modalIcon.src = '/images/icons/admin/check-circle.svg';
+            modalTitle.textContent = 'Success!';
+            modalMessage.innerHTML = data.message;
+            modalCancel.style.display = 'none';
+            modalConfirm.textContent = 'OK';
+            modalConfirm.disabled = false;
+
+            modalConfirm.onclick = () => {
+              window.location.href = '/admin/products';
+            };
+          } else {
+            // Show Error Modal
+            modalIcon.src = '/images/icons/admin/triangle-alert.svg';
+            modalTitle.textContent = 'Oops...';
+            modalMessage.innerHTML = data.message || 'Validation failed';
+            modalCancel.style.display = 'none';
+            modalConfirm.textContent = 'Close';
+            modalConfirm.disabled = false;
+            modalConfirm.classList.remove('modal-btn-positive');
+
+            modalConfirm.onclick = closeModal;
+            saveBtn.disabled = false;
+          }
+        } catch (error) {
+          modalIcon.src = '/images/icons/admin/triangle-alert.svg';
+          modalTitle.textContent = 'Error';
+          modalMessage.innerHTML = 'Server error. Please try again later.';
+          modalCancel.style.display = 'none';
+          modalConfirm.textContent = 'Close';
+          modalConfirm.disabled = false;
+          modalConfirm.classList.remove('modal-btn-positive');
+
+          modalConfirm.onclick = closeModal;
+          saveBtn.disabled = false;
+        }
+      };
+    });
+  </script>
+  <script src="/js/admin/formValidator.js"></script>
+</body>
+
+</html>

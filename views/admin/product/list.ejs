@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Admin | Product Management</title>
+  <link rel="stylesheet" href="/css/admin/product-list.css" />
+</head>
+<body>
+
+  <div class="admin-layout">
+    <%- include('../partials/sidebar') %>
+    <div class="main-content">
+      <%- include('../partials/topbar') %>
+
+      <div class="page-content">
+        <div class="page-header">
+          <div>
+            <h1>Products</h1>
+            <p>Manage your skincare inventory and pricing.</p>
+          </div>
+          <a href="/admin/products/add" class="btn-add">
+            <span>+</span> Add New Product
+          </a>
+        </div>
+
+        <div class="controls-bar">
+          <div class="search-filter">
+            <form action="/admin/products" method="GET">
+              <input type="text" name="search" class="search-input" placeholder="Search products..." value="<%= searchQuery %>">
+              <button type="submit" class="btn-clear" style="background: #556B44; color: white; border-color: #556B44;">Search</button>
+              <% if (searchQuery) { %>
+                <a href="/admin/products" class="btn-clear">Clear</a>
+              <% } %>
+            </form>
+          </div>
+        </div>
+
+        <div class="table-container">
+          <table>
+            <thead>
+              <tr>
+                <th>Product</th>
+                <th>Price</th>
+                <th>Stock</th>
+                <th>Status</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              <% if (products.length === 0) { %>
+                <tr>
+                  <td colspan="5" style="text-align: center; padding: 40px; color: #888;">No products found.</td>
+                </tr>
+              <% } else { %>
+                <% products.forEach(product => { %>
+                  <tr>
+                    <td>
+                      <div class="product-info">
+                        <img src="<%= product.images[0] || '/images/placeholder.jpg' %>" alt="<%= product.name %>" class="product-img">
+                        <div>
+                          <div class="product-name"><%= product.name %></div>
+                          <div class="product-category"><%= product.category ? product.category.name : 'Uncategorized' %></div>
+                        </div>
+                      </div>
+                    </td>
+                    <td>
+                      <% if (product.salePrice) { %>
+                        <strong>₹<%= product.salePrice %></strong>
+                        <br><span style="text-decoration: line-through; color: #888; font-size: 12px;">₹<%= product.regularPrice %></span>
+                      <% } else { %>
+                        <strong>₹<%= product.regularPrice %></strong>
+                      <% } %>
+                    </td>
+                    <td>
+                      <% if (product.stock === 0) { %>
+                        <span class="badge inactive">Out of Stock</span>
+                      <% } else if (product.stock < 10) { %>
+                        <span class="badge low-stock"><%= product.stock %> Low</span>
+                      <% } else { %>
+                        <%= product.stock %>
+                      <% } %>
+                    </td>
+                    <td>
+                      <span class="badge <%= product.isListed ? 'active' : 'inactive' %>">
+                        <%= product.isListed ? 'Published' : 'Unlisted' %>
+                      </span>
+                    </td>
+                    <td>
+                      <div class="card-actions">
+                        <a href="/admin/products/<%= product._id %>/edit" class="action-btn" title="Edit">
+                          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+                        </a>
+                        <button class="action-btn delete" data-id="<%= product._id %>" data-status="<%= product.isListed %>" onclick="toggleStatus(this.dataset.id, this.dataset.status === 'true')" title="Toggle Status">
+                          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><line x1="10" y1="11" x2="10" y2="17"/><line x1="14" y1="11" x2="14" y2="17"/></svg>
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                <% }); %>
+              <% } %>
+            </tbody>
+          </table>
+        </div>
+
+        <!-- Pagination -->
+        <% if (totalPages > 1) { %>
+          <div class="pagination">
+            <span>Showing page <%= currentPage %> of <%= totalPages %></span>
+            <div class="page-numbers">
+              <% if (currentPage > 1) { %>
+                <a href="?page=<%= currentPage - 1 %><%= searchQuery ? '&search=' + searchQuery : '' %>" class="page-link">&lt;</a>
+              <% } %>
+              
+              <% for(let i = 1; i <= totalPages; i++) { %>
+                <a href="?page=<%= i %><%= searchQuery ? '&search=' + searchQuery : '' %>" class="page-link <%= i === currentPage ? 'active' : '' %>"><%= i %></a>
+              <% } %>
+
+              <% if (currentPage < totalPages) { %>
+                <a href="?page=<%= currentPage + 1 %><%= searchQuery ? '&search=' + searchQuery : '' %>" class="page-link">&gt;</a>
+              <% } %>
+            </div>
+          </div>
+        <% } %>
+
+      </div>
+    </div>
+  </div>
+
+  <script>
+    async function toggleStatus(id, currentStatus) {
+      const actionText = currentStatus ? 'unlist' : 'list';
+      
+      const result = await Swal.fire({
+        title: 'Are you sure?',
+        text: `Do you want to ${actionText} this product?`,
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#556B44',
+        cancelButtonColor: '#d33',
+        confirmButtonText: `Yes, ${actionText} it!`
+      });
+
+      if (result.isConfirmed) {
+        try {
+          const response = await fetch(`/admin/products/${id}/status?_method=PATCH`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' }
+          });
+          
+          const data = await response.json();
+          
+          if (data.success) {
+            Swal.fire('Success!', data.message, 'success').then(() => {
+              window.location.reload();
+            });
+          } else {
+            Swal.fire('Error!', data.message || 'Something went wrong', 'error');
+          }
+        } catch (error) {
+          Swal.fire('Error!', 'Failed to update status', 'error');
+        }
+      }
+    }
+  </script>
+</body>
+</html>

@@ -23,7 +23,7 @@
           </div>
           <% } %>
 
-            <form action="/signup" method="POST" id="signupForm">
+            <form action="/signup" method="POST" id="signupForm" novalidate>
 
               <div class="form-group">
                 <label>FULL NAME</label>
@@ -92,10 +92,12 @@
                 </div>
               </div>
 
-              <div class="form-checkbox">
-                <input type="checkbox" id="terms" name="terms" required <%= locals.formData?.terms ? 'checked' : '' %> />
-                <label for="terms">I accept the <a href="#">Terms and Conditions</a> and have read the <a
-                    href="#">Privacy Policy</a>.</label>
+              <div class="form-checkbox-group">
+                <div class="form-checkbox">
+                  <input type="checkbox" id="terms" name="terms" required <%= locals.formData?.terms ? 'checked' : '' %> />
+                  <label for="terms">I accept the <a href="#">Terms and Conditions</a> and have read the <a
+                      href="#">Privacy Policy</a>.</label>
+                </div>
                 <% if (locals.fieldErrors?.terms) { %>
                   <div class="field-error"><%= locals.fieldErrors.terms %></div>
                 <% } %>

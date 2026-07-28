@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Admin | Add Category</title>
+  <link rel="stylesheet" href="/css/admin/category-form.css" />
+</head>
+<body>
+
+  <div class="admin-layout">
+    <%- include('../partials/sidebar') %>
+    <div class="main-content">
+      <%- include('../partials/topbar') %>
+
+      <div class="page-content">
+        
+        <div class="page-header">
+          <a href="/admin/categories" class="back-btn">&larr;</a>
+          <h1>Add Category</h1>
+        </div>
+
+        <form id="addCategoryForm" enctype="multipart/form-data">
+          <div class="form-layout">
+            
+            <!-- Left Column -->
+            <div class="main-column">
+              <div class="card">
+                <h2 class="card-title">Category Identity</h2>
+                <div class="form-group">
+                  <label>Category Name</label>
+                  <div class="input-wrapper">
+                    <input type="text" name="name" class="form-control" placeholder="e.g. Radiance Serums">
+                  </div>
+                </div>
+              </div>
+
+              <div class="card">
+                <h2 class="card-title">Details</h2>
+                <div class="form-group">
+                  <label>Category Description</label>
+                  <div class="input-wrapper">
+                    <textarea name="description" class="form-control" placeholder="A curated collection of illuminate-focused elixirs..."></textarea>
+                  </div>
+                  <span class="help-text">Recommended length: 150-300 characters for optimal layout.</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Right Column -->
+            <div class="side-column">
+              <div class="card">
+                <h2 class="card-title">Status & Visibility</h2>
+                <div class="toggle-switch form-group">
+                  <span>Published</span>
+                  <label class="switch">
+                    <input type="checkbox" name="isListed" checked>
+                    <span class="slider"></span>
+                  </label>
+                </div>
+                
+                <button type="submit" class="btn btn-primary" id="saveBtn">Save Category</button>
+                <button type="button" class="btn btn-secondary" id="discardBtn">Discard</button>
+              </div>
+
+              <div class="card">
+                <h2 class="card-title">Category Thumbnail</h2>
+                <div class="image-upload-area">
+                  <div class="upload-icon"><img src="/images/icons/admin/camera.svg" alt="Upload" style="width: 32px; height: 32px; filter: opacity(0.5);"></div>
+                  <div class="upload-text">Drag & drop image</div>
+                  <div class="upload-hint">Min 800x800px • JPG/PNG</div>
+                  <input type="file" name="image" id="categoryImage" accept="image/png, image/jpeg, image/webp">
+                  <img id="imagePreview" alt="Preview" />
+                </div>
+              </div>
+            </div>
+
+          </div>
+        </form>
+
+      </div>
+
+      <!-- Custom Modal -->
+      <div class="modal-overlay" id="customModal">
+        <div class="modal-box">
+          <div class="modal-icon">
+            <img src="/images/icons/admin/triangle-alert.svg" alt="Alert" id="modalIcon" />
+          </div>
+          <h2 class="modal-title" id="modalTitle">Title</h2>
+          <p class="modal-message" id="modalMessage">Message</p>
+          <div class="modal-actions" id="modalActions">
+            <button type="button" class="modal-btn modal-btn-cancel" id="modalCancel">Cancel</button>
+            <button type="button" class="modal-btn modal-btn-confirm" id="modalConfirm">Confirm</button>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <script>
+    // Image Preview Logic
+    const imageInput = document.getElementById('categoryImage');
+    const imagePreview = document.getElementById('imagePreview');
+    const uploadIcon = document.querySelector('.upload-icon');
+    const uploadText = document.querySelector('.upload-text');
+    const uploadHint = document.querySelector('.upload-hint');
+
+    imageInput.addEventListener('change', function(e) {
+      if (this.files && this.files[0]) {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+          imagePreview.src = e.target.result;
+          imagePreview.style.display = 'block';
+          uploadIcon.style.display = 'none';
+          uploadText.style.display = 'none';
+          uploadHint.style.display = 'none';
+        }
+        reader.readAsDataURL(this.files[0]);
+      }
+    });
+
+    // Common Modal Elements
+    const customModal = document.getElementById('customModal');
+    const modalIcon = document.getElementById('modalIcon');
+    const modalTitle = document.getElementById('modalTitle');
+    const modalMessage = document.getElementById('modalMessage');
+    const modalCancel = document.getElementById('modalCancel');
+    const modalConfirm = document.getElementById('modalConfirm');
+    const modalActions = document.getElementById('modalActions');
+
+    const closeModal = () => {
+      customModal.classList.remove('active');
+    };
+
+    const discardBtn = document.getElementById('discardBtn');
+    if (discardBtn) {
+      discardBtn.addEventListener('click', () => {
+        modalIcon.src = '/images/icons/admin/triangle-alert.svg';
+        modalTitle.textContent = 'Discard?';
+        modalMessage.innerHTML = 'Are you sure you want to discard this category? Any filled data will be lost.';
+        modalConfirm.textContent = 'Discard';
+        modalConfirm.classList.remove('modal-btn-positive');
+        modalConfirm.disabled = false;
+        modalCancel.style.display = 'inline-block';
+        
+        customModal.classList.add('active');
+        modalCancel.onclick = closeModal;
+
+        modalConfirm.onclick = () => {
+          window.location.href = '/admin/categories';
+        };
+      });
+    }
+
+    // Form Submission via Fetch (AJAX)
+    document.getElementById('addCategoryForm').addEventListener('submit', async function(e) {
+      e.preventDefault();
+      
+      // Inline Validation Logic using Centralized AdminValidator
+      const isValid = window.AdminValidator.validateForm(this, {
+        name: 'categoryName',
+        description: 'description'
+      });
+
+      let hasImageError = false;
+      const file = imageInput.files[0];
+      const imageUploadArea = document.querySelector('.image-upload-area');
+
+      // Image Validation (Required for Add)
+      if (!file) {
+        window.AdminValidator.addCustomError(imageUploadArea, 'Please upload a category image.');
+        hasImageError = true;
+      } else if (!file.type.startsWith('image/')) {
+        window.AdminValidator.addCustomError(imageUploadArea, 'Please upload a valid image file (jpeg, png, webp).');
+        hasImageError = true;
+      } else if (file.size > 2 * 1024 * 1024) { // 2MB
+        window.AdminValidator.addCustomError(imageUploadArea, 'Image size must be less than 2MB.');
+        hasImageError = true;
+      } else {
+        // Clear image error if valid
+        const err = imageUploadArea.parentNode.querySelector('.custom-error-dynamic');
+        if (err) err.remove();
+        imageUploadArea.classList.remove('has-error');
+      }
+
+      if (!isValid || hasImageError) {
+        return;
+      }
+
+      // Show Confirmation Modal
+      modalIcon.src = '/images/icons/admin/triangle-alert.svg';
+      modalTitle.textContent = 'Add Category?';
+      modalMessage.innerHTML = 'Are you sure you want to create this new category?';
+      modalConfirm.textContent = 'Create Category';
+      modalConfirm.classList.add('modal-btn-positive');
+      modalConfirm.disabled = false;
+      modalCancel.style.display = 'inline-block';
+      
+      customModal.classList.add('active');
+
+      modalCancel.onclick = closeModal;
+
+      modalConfirm.onclick = async () => {
+        modalConfirm.disabled = true;
+        modalConfirm.textContent = 'Creating...';
+
+        const formData = new FormData(this);
+
+        try {
+          const response = await fetch('/admin/categories', {
+            method: 'POST',
+            headers: {
+              'Accept': 'application/json'
+            },
+            body: formData 
+          });
+          
+          const data = await response.json();
+          
+          if (data.success) {
+            // Show Success Modal
+            modalIcon.src = '/images/icons/admin/check-circle.svg'; // Check icon
+            modalTitle.textContent = 'Success!';
+            modalMessage.innerHTML = data.message;
+            modalCancel.style.display = 'none';
+            modalConfirm.textContent = 'OK';
+            modalConfirm.disabled = false;
+            
+            modalConfirm.onclick = () => {
+              window.location.href = '/admin/categories';
+            };
+          } else {
+            // Show Error Modal
+            modalIcon.src = '/images/icons/admin/triangle-alert.svg';
+            modalTitle.textContent = 'Oops...';
+            modalMessage.innerHTML = data.message || 'Validation failed';
+            modalCancel.style.display = 'none';
+            modalConfirm.textContent = 'Close';
+            modalConfirm.disabled = false;
+            modalConfirm.classList.remove('modal-btn-positive');
+            
+            modalConfirm.onclick = closeModal;
+          }
+        } catch (error) {
+            modalIcon.src = '/images/icons/admin/triangle-alert.svg';
+            modalTitle.textContent = 'Error';
+            modalMessage.innerHTML = 'Server error. Please try again later.';
+            modalCancel.style.display = 'none';
+            modalConfirm.textContent = 'Close';
+            modalConfirm.disabled = false;
+            modalConfirm.classList.remove('modal-btn-positive');
+            
+            modalConfirm.onclick = closeModal;
+        }
+      };
+    });
+  </script>
+  <script src="/js/admin/formValidator.js"></script>
+</body>
+</html>

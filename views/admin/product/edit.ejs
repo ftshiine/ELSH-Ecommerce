@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Admin | Edit Product</title>
+  <link rel="stylesheet" href="/css/admin/product-form.css" />
+</head>
+
+<body>
+
+  <div class="admin-layout">
+    <%- include('../partials/sidebar') %>
+      <div class="main-content">
+        <%- include('../partials/topbar') %>
+
+          <div class="page-content">
+            <div class="page-header">
+              <a href="/admin/products" class="back-btn">&larr;</a>
+              <h1>Edit Product</h1>
+            </div>
+
+            <form id="editProductForm" data-product-id="<%= product._id %>"
+              data-images-count="<%= product.images.length %>">
+              <div class="form-layout">
+                <div class="main-column">
+                  <div class="card">
+                    <h2 class="card-title">Basic Information</h2>
+                    <div class="form-group">
+                      <label>Product Name</label>
+                      <div class="input-wrapper">
+                        <input type="text" name="name" class="form-control" value="<%= product.name %>">
+                      </div>
+                    </div>
+                    <div class="form-group">
+                      <label>Description</label>
+                      <div class="input-wrapper">
+                        <textarea name="description" class="form-control"><%= product.description %></textarea>
+                      </div>
+                    </div>
+                    <div class="form-row">
+                      <div class="form-group">
+                        <label>Category</label>
+                        <div class="input-wrapper">
+                          <select name="category" class="form-control">
+                            <% categories.forEach(cat=> { %>
+                              <option value="<%= cat._id %>" <%=product.category &&
+                                product.category._id.toString()===cat._id.toString() ? 'selected' : '' %>>
+                                <%= cat.name %>
+                              </option>
+                              <% }); %>
+                          </select>
+                        </div>
+                      </div>
+                      <div class="form-group">
+                        <label>Brand</label>
+                        <div class="input-wrapper">
+                          <input type="text" name="brand" class="form-control" value="<%= product.brand %>">
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div class="card">
+                    <h2 class="card-title">Pricing & Inventory</h2>
+                    <div class="form-row">
+                      <div class="form-group">
+                        <label>Regular Price (₹)</label>
+                        <div class="input-wrapper">
+                          <input type="number" name="regularPrice" class="form-control"
+                            value="<%= product.regularPrice %>" min="0" step="0.01">
+                        </div>
+                      </div>
+                      <div class="form-group">
+                        <label>Sale Price (₹) - Optional</label>
+                        <div class="input-wrapper">
+                          <input type="number" name="salePrice" class="form-control"
+                            value="<%= product.salePrice || '' %>" min="0" step="0.01">
+                        </div>
+                      </div>
+                      <div class="form-group">
+                        <label>Stock Quantity</label>
+                        <div class="input-wrapper">
+                          <input type="number" name="stock" class="form-control" value="<%= product.stock %>" min="0">
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="side-column">
+                  <div class="card">
+                    <h2 class="card-title">Publishing</h2>
+                    <div class="form-group">
+                      <label>Status</label>
+                      <select name="isListed" class="form-control">
+                        <option value="true" <%=product.isListed ? 'selected' : '' %>>Published</option>
+                        <option value="false" <%=!product.isListed ? 'selected' : '' %>>Unlisted</option>
+                      </select>
+                    </div>
+                    <button type="submit" class="btn btn-primary" id="saveBtn">Update Product</button>
+                    <button type="button" class="btn btn-secondary"
+                      onclick="window.location.href='/admin/products'">Discard Changes</button>
+                  </div>
+
+                  <div class="card">
+                    <h2 class="card-title">Images (Min 3)</h2>
+                    <p style="font-size: 12px; color: #888; margin-bottom: 16px;">Click an image to replace it with a
+                      new cropped version. Keep existing ones by doing nothing.</p>
+                    <div class="image-grid">
+                      <% for (let i=0; i < 5; i++) { %>
+                        <div class="image-upload-area">
+                          <% if (product.images[i]) { %>
+                            <!-- Pre-populated existing image -->
+                            <img id="preview<%= i+1 %>" class="preview-img" style="display: block;"
+                              src="<%= product.images[i] %>">
+                            <div class="edit-overlay">Replace</div>
+                            <% } else { %>
+                              <!-- Empty slot -->
+                              <span class="upload-overlay-text">+</span>
+                              <img id="preview<%= i+1 %>" class="preview-img">
+                              <% } %>
+                                <input type="file" id="imgInput<%= i+1 %>" accept="image/*">
+                        </div>
+                        <% } %>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </form>
+          </div>
+      </div>
+  </div>
+
+  <!-- Cropper Modal -->
+  <div class="cropper-modal" id="cropperModal">
+    <div class="cropper-container-box">
+      <h3 style="margin-top: 0; font-family: 'Playfair Display';">Crop Image</h3>
+      <div class="img-container">
+        <img id="imageToCrop" src="">
+      </div>
+      <div class="cropper-actions">
+        <button type="button" class="btn" style="background: #E0E0E0;" id="cancelCropBtn">Cancel</button>
+        <button type="button" class="btn btn-primary" id="cropBtn">Crop & Save</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.js"></script>
+  <script src="/js/imageCropper.js"></script>
+  <script>
+    initializeCropper('imgInput1', 'preview1');
+    initializeCropper('imgInput2', 'preview2');
+    initializeCropper('imgInput3', 'preview3');
+    initializeCropper('imgInput4', 'preview4');
+    initializeCropper('imgInput5', 'preview5');
+
+    // Existing images count
+    const formElement = document.getElementById('editProductForm');
+    const existingImagesCount = parseInt(formElement.getAttribute('data-images-count') || 0, 10);
+
+    formElement.addEventListener('submit', async function (e) {
+      e.preventDefault();
+      const saveBtn = document.getElementById('saveBtn');
+
+      const isValid = window.AdminValidator.validateForm(this, {
+        name: 'productName',
+        description: 'description',
+        regularPrice: 'price',
+        salePrice: 'salePrice',
+        stock: 'stock'
+      });
+
+      const category = document.querySelector('select[name="category"]');
+      if (!category.value) {
+        window.AdminValidator.addCustomError(category.closest('.input-wrapper'), 'Please select a category.');
+      }
+
+      const brand = document.querySelector('input[name="brand"]');
+      if (!brand.value.trim()) {
+        window.AdminValidator.addCustomError(brand.closest('.input-wrapper'), 'Brand is required.');
+      }
+
+      // Calculate total images that will be in the product after this update
+      let validImagesCount = 0;
+      for (let i = 1; i <= 5; i++) {
+        if (croppedBlobs[`imgInput${i}`]) {
+          validImagesCount++; // New cropped image replacing this slot
+        } else if (document.getElementById(`preview${i}`).src.includes('cloudinary')) {
+          validImagesCount++; // Existing image in this slot
+        }
+      }
+
+      let hasImageError = false;
+      const imageGrid = document.querySelector('.image-grid');
+      if (validImagesCount < 3) {
+        window.AdminValidator.addCustomError(imageGrid, 'You must have at least 3 images for the product.');
+        hasImageError = true;
+      } else {
+        const err = imageGrid.parentNode.querySelector('.custom-error-dynamic');
+        if (err) err.remove();
+        imageGrid.classList.remove('has-error');
+      }
+
+      if (!isValid || !category.value || !brand.value.trim() || hasImageError) {
+        return;
+      }
+
+      saveBtn.disabled = true;
+      saveBtn.textContent = 'Updating...';
+
+      const formData = new FormData(this);
+
+      // The backend expects 'images' to be the newly uploaded files. 
+      // It also needs to know which ones we are keeping. 
+      // In our controller, we check if req.files exists and append.
+      // However, to keep it simple, if they select new images, we just append them.
+      // If we need to replace specific index, that requires more complex backend logic.
+      // Let's assume the backend just adds the new images to the array or replaces all if provided.
+      // Since our productController uses uploadProducts.array, if files are provided, it *appends* them to product.images.
+      // We will append all cropped blobs.
+      Object.keys(croppedBlobs).forEach((key, index) => {
+        formData.append('images', croppedBlobs[key], `product_img_${index}.webp`);
+      });
+
+      try {
+        const productId = this.getAttribute('data-product-id');
+        const response = await fetch(`/admin/products/${productId}?_method=PUT`, {
+          method: 'POST',
+          body: formData
+        });
+
+        const data = await response.json();
+
+        if (data.success) {
+          Swal.fire('Success!', data.message, 'success').then(() => {
+            window.location.href = '/admin/products';
+          });
+        } else {
+          Swal.fire('Error!', data.message || 'Validation failed', 'error');
+          saveBtn.disabled = false;
+          saveBtn.textContent = 'Update Product';
+        }
+      } catch (error) {
+        Swal.fire('Error!', 'Server error. Please try again.', 'error');
+        saveBtn.disabled = false;
+        saveBtn.textContent = 'Update Product';
+      }
+    });
+  </script>
+  <script src="/js/admin/formValidator.js"></script>
+</body>
+
+</html>

@@ -12,7 +12,9 @@
   z-index: 1000;
   opacity: 0;
   visibility: hidden;
-  transition: opacity 0.25s ease, visibility 0.25s ease;
+  transition:
+    opacity 0.25s ease,
+    visibility 0.25s ease;
 }
 
 .modal-overlay.active {
@@ -56,7 +58,8 @@
 
 /* ── MODAL TEXT ── */
 .modal-title {
-  font-size: 20px;
+  font-size: 20px;
+
   color: #2c2c2c;
   font-weight: normal;
   margin-bottom: 10px;
