@@ -63,6 +63,67 @@
                   </div>
 
                   <div class="card">
+                    <h2 class="card-title">Attributes</h2>
+                    <div class="form-row">
+                      <div class="form-group">
+                        <label>Skin Type</label>
+                        <div class="input-wrapper custom-dropdown-wrapper" style="position: relative;">
+                          <div class="custom-dropdown form-control" id="skinTypeDropdown"
+                            style="padding: 0; border: none; background: transparent;">
+                            <div class="dropdown-selected" onclick="toggleSkinTypeDropdown(event)"
+                              style="display: flex; align-items: center; justify-content: space-between; cursor: pointer; padding: 12px 16px; border: 1px solid #e0e0e0; border-radius: 8px; background: #f9f9f9;">
+                              <span id="selectedSkinTypeText">
+                                <% if (product.skinType && product.skinType.length> 0) { %>
+                                  <% if (product.skinType[0]==='dry' ) { %>Dry<% } %>
+                                      <% if (product.skinType[0]==='oily' ) { %>Oily<% } %>
+                                          <% if (product.skinType[0]==='sensitive' ) { %>Sensitive<% } %>
+                                              <% if (product.skinType[0]==='normal' ) { %>Normal<% } %>
+                                                  <% if (product.skinType[0]==='combination' ) { %>Combination<% } %>
+                                                      <% if (product.skinType[0]==='all' ) { %>All Skin Types<% } %>
+                                                          <% } else { %>
+                                                            Select Skin Type (Optional)
+                                                            <% } %>
+                              </span>
+                              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24"
+                                fill="none" stroke="#222" stroke-width="2" stroke-linecap="round"
+                                stroke-linejoin="round">
+                                <polyline points="6 9 12 15 18 9"></polyline>
+                              </svg>
+                            </div>
+                            <div class="dropdown-options" id="skinTypeOptions"
+                              style="display: none; position: absolute; top: 100%; left: 0; width: 100%; background: white; border: 1px solid #e0e0e0; border-radius: 8px; margin-top: 4px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); z-index: 10; max-height: 200px; overflow-y: auto;">
+                              <div
+                                class="dropdown-option <%= (!product.skinType || product.skinType.length === 0) ? 'active' : '' %>"
+                                onclick="selectSkinType('', 'Select Skin Type (Optional)')">Select Skin Type (Optional)
+                              </div>
+                              <div
+                                class="dropdown-option <%= product.skinType && product.skinType.includes('dry') ? 'active' : '' %>"
+                                onclick="selectSkinType('dry', 'Dry')">Dry</div>
+                              <div
+                                class="dropdown-option <%= product.skinType && product.skinType.includes('oily') ? 'active' : '' %>"
+                                onclick="selectSkinType('oily', 'Oily')">Oily</div>
+                              <div
+                                class="dropdown-option <%= product.skinType && product.skinType.includes('sensitive') ? 'active' : '' %>"
+                                onclick="selectSkinType('sensitive', 'Sensitive')">Sensitive</div>
+                              <div
+                                class="dropdown-option <%= product.skinType && product.skinType.includes('normal') ? 'active' : '' %>"
+                                onclick="selectSkinType('normal', 'Normal')">Normal</div>
+                              <div
+                                class="dropdown-option <%= product.skinType && product.skinType.includes('combination') ? 'active' : '' %>"
+                                onclick="selectSkinType('combination', 'Combination')">Combination</div>
+                              <div
+                                class="dropdown-option <%= product.skinType && product.skinType.includes('all') ? 'active' : '' %>"
+                                onclick="selectSkinType('all', 'All Skin Types')">All Skin Types</div>
+                            </div>
+                          </div>
+                          <input type="hidden" name="skinType" id="skinTypeInput"
+                            value="<%= product.skinType && product.skinType.length > 0 ? product.skinType[0] : '' %>">
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div class="card">
                     <h2 class="card-title">Pricing & Inventory</h2>
                     <div class="form-row">
                       <div class="form-group">
@@ -92,16 +153,22 @@
                 <div class="side-column">
                   <div class="card">
                     <h2 class="card-title">Publishing</h2>
-                    <div class="form-group">
-                      <label>Status</label>
-                      <select name="isListed" class="form-control">
-                        <option value="true" <%=product.isListed ? 'selected' : '' %>>Published</option>
-                        <option value="false" <%=!product.isListed ? 'selected' : '' %>>Unlisted</option>
-                      </select>
+                    <div class="toggle-switch form-group" style="margin-bottom: 12px;">
+                      <span>Featured Product</span>
+                      <label class="switch">
+                        <input type="checkbox" name="isFeatured" <%= product.isFeatured ? 'checked' : '' %>>
+                        <span class="slider"></span>
+                      </label>
+                    </div>
+                    <div class="toggle-switch form-group">
+                      <span>Published</span>
+                      <label class="switch">
+                        <input type="checkbox" name="isListed" <%= product.isListed ? 'checked' : '' %>>
+                        <span class="slider"></span>
+                      </label>
                     </div>
                     <button type="submit" class="btn btn-primary" id="saveBtn">Update Product</button>
-                    <button type="button" class="btn btn-secondary"
-                      onclick="window.location.href='/admin/products'">Discard Changes</button>
+                    <button type="button" class="btn btn-secondary" id="discardBtn">Discard Changes</button>
                   </div>
 
                   <div class="card">
@@ -133,8 +200,23 @@
       </div>
   </div>
 
+  <!-- Custom Modal -->
+  <div class="modal-overlay" id="customModal">
+    <div class="modal-box">
+      <div class="modal-icon">
+        <img src="/images/icons/admin/triangle-alert.svg" alt="Alert" id="modalIcon" />
+      </div>
+      <h2 class="modal-title" id="modalTitle">Title</h2>
+      <p class="modal-message" id="modalMessage">Message</p>
+      <div class="modal-actions" id="modalActions">
+        <button type="button" class="modal-btn modal-btn-cancel" id="modalCancel">Cancel</button>
+        <button type="button" class="modal-btn modal-btn-confirm" id="modalConfirm">Confirm</button>
+      </div>
+    </div>
+  </div>
+
   <!-- Cropper Modal -->
-  <div class="cropper-modal" id="cropperModal">
+  <div class="custom-cropper-overlay" id="cropperModal">
     <div class="cropper-container-box">
       <h3 style="margin-top: 0; font-family: 'Playfair Display';">Crop Image</h3>
       <div class="img-container">
@@ -156,9 +238,70 @@
     initializeCropper('imgInput4', 'preview4');
     initializeCropper('imgInput5', 'preview5');
 
+    // Common Modal Elements
+    const customModal = document.getElementById('customModal');
+    const modalIcon = document.getElementById('modalIcon');
+    const modalTitle = document.getElementById('modalTitle');
+    const modalMessage = document.getElementById('modalMessage');
+    const modalCancel = document.getElementById('modalCancel');
+    const modalConfirm = document.getElementById('modalConfirm');
+
+    const closeModal = () => {
+      customModal.classList.remove('active');
+    };
+
+    const discardBtn = document.getElementById('discardBtn');
+    if (discardBtn) {
+      discardBtn.addEventListener('click', () => {
+        modalIcon.src = '/images/icons/admin/triangle-alert.svg';
+        modalTitle.textContent = 'Discard Changes?';
+        modalMessage.innerHTML = 'Are you sure you want to discard your changes? Any unsaved edits will be lost.';
+        modalConfirm.textContent = 'Discard';
+        modalConfirm.classList.remove('modal-btn-positive');
+        modalConfirm.disabled = false;
+        modalCancel.style.display = 'inline-block';
+
+        customModal.classList.add('active');
+        modalCancel.onclick = closeModal;
+
+        modalConfirm.onclick = () => {
+          window.location.href = '/admin/products';
+        };
+      });
+    }
+
     // Existing images count
     const formElement = document.getElementById('editProductForm');
     const existingImagesCount = parseInt(formElement.getAttribute('data-images-count') || 0, 10);
+
+    // Custom Dropdown Logic
+    function toggleSkinTypeDropdown(e) {
+      e.stopPropagation();
+      const options = document.getElementById('skinTypeOptions');
+      if (options.style.display === 'none' || options.style.display === '') {
+        options.style.display = 'block';
+      } else {
+        options.style.display = 'none';
+      }
+    }
+
+    function selectSkinType(value, text) {
+      document.getElementById('skinTypeInput').value = value;
+      document.getElementById('selectedSkinTypeText').textContent = text;
+
+      const optionsList = document.querySelectorAll('#skinTypeOptions .dropdown-option');
+      optionsList.forEach(opt => opt.classList.remove('active'));
+      event.target.classList.add('active');
+
+      document.getElementById('skinTypeOptions').style.display = 'none';
+    }
+
+    document.addEventListener('click', function (event) {
+      const dropdown = document.getElementById('skinTypeOptions');
+      if (dropdown && dropdown.style.display === 'block') {
+        dropdown.style.display = 'none';
+      }
+    });
 
     formElement.addEventListener('submit', async function (e) {
       e.preventDefault();
@@ -212,41 +355,85 @@
 
       const formData = new FormData(this);
 
-      // The backend expects 'images' to be the newly uploaded files. 
-      // It also needs to know which ones we are keeping. 
-      // In our controller, we check if req.files exists and append.
-      // However, to keep it simple, if they select new images, we just append them.
-      // If we need to replace specific index, that requires more complex backend logic.
-      // Let's assume the backend just adds the new images to the array or replaces all if provided.
-      // Since our productController uses uploadProducts.array, if files are provided, it *appends* them to product.images.
-      // We will append all cropped blobs.
-      Object.keys(croppedBlobs).forEach((key, index) => {
-        formData.append('images', croppedBlobs[key], `product_img_${index}.webp`);
-      });
-
-      try {
-        const productId = this.getAttribute('data-product-id');
-        const response = await fetch(`/admin/products/${productId}?_method=PUT`, {
-          method: 'POST',
-          body: formData
-        });
-
-        const data = await response.json();
-
-        if (data.success) {
-          Swal.fire('Success!', data.message, 'success').then(() => {
-            window.location.href = '/admin/products';
-          });
+      // Send image mapping to backend so it knows the exact order
+      for (let i = 1; i <= 5; i++) {
+        if (croppedBlobs[`imgInput${i}`]) {
+          formData.append('images', croppedBlobs[`imgInput${i}`], `product_img_${i}.webp`);
+          formData.append('imageMapping', 'NEW');
         } else {
-          Swal.fire('Error!', data.message || 'Validation failed', 'error');
+          const previewEl = document.getElementById(`preview${i}`);
+          if (previewEl && previewEl.src) {
+            const src = previewEl.src;
+            if (src.startsWith('http') && !src.startsWith('blob:')) {
+              formData.append('imageMapping', src);
+            }
+          }
+        }
+      }
+
+      // Show Confirmation Modal for Save
+      modalIcon.src = '/images/icons/admin/triangle-alert.svg';
+      modalTitle.textContent = 'Update Product?';
+      modalMessage.innerHTML = 'Are you sure you want to save these changes?';
+      modalConfirm.textContent = 'Save Changes';
+      modalConfirm.classList.add('modal-btn-positive');
+      modalConfirm.disabled = false;
+      modalCancel.style.display = 'inline-block';
+
+      customModal.classList.add('active');
+      modalCancel.onclick = closeModal;
+
+      modalConfirm.onclick = async () => {
+        modalConfirm.disabled = true;
+        modalConfirm.textContent = 'Updating...';
+
+        try {
+          const productId = formElement.getAttribute('data-product-id');
+          const response = await fetch(`/admin/products/${productId}?_method=PUT`, {
+            method: 'POST',
+            body: formData
+          });
+
+          const data = await response.json();
+
+          if (data.success) {
+            modalIcon.src = '/images/icons/admin/check-circle.svg';
+            modalTitle.textContent = 'Updated!';
+            modalMessage.innerHTML = data.message;
+            modalCancel.style.display = 'none';
+            modalConfirm.textContent = 'OK';
+            modalConfirm.disabled = false;
+
+            modalConfirm.onclick = () => {
+              window.location.href = '/admin/products';
+            };
+          } else {
+            modalIcon.src = '/images/icons/admin/triangle-alert.svg';
+            modalTitle.textContent = 'Oops...';
+            modalMessage.innerHTML = data.message || 'Validation failed';
+            modalCancel.style.display = 'none';
+            modalConfirm.textContent = 'Close';
+            modalConfirm.disabled = false;
+            modalConfirm.classList.remove('modal-btn-positive');
+            modalConfirm.onclick = closeModal;
+
+            saveBtn.disabled = false;
+            saveBtn.textContent = 'Update Product';
+          }
+        } catch (error) {
+          modalIcon.src = '/images/icons/admin/triangle-alert.svg';
+          modalTitle.textContent = 'Error';
+          modalMessage.innerHTML = 'Server error. Please try again later.';
+          modalCancel.style.display = 'none';
+          modalConfirm.textContent = 'Close';
+          modalConfirm.disabled = false;
+          modalConfirm.classList.remove('modal-btn-positive');
+          modalConfirm.onclick = closeModal;
+
           saveBtn.disabled = false;
           saveBtn.textContent = 'Update Product';
         }
-      } catch (error) {
-        Swal.fire('Error!', 'Server error. Please try again.', 'error');
-        saveBtn.disabled = false;
-        saveBtn.textContent = 'Update Product';
-      }
+      };
     });
   </script>
   <script src="/js/admin/formValidator.js"></script>

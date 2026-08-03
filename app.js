@@ -12,6 +12,8 @@ import userAuthRoutes from './routes/user/authRoutes.js';
 import homeRoutes from './routes/user/homeRoutes.js';
 import profileRoutes from './routes/user/profileRoutes.js';
 import addressRoutes from './routes/user/addressRoutes.js';
+import shopRoutes from './routes/user/shopRoutes.js';
+import cartRoutes from './routes/user/cartRoutes.js';
 import passport from './config/passport.js';
 import { preventCache } from './middleware/authMiddleware.js';
 import { formStateMiddleware } from './middleware/formMiddleware.js';
@@ -77,6 +79,8 @@ app.use('/', userAuthRoutes);
 app.use('/', homeRoutes);
 app.use('/', profileRoutes);
 app.use('/', addressRoutes);
+app.use('/', shopRoutes);
+app.use('/', cartRoutes);
 
 // Global Error Handler
 app.use((err, req, res, next) => {

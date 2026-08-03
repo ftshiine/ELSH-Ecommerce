@@ -15,9 +15,7 @@
     </ul>
 
     <div class="home-navbar-actions">
-      <a href="/search" class="nav-icon-btn">
-        <img src="/images/icons/user/search (1).svg" alt="Search" />
-      </a>
+
 
       <!-- User Dropdown -->
       <div class="user-dropdown-wrapper">
@@ -33,7 +31,7 @@
             <img src="/images/icons/admin/globe.svg" alt="Ritual Sites" />
             Ritual Sites
           </a>
-          <a href="/logout" class="dropdown-item dropdown-logout">
+          <a href="#" onclick="handleLogout(event)" class="dropdown-item dropdown-logout">
             <img src="/images/icons/admin/logout.svg" alt="Logout" />
             Logout
           </a>
@@ -58,5 +56,13 @@
 
   document.addEventListener('click', () => {
     userDropdown.classList.remove('active');
+  });
+
+  // Bfcache (Back/Forward Cache) Busting
+  // Forces the page to reload when navigating back, ensuring session state is fresh
+  window.addEventListener('pageshow', function (event) {
+    if (event.persisted) {
+      window.location.reload();
+    }
   });
 </script>

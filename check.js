@@ -1,0 +1,1 @@
+import mongoose from 'mongoose'; mongoose.connect('mongodb://127.0.0.1:27017/ELSH-Ecommerce').then(async () => { const count = await mongoose.connection.db.collection('products').countDocuments({isListed: {$exists: false}}); console.log('Missing isListed:', count); process.exit(0); });

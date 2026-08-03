@@ -89,6 +89,25 @@
   background: white;
 }
 
+.dropdown-option {
+  padding: 12px 16px;
+  cursor: pointer;
+  transition: background-color 0.2s;
+  font-family: "Inter", sans-serif;
+  font-size: 14px;
+  color: #333;
+}
+
+.dropdown-option:hover {
+  background-color: #FDFCF8;
+}
+
+.dropdown-option.active {
+  color: #4A5240;
+  background-color: #F0EEE4;
+  font-weight: 600;
+}
+
 textarea.form-control {
   min-height: 120px;
   resize: vertical;

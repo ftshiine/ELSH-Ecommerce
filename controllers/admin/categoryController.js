@@ -222,6 +222,9 @@ export const toggleCategoryListing = async (req, res) => {
         category.isListed = !category.isListed;
         await category.save();
 
+        // Sync all associated products listing status
+        await Product.updateMany({ category: id }, { isListed: category.isListed });
+
         const statusMessage = category.isListed ? 'Category listed successfully' : 'Category unlisted successfully';
 
         return res.status(200).json({ success: true, message: statusMessage, isListed: category.isListed });
@@ -249,6 +252,9 @@ export const softDeleteCategory = async (req, res) => {
         // Optionally, also unlist it when deleting
         category.isListed = false;
         await category.save();
+
+        // Also unlist all associated products
+        await Product.updateMany({ category: id }, { isListed: false });
 
         return res.status(200).json({ success: true, message: 'Category deleted successfully' });
     } catch (error) {

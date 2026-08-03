@@ -63,8 +63,8 @@ export const loadAddProduct = async (req, res) => {
  */
 export const addProduct = async (req, res) => {
     try {
-        const { name, description, category, regularPrice, salePrice, stock, isListed } = req.body;
-        
+        const { name, description, category, brand, regularPrice, salePrice, stock, isListed, isFeatured, skinType } = req.body;
+
         // Extract array of Cloudinary URLs
         const images = req.files ? req.files.map(file => file.path) : [];
 
@@ -72,19 +72,24 @@ export const addProduct = async (req, res) => {
             return res.status(400).json({ success: false, message: 'Minimum 3 images are required' });
         }
 
+        const processedSkinType = Array.isArray(skinType) ? skinType : (skinType ? [skinType] : []);
+
         const newProduct = new Product({
             name,
             description,
             category,
+            brand,
             regularPrice,
             salePrice,
             stock,
             images,
-            isListed: isListed === 'on' || isListed === true || isListed === 'true'
+            skinType: processedSkinType,
+            isListed: isListed === 'on' || isListed === true || isListed === 'true',
+            isFeatured: isFeatured === 'on' || isFeatured === true || isFeatured === 'true'
         });
 
         await newProduct.save();
-        
+
         return res.status(201).json({ success: true, message: 'Product added successfully' });
     } catch (error) {
         console.error('Error adding product:', error);
@@ -103,7 +108,7 @@ export const loadEditProduct = async (req, res) => {
         if (!product) {
             return res.redirect('/admin/products');
         }
-        
+
         const categories = await Category.find({ isListed: true });
         res.render('admin/product/edit', { title: 'Edit Product', product, categories, activePage: 'products' });
     } catch (error) {
@@ -119,23 +124,48 @@ export const loadEditProduct = async (req, res) => {
 export const editProduct = async (req, res) => {
     try {
         const { id } = req.params;
-        const { name, description, category, regularPrice, salePrice, stock, isListed } = req.body;
+        const { name, description, category, brand, regularPrice, salePrice, stock, isListed, isFeatured, skinType } = req.body;
+
+        const processedSkinType = Array.isArray(skinType) ? skinType : (skinType ? [skinType] : []);
 
         const updateData = {
             name,
             description,
             category,
+            brand,
             regularPrice,
             salePrice,
             stock,
-            isListed: isListed === 'on' || isListed === true || isListed === 'true'
+            skinType: processedSkinType,
+            isListed: isListed === 'on' || isListed === true || isListed === 'true',
+            isFeatured: isFeatured === 'on' || isFeatured === true || isFeatured === 'true'
         };
 
-        // If new files were uploaded, we append them to the existing images
-        if (req.files && req.files.length > 0) {
-            const newImages = req.files.map(file => file.path);
-            const product = await Product.findById(id);
-            updateData.images = [...product.images, ...newImages];
+        // Handle images replacement and ordering based on imageMapping
+        let finalImages = [];
+        const imageMapping = req.body.imageMapping; 
+        
+        if (imageMapping) {
+            const mappings = Array.isArray(imageMapping) ? imageMapping : [imageMapping];
+            let fileIndex = 0;
+            for (const map of mappings) {
+                if (map === 'NEW') {
+                    if (req.files && req.files[fileIndex]) {
+                        finalImages.push(req.files[fileIndex].path);
+                        fileIndex++;
+                    }
+                } else if (map.startsWith('http')) {
+                    finalImages.push(map);
+                }
+            }
+            updateData.images = finalImages;
+        } else {
+            // fallback if frontend didn't send imageMapping
+            if (req.files && req.files.length > 0) {
+                const newImages = req.files.map(file => file.path);
+                const product = await Product.findById(id);
+                updateData.images = [...product.images, ...newImages];
+            }
         }
 
         const updatedProduct = await Product.findByIdAndUpdate(
@@ -164,7 +194,7 @@ export const toggleProductStatus = async (req, res) => {
         const { id } = req.params;
 
         const product = await Product.findById(id);
-        
+
         if (!product) {
             return res.status(404).json({ success: false, message: 'Product not found' });
         }
@@ -173,7 +203,7 @@ export const toggleProductStatus = async (req, res) => {
         await product.save();
 
         const statusMessage = product.isListed ? 'Product listed successfully' : 'Product unlisted successfully';
-        
+
         return res.status(200).json({ success: true, message: statusMessage, isListed: product.isListed });
     } catch (error) {
         console.error('Error toggling product status:', error);

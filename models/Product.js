@@ -15,6 +15,11 @@ const productSchema = new mongoose.Schema({
         ref: 'Category',
         required: [true, 'Product category is required']
     },
+    brand: {
+        type: String,
+        required: [true, 'Product brand is required'],
+        trim: true
+    },
     regularPrice: {
         type: Number,
         required: [true, 'Regular price is required'],
@@ -40,9 +45,25 @@ const productSchema = new mongoose.Schema({
         },
         required: [true, 'Product images are required']
     },
+    skinType: {
+        type: [String],
+        default: []
+    },
     isListed: {
         type: Boolean,
         default: true
+    },
+    isFeatured: {
+        type: Boolean,
+        default: false
+    },
+    averageRating: {
+        type: Number,
+        default: 0
+    },
+    reviewCount: {
+        type: Number,
+        default: 0
     }
 }, { timestamps: true });
 

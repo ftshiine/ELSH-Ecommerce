@@ -62,6 +62,45 @@
                   </div>
 
                   <div class="card">
+                    <h2 class="card-title">Attributes</h2>
+                    <div class="form-row">
+                      <div class="form-group">
+                        <label>Skin Type</label>
+                        <div class="input-wrapper custom-dropdown-wrapper" style="position: relative;">
+                          <div class="custom-dropdown form-control" id="skinTypeDropdown"
+                            style="padding: 0; border: none; background: transparent;">
+                            <div class="dropdown-selected" onclick="toggleSkinTypeDropdown(event)"
+                              style="display: flex; align-items: center; justify-content: space-between; cursor: pointer; padding: 12px 16px; border: 1px solid #e0e0e0; border-radius: 8px; background: #f9f9f9;">
+                              <span id="selectedSkinTypeText">Select Skin Type (Optional)</span>
+                              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24"
+                                fill="none" stroke="#222" stroke-width="2" stroke-linecap="round"
+                                stroke-linejoin="round">
+                                <polyline points="6 9 12 15 18 9"></polyline>
+                              </svg>
+                            </div>
+                            <div class="dropdown-options" id="skinTypeOptions"
+                              style="display: none; position: absolute; top: 100%; left: 0; width: 100%; background: white; border: 1px solid #e0e0e0; border-radius: 8px; margin-top: 4px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); z-index: 10; max-height: 200px; overflow-y: auto;">
+                              <div class="dropdown-option active"
+                                onclick="selectSkinType('', 'Select Skin Type (Optional)')">Select Skin Type (Optional)
+                              </div>
+                              <div class="dropdown-option" onclick="selectSkinType('dry', 'Dry')">Dry</div>
+                              <div class="dropdown-option" onclick="selectSkinType('oily', 'Oily')">Oily</div>
+                              <div class="dropdown-option" onclick="selectSkinType('sensitive', 'Sensitive')">Sensitive
+                              </div>
+                              <div class="dropdown-option" onclick="selectSkinType('normal', 'Normal')">Normal</div>
+                              <div class="dropdown-option" onclick="selectSkinType('combination', 'Combination')">
+                                Combination</div>
+                              <div class="dropdown-option" onclick="selectSkinType('all', 'All Skin Types')">All Skin
+                                Types</div>
+                            </div>
+                          </div>
+                          <input type="hidden" name="skinType" id="skinTypeInput" value="">
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div class="card">
                     <h2 class="card-title">Pricing & Inventory</h2>
                     <div class="form-row">
                       <div class="form-group">
@@ -89,6 +128,13 @@
                 <div class="side-column">
                   <div class="card">
                     <h2 class="card-title">Publishing</h2>
+                    <div class="toggle-switch form-group" style="margin-bottom: 12px;">
+                      <span>Featured Product</span>
+                      <label class="switch">
+                        <input type="checkbox" name="isFeatured">
+                        <span class="slider"></span>
+                      </label>
+                    </div>
                     <div class="toggle-switch form-group">
                       <span>Published</span>
                       <label class="switch">
@@ -183,6 +229,35 @@
     initializeCropper('imgInput3', 'preview3');
     initializeCropper('imgInput4', 'preview4');
     initializeCropper('imgInput5', 'preview5');
+
+    // Custom Dropdown Logic
+    function toggleSkinTypeDropdown(e) {
+      e.stopPropagation();
+      const options = document.getElementById('skinTypeOptions');
+      if (options.style.display === 'none' || options.style.display === '') {
+        options.style.display = 'block';
+      } else {
+        options.style.display = 'none';
+      }
+    }
+
+    function selectSkinType(value, text) {
+      document.getElementById('skinTypeInput').value = value;
+      document.getElementById('selectedSkinTypeText').textContent = text;
+
+      const optionsList = document.querySelectorAll('#skinTypeOptions .dropdown-option');
+      optionsList.forEach(opt => opt.classList.remove('active'));
+      event.target.classList.add('active');
+
+      document.getElementById('skinTypeOptions').style.display = 'none';
+    }
+
+    document.addEventListener('click', function (event) {
+      const dropdown = document.getElementById('skinTypeOptions');
+      if (dropdown && dropdown.style.display === 'block') {
+        dropdown.style.display = 'none';
+      }
+    });
 
     // Common Modal Elements
     const customModal = document.getElementById('customModal');

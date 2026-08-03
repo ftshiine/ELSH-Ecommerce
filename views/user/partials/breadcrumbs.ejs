@@ -1,0 +1,24 @@
+<% if (locals.breadcrumbs && locals.breadcrumbs.length > 0) { %>
+  <% if (!locals._breadcrumbsCssLoaded) { %>
+    <link rel="stylesheet" href="/css/user/breadcrumbs.css">
+    <% locals._breadcrumbsCssLoaded = true; %>
+  <% } %>
+  <nav aria-label="breadcrumb" class="breadcrumb-nav">
+    <ol class="breadcrumb-list">
+      <% locals.breadcrumbs.forEach((crumb, index) => { %>
+        <li class="breadcrumb-item <%= index === locals.breadcrumbs.length - 1 ? 'active' : '' %>" <%= index === locals.breadcrumbs.length - 1 ? 'aria-current="page"' : '' %>>
+          <% if (index === locals.breadcrumbs.length - 1) { %>
+            <%= crumb.name %>
+          <% } else { %>
+            <a href="<%= crumb.url %>"><%= crumb.name %></a>
+            <span class="breadcrumb-separator">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="9 18 15 12 9 6"></polyline>
+              </svg>
+            </span>
+          <% } %>
+        </li>
+      <% }) %>
+    </ol>
+  </nav>
+<% } %>

@@ -3,14 +3,12 @@ import path from 'path';
 import { CloudinaryStorage } from 'multer-storage-cloudinary';
 import cloudinary from '../config/cloudinary.js';
 
-// ---- Local Storage (for User Profile) ----
-const storage = multer.diskStorage({
-  destination: (req, file, cb) => {
-    cb(null, 'public/images/user/profiles/');
-  },
-  filename: (req, file, cb) => {
-    const uniqueName = `${Date.now()}-${Math.round(Math.random() * 1e9)}${path.extname(file.originalname)}`;
-    cb(null, uniqueName);
+// ---- Cloudinary Storage (for User Profile) ----
+const storage = new CloudinaryStorage({
+  cloudinary: cloudinary,
+  params: {
+    folder: 'ELSH/users/profiles',
+    allowed_formats: ['jpg', 'jpeg', 'png', 'webp'],
   },
 });
 

@@ -1,5 +1,6 @@
 <% if (!locals._footerCssLoaded) { %>
   <link rel="stylesheet" href="/css/user/footer.css" />
+  <link rel="stylesheet" href="/css/admin/modal.css" />
   <% locals._footerCssLoaded=true; %>
     <% } %>
       <footer class="footer">
@@ -41,3 +42,91 @@
           </div>
         </div>
       </footer>
+
+      <!-- Global Custom Modal -->
+      <div class="modal-overlay" id="customModal">
+        <div class="modal-box">
+          <div class="modal-icon">
+            <img src="/images/icons/admin/triangle-alert.svg" alt="Alert" id="modalIcon" />
+          </div>
+          <h2 class="modal-title" id="modalTitle">Title</h2>
+          <p class="modal-message" id="modalMessage">Message</p>
+          <div class="modal-actions" id="modalActions">
+            <button type="button" class="modal-btn modal-btn-cancel" id="modalCancel">Cancel</button>
+            <button type="button" class="modal-btn modal-btn-confirm" id="modalConfirm">Confirm</button>
+          </div>
+        </div>
+      </div>
+
+      <script>
+        const customModal = document.getElementById('customModal');
+        const modalIcon = document.getElementById('modalIcon');
+        const modalTitle = document.getElementById('modalTitle');
+        const modalMessage = document.getElementById('modalMessage');
+        const modalConfirm = document.getElementById('modalConfirm');
+        const modalCancel = document.getElementById('modalCancel');
+
+        function closeCustomModal() {
+          if (customModal) customModal.classList.remove('active');
+        }
+
+        function showCustomModal({ title, message, iconType, confirmText, showCancel, onConfirm }) {
+          if (!customModal) return;
+          
+          modalTitle.textContent = title;
+          modalMessage.innerHTML = message;
+          
+          // Reset button state
+          modalConfirm.disabled = false;
+          
+          if (iconType === 'success') {
+            modalIcon.src = '/images/icons/admin/check-circle.svg';
+            modalConfirm.style.background = '#222';
+            modalConfirm.style.color = '#fff';
+          } else if (iconType === 'warning') {
+            modalIcon.src = '/images/icons/admin/triangle-alert.svg';
+            modalConfirm.style.background = '#d32f2f';
+            modalConfirm.style.color = '#fff';
+          } else {
+            modalIcon.src = '/images/icons/admin/triangle-alert.svg';
+            modalConfirm.style.background = '#d32f2f';
+            modalConfirm.style.color = '#fff';
+          }
+
+          modalConfirm.textContent = confirmText || 'OK';
+          
+          if (showCancel) {
+            modalCancel.style.display = 'inline-block';
+          } else {
+            modalCancel.style.display = 'none';
+          }
+
+          customModal.classList.add('active');
+
+          modalCancel.onclick = closeCustomModal;
+          
+          modalConfirm.onclick = () => {
+            if (onConfirm) {
+              modalConfirm.disabled = true;
+              modalConfirm.textContent = 'Please wait...';
+              onConfirm();
+            } else {
+              closeCustomModal();
+            }
+          };
+        }
+
+        function handleLogout(event) {
+          event.preventDefault();
+          showCustomModal({
+            title: 'Leaving so soon?',
+            message: 'Are you sure you want to logout of your ELSH account?',
+            iconType: 'warning',
+            confirmText: 'Yes, Logout',
+            showCancel: true,
+            onConfirm: () => {
+              window.location.href = '/logout';
+            }
+          });
+        }
+      </script>

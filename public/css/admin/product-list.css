@@ -159,6 +159,22 @@ td {
   color: #d32f2f;
 }
 
+.text-btn {
+  font-family: "Inter", sans-serif;
+  font-size: 13px;
+  font-weight: 500;
+  text-decoration: none;
+}
+.text-btn:hover {
+  text-decoration: underline;
+}
+.action-btn.listed {
+  color: #d33;
+}
+.action-btn.unlisted {
+  color: #556B44;
+}
+
 .pagination {
   display: flex;
   justify-content: space-between;

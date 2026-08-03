@@ -57,14 +57,14 @@ body {
 }
 
 /* ── HEADING ── */
-.otp-card h1 {
+.otp-card h1 {
   font-size: 28px;
   font-weight: 400;
   color: #2c2c2c;
   margin-bottom: 12px;
 }
 
-.otp-card p {
+.otp-card p {
   font-size: 13px;
   color: #888;
   line-height: 1.7;
@@ -74,14 +74,23 @@ body {
   margin-right: auto;
 }
 
-/* ── ERROR ── */
+/* ── MESSAGES ── */
 .otp-error {
-  background: #fff0f0;
-  color: #c0392b;
-  padding: 10px 14px;
-  border-radius: 8px;
-  font-size: 13px;
-  margin-bottom: 20px;
+  color: #d32f2f;
+  font-size: 12px;
+  margin-top: -16px;
+  margin-bottom: 24px;
+  text-align: center;
+  font-weight: 500;
+}
+
+.otp-success {
+  color: #2e7d32;
+  font-size: 12px;
+  margin-top: -16px;
+  margin-bottom: 24px;
+  text-align: center;
+  font-weight: 500;
 }
 
 /* ── OTP INPUTS ── */
@@ -89,7 +98,7 @@ body {
   display: flex;
   justify-content: center;
   gap: 12px;
-  margin-bottom: 32px;
+  margin-bottom: 24px;
 }
 
 .otp-box {
@@ -103,7 +112,7 @@ body {
   color: #2c2c2c;
   background: #fafaf7;
   outline: none;
-  transition: border 0.2s;
+  transition: border 0.2s;
 }
 
 .otp-box:focus {
@@ -118,7 +127,7 @@ body {
   background-color: #4a5240;
   color: #ffffff;
   border: none;
-  border-radius: 10px;
+  border-radius: 10px;
   font-size: 12px;
   font-weight: 600;
   letter-spacing: 2px;
@@ -132,7 +141,7 @@ body {
 }
 
 /* ── RESEND ── */
-.otp-resend p {
+.otp-resend p {
   font-size: 13px;
   color: #888;
   margin-bottom: 8px;
@@ -151,14 +160,14 @@ body {
   cursor: default;
 }
 
-.timer-text {
+.timer-text {
   font-size: 10px;
   letter-spacing: 1.5px;
   color: #aaa;
 }
 
 /* ── FOOTER ── */
-.otp-footer {
+.otp-footer {
   font-size: 10px;
   letter-spacing: 1.5px;
   color: #aaa;
