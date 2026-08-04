@@ -1,10 +1,7 @@
 import Product from '../../models/Product.js';
 import Category from '../../models/Category.js';
 
-/**
- * GET /admin/products
- * Load products with search and pagination, sort by createdAt desc
- */
+//load products
 export const loadProducts = async (req, res) => {
     try {
         const page = parseInt(req.query.page) || 1;
@@ -43,10 +40,7 @@ export const loadProducts = async (req, res) => {
     }
 };
 
-/**
- * GET /admin/products/add
- * Render Add Product Form
- */
+//Load add product
 export const loadAddProduct = async (req, res) => {
     try {
         const categories = await Category.find({ isListed: true });
@@ -57,15 +51,11 @@ export const loadAddProduct = async (req, res) => {
     }
 };
 
-/**
- * POST /admin/products
- * Add a new product with multiple image upload
- */
+//Add new product
 export const addProduct = async (req, res) => {
     try {
         const { name, description, category, brand, regularPrice, salePrice, stock, isListed, isFeatured, skinType } = req.body;
 
-        // Extract array of Cloudinary URLs
         const images = req.files ? req.files.map(file => file.path) : [];
 
         if (images.length < 3) {
@@ -97,10 +87,7 @@ export const addProduct = async (req, res) => {
     }
 };
 
-/**
- * GET /admin/products/:id/edit
- * Render Edit Product Form
- */
+//load edit product form
 export const loadEditProduct = async (req, res) => {
     try {
         const { id } = req.params;
@@ -117,10 +104,8 @@ export const loadEditProduct = async (req, res) => {
     }
 };
 
-/**
- * PUT /admin/products/:id
- * Edit an existing product
- */
+
+//Edit existing product
 export const editProduct = async (req, res) => {
     try {
         const { id } = req.params;
@@ -141,10 +126,9 @@ export const editProduct = async (req, res) => {
             isFeatured: isFeatured === 'on' || isFeatured === true || isFeatured === 'true'
         };
 
-        // Handle images replacement and ordering based on imageMapping
         let finalImages = [];
-        const imageMapping = req.body.imageMapping; 
-        
+        const imageMapping = req.body.imageMapping;
+
         if (imageMapping) {
             const mappings = Array.isArray(imageMapping) ? imageMapping : [imageMapping];
             let fileIndex = 0;
@@ -160,7 +144,6 @@ export const editProduct = async (req, res) => {
             }
             updateData.images = finalImages;
         } else {
-            // fallback if frontend didn't send imageMapping
             if (req.files && req.files.length > 0) {
                 const newImages = req.files.map(file => file.path);
                 const product = await Product.findById(id);
@@ -185,10 +168,7 @@ export const editProduct = async (req, res) => {
     }
 };
 
-/**
- * PATCH /admin/products/:id/status
- * Toggle product listed status (Soft Delete)
- */
+//product list & unlist
 export const toggleProductStatus = async (req, res) => {
     try {
         const { id } = req.params;

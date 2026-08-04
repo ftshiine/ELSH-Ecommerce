@@ -181,8 +181,12 @@
         if (data.success) {
           // Update UI without reload
           const qtyInput = document.getElementById(`qty-${productId}`);
-          let currentQty = parseInt(qtyInput.value);
-          qtyInput.value = action === 'increment' ? currentQty + 1 : currentQty - 1;
+          if (data.newQuantity !== undefined) {
+            qtyInput.value = data.newQuantity;
+          } else {
+            let currentQty = parseInt(qtyInput.value);
+            qtyInput.value = action === 'increment' ? currentQty + 1 : currentQty - 1;
+          }
           
           document.getElementById(`total-${productId}`).textContent = `₹${data.itemTotalPrice.toFixed(2)}`;
           document.getElementById('cart-subtotal').textContent = `₹${data.cartTotal.toFixed(2)}`;
@@ -275,5 +279,24 @@
       }
     }
   </script>
+  
+  <% if (typeof stockAdjustedMessages !== 'undefined' && stockAdjustedMessages.length > 0) { %>
+    <script>
+      document.addEventListener('DOMContentLoaded', () => {
+        const messages = <%- JSON.stringify(stockAdjustedMessages) %>;
+        if (typeof showCustomModal !== 'undefined') {
+          showCustomModal({
+            title: 'Stock Update',
+            message: messages.join('<br><br>'),
+            iconType: 'warning',
+            confirmText: 'Okay',
+            showCancel: false
+          });
+        } else {
+          alert(messages.join('\n\n'));
+        }
+      });
+    </script>
+  <% } %>
 </body>
 </html>

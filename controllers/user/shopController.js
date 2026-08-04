@@ -1,6 +1,7 @@
 import Product from '../../models/Product.js';
 import Category from '../../models/Category.js';
 import Review from '../../models/Review.js';
+import Cart from '../../models/Cart.js';
 import mongoose from 'mongoose';
 
 export const loadShop = async (req, res) => {
@@ -9,31 +10,24 @@ export const loadShop = async (req, res) => {
         const limit = 9;
         const skip = (page - 1) * limit;
 
-        // Fetch categories for sidebar
         const categories = await Category.find({ isListed: true, isDeleted: false });
 
-        // Build query
         const query = { isListed: true };
 
-        // Search
         if (req.query.search) {
             query.name = { $regex: req.query.search, $options: 'i' };
         }
 
-        // Category Filter
         if (req.query.category) {
             const catArr = Array.isArray(req.query.category) ? req.query.category : [req.query.category];
-            // Cast string IDs to ObjectIds so aggregate matches correctly
             query.category = { $in: catArr.map(id => new mongoose.Types.ObjectId(id)) };
         }
 
-        // Skin Type Filter
         if (req.query.skinType) {
             const skinArr = Array.isArray(req.query.skinType) ? req.query.skinType : [req.query.skinType];
             query.skinType = { $in: skinArr };
         }
 
-        // Price Filter
         if (req.query.minPrice || req.query.maxPrice) {
             const min = parseFloat(req.query.minPrice) || 0;
             const max = parseFloat(req.query.maxPrice) || Number.MAX_SAFE_INTEGER;
@@ -45,13 +39,11 @@ export const loadShop = async (req, res) => {
             ];
         }
 
-        // Featured Filter
         if (req.query.sort === 'featured') {
             query.isFeatured = true;
         }
 
-        // Sorting
-        let sortQuery = { isFeatured: -1, createdAt: -1 }; // default: featured
+        let sortQuery = { isFeatured: -1, createdAt: -1 };
         if (req.query.sort) {
             switch (req.query.sort) {
                 case 'price-asc':
@@ -69,7 +61,6 @@ export const loadShop = async (req, res) => {
                 case 'name-desc':
                     sortQuery = { name: -1 };
                     break;
-                // Add more cases as needed (e.g., rating)
             }
         }
 
@@ -125,7 +116,7 @@ export const loadShop = async (req, res) => {
                 return p.category;
             });
             const productIds = products.map(p => p._id);
-            
+
             suggestions = await Product.find({
                 category: { $nin: categoryIds },
                 _id: { $nin: productIds },
@@ -150,34 +141,37 @@ export const loadShop = async (req, res) => {
     }
 };
 
-/**
- * GET /product/:id
- * Load product details page
- */
+//Load product details
 export const loadProductDetails = async (req, res) => {
     try {
         const productId = req.params.id;
 
-        // Fetch product and populate category
         const product = await Product.findById(productId).populate('category');
 
         if (!product || !product.isListed) {
             return res.redirect('/shop');
         }
 
-        // Fetch related products (same category, excluding current product)
         const relatedProducts = await Product.find({
             category: product.category._id,
             _id: { $ne: product._id },
             isListed: true
         }).limit(4);
 
-        // Fetch Reviews
+
         const reviews = await Review.find({ product: product._id })
             .populate('user', 'fullName profileImage')
             .sort({ createdAt: -1 });
 
         const currentUserId = req.session && req.session.user ? (req.session.user.id || req.session.user._id) : null;
+
+        let inCart = false;
+        if (currentUserId) {
+            const cart = await Cart.findOne({ user: currentUserId });
+            if (cart && cart.items.some(item => item.product.toString() === productId)) {
+                inCart = true;
+            }
+        }
 
         const breadcrumbs = [
             { name: 'Home', url: '/home' },
@@ -191,7 +185,8 @@ export const loadProductDetails = async (req, res) => {
             relatedProducts,
             reviews,
             breadcrumbs,
-            currentUserId
+            currentUserId,
+            inCart
         });
 
     } catch (error) {
@@ -200,15 +195,13 @@ export const loadProductDetails = async (req, res) => {
     }
 };
 
-/**
- * POST /product/:id/review
- * Submit a product review
- */
+
+//product review
 export const submitReview = async (req, res) => {
     try {
         const productId = req.params.id;
         const { rating, comment } = req.body;
-        const userId = req.session.user.id || req.session.user._id; // Fix to get the actual ID string
+        const userId = req.session.user.id || req.session.user._id;
 
         if (!rating || rating < 1 || rating > 5) {
             return res.status(400).json({ success: false, message: 'Please provide a valid rating between 1 and 5' });
@@ -218,7 +211,6 @@ export const submitReview = async (req, res) => {
             return res.status(400).json({ success: false, message: 'Please provide a comment' });
         }
 
-        // Check if user already reviewed
         const existingReview = await Review.findOne({ product: productId, user: userId });
         if (existingReview) {
             return res.status(400).json({ success: false, message: 'You have already reviewed this product' });
@@ -233,13 +225,11 @@ export const submitReview = async (req, res) => {
 
         await newReview.save();
 
-        // Recalculate average rating
         const allReviews = await Review.find({ product: productId });
         const reviewCount = allReviews.length;
         const sumRatings = allReviews.reduce((sum, rev) => sum + rev.rating, 0);
         const averageRating = sumRatings / reviewCount;
 
-        // Update product
         await Product.findByIdAndUpdate(productId, {
             reviewCount,
             averageRating: averageRating ? averageRating.toFixed(1) : 0
@@ -256,10 +246,7 @@ export const submitReview = async (req, res) => {
     }
 };
 
-/**
- * DELETE /product/:productId/review/:reviewId
- * Delete a product review
- */
+//Delete product review
 export const deleteReview = async (req, res) => {
     try {
         const { productId, reviewId } = req.params;
@@ -270,20 +257,17 @@ export const deleteReview = async (req, res) => {
             return res.status(404).json({ success: false, message: 'Review not found' });
         }
 
-        // Only allow the creator to delete
         if (review.user.toString() !== userId.toString()) {
             return res.status(403).json({ success: false, message: 'Not authorized to delete this review' });
         }
 
         await Review.findByIdAndDelete(reviewId);
 
-        // Recalculate average rating
         const allReviews = await Review.find({ product: productId });
         const reviewCount = allReviews.length;
         const sumRatings = allReviews.reduce((sum, rev) => sum + rev.rating, 0);
         const averageRating = reviewCount > 0 ? (sumRatings / reviewCount).toFixed(1) : 0;
 
-        // Update product
         await Product.findByIdAndUpdate(productId, {
             reviewCount,
             averageRating

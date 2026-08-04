@@ -5,7 +5,7 @@ import Product from '../../models/Product.js';
 export const loadCategories = async (req, res) => {
     try {
         const page = parseInt(req.query.page) || 1;
-        const limit = 5;
+        const limit = 2;
         const skip = (page - 1) * limit;
 
         let search = '';
@@ -29,7 +29,6 @@ export const loadCategories = async (req, res) => {
 
         const totalPages = Math.ceil(totalCategories / limit);
 
-        // Optional: Count products for each category
         const categoriesWithProductCount = await Promise.all(categories.map(async (category) => {
             const productCount = await Product.countDocuments({ category: category._id });
             return {
@@ -55,10 +54,7 @@ export const loadCategories = async (req, res) => {
     }
 };
 
-/**
- * GET /admin/categories/add
- * Render Add Category Form
- */
+
 export const loadAddCategory = async (req, res) => {
     try {
         res.render('admin/category/add', { title: 'Add Category', activePage: 'category' });
@@ -68,16 +64,12 @@ export const loadAddCategory = async (req, res) => {
     }
 };
 
-/**
- * POST /admin/categories
- * Add a new category with single image upload
- */
+//Add a new category
 export const addCategory = async (req, res) => {
     try {
         const { name, description, isListed } = req.body;
         const image = req.file ? req.file.path : null;
 
-        // Backend Validation
         if (!name || name.trim().length < 3 || name.trim().length > 50) {
             return res.status(400).json({ success: false, message: 'Category name must be between 3 and 50 characters' });
         }
@@ -95,7 +87,6 @@ export const addCategory = async (req, res) => {
             return res.status(400).json({ success: false, message: 'Image is required' });
         }
 
-        // Check if category already exists (case-insensitive)
         const existingCategory = await Category.findOne({
             name: { $regex: new RegExp(`^${name.trim()}$`, 'i') }
         });
@@ -117,7 +108,6 @@ export const addCategory = async (req, res) => {
     } catch (error) {
         console.error('Error adding category:', error instanceof Error ? error.stack : JSON.stringify(error, null, 2));
 
-        // Handle Mongoose Validation Error specifically
         if (error.name === 'ValidationError') {
             const messages = Object.values(error.errors).map(val => val.message);
             return res.status(400).json({ success: false, message: messages.join(', ') });
@@ -127,10 +117,7 @@ export const addCategory = async (req, res) => {
     }
 };
 
-/**
- * GET /admin/categories/:id/edit
- * Render Edit Category Form
- */
+
 export const loadEditCategory = async (req, res) => {
     try {
         const { id } = req.params;
@@ -145,16 +132,12 @@ export const loadEditCategory = async (req, res) => {
     }
 };
 
-/**
- * PUT /admin/categories/:id
- * Edit an existing category
- */
+//Edit category
 export const editCategory = async (req, res) => {
     try {
         const { id } = req.params;
         const { name, description, isListed } = req.body;
 
-        // Backend Validation
         if (!name || name.trim().length < 3 || name.trim().length > 50) {
             return res.status(400).json({ success: false, message: 'Category name must be between 3 and 50 characters' });
         }
@@ -168,7 +151,6 @@ export const editCategory = async (req, res) => {
             return res.status(400).json({ success: false, message: 'Description must be between 10 and 500 characters' });
         }
 
-        // Check for duplicate name excluding the current category
         const existingCategory = await Category.findOne({
             name: { $regex: new RegExp(`^${name.trim()}$`, 'i') },
             _id: { $ne: id }
@@ -205,10 +187,7 @@ export const editCategory = async (req, res) => {
     }
 };
 
-/**
- * PATCH /admin/categories/:id/listing
- * Toggle category listed status
- */
+//category toggle (Listed/unlisted)
 export const toggleCategoryListing = async (req, res) => {
     try {
         const { id } = req.params;
@@ -222,7 +201,6 @@ export const toggleCategoryListing = async (req, res) => {
         category.isListed = !category.isListed;
         await category.save();
 
-        // Sync all associated products listing status
         await Product.updateMany({ category: id }, { isListed: category.isListed });
 
         const statusMessage = category.isListed ? 'Category listed successfully' : 'Category unlisted successfully';
@@ -234,31 +212,3 @@ export const toggleCategoryListing = async (req, res) => {
     }
 };
 
-/**
- * DELETE /admin/categories/:id
- * Soft delete a category
- */
-export const softDeleteCategory = async (req, res) => {
-    try {
-        const { id } = req.params;
-
-        const category = await Category.findById(id);
-
-        if (!category || category.isDeleted) {
-            return res.status(404).json({ success: false, message: 'Category not found' });
-        }
-
-        category.isDeleted = true;
-        // Optionally, also unlist it when deleting
-        category.isListed = false;
-        await category.save();
-
-        // Also unlist all associated products
-        await Product.updateMany({ category: id }, { isListed: false });
-
-        return res.status(200).json({ success: true, message: 'Category deleted successfully' });
-    } catch (error) {
-        console.error('Error deleting category:', error);
-        return res.status(500).json({ success: false, message: 'Internal Server Error' });
-    }
-};

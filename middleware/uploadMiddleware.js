@@ -3,7 +3,7 @@ import path from 'path';
 import { CloudinaryStorage } from 'multer-storage-cloudinary';
 import cloudinary from '../config/cloudinary.js';
 
-// ---- Cloudinary Storage (for User Profile) ----
+//Cloudinary storage 
 const storage = new CloudinaryStorage({
   cloudinary: cloudinary,
   params: {
@@ -38,7 +38,7 @@ export const handleProfileUpload = (req, res, next) => {
   });
 };
 
-// ---- Cloudinary Storage (for Categories and Products) ----
+
 
 const categoryStorage = new CloudinaryStorage({
   cloudinary: cloudinary,
