@@ -100,29 +100,54 @@
                     </div>
                   </div>
 
-                  <div class="card">
-                    <h2 class="card-title">Pricing & Inventory</h2>
-                    <div class="form-row">
-                      <div class="form-group">
-                        <label>Regular Price (₹)</label>
-                        <div class="input-wrapper">
-                          <input type="number" name="regularPrice" class="form-control" min="0" step="0.01">
+                  <div id="variantsContainer">
+                    <!-- Variant 0 -->
+                    <div class="card variant-card" data-variant-index="0">
+                      <h2 class="card-title">Variant 1</h2>
+                      <div class="form-row">
+                        <div class="form-group">
+                          <label>Size (e.g., 50ml)</label>
+                          <div class="input-wrapper">
+                            <input type="text" class="form-control variant-size" required>
+                          </div>
+                        </div>
+                        <div class="form-group">
+                          <label>Regular Price (₹)</label>
+                          <div class="input-wrapper">
+                            <input type="number" class="form-control variant-regular-price" min="0" step="0.01"
+                              required>
+                          </div>
+                        </div>
+                        <div class="form-group">
+                          <label>Sale Price (₹)</label>
+                          <div class="input-wrapper">
+                            <input type="number" class="form-control variant-sale-price" min="0" step="0.01">
+                          </div>
+                        </div>
+                        <div class="form-group">
+                          <label>Stock</label>
+                          <div class="input-wrapper">
+                            <input type="number" class="form-control variant-stock" min="0" required>
+                          </div>
                         </div>
                       </div>
-                      <div class="form-group">
-                        <label>Sale Price (₹) - Optional</label>
-                        <div class="input-wrapper">
-                          <input type="number" name="salePrice" class="form-control" min="0" step="0.01">
-                        </div>
-                      </div>
-                      <div class="form-group">
-                        <label>Stock Quantity</label>
-                        <div class="input-wrapper">
-                          <input type="number" name="stock" class="form-control" min="0">
+
+                      <div class="form-group" style="margin-top: 15px;">
+                        <label>Images (Min 3, Max 6)</label>
+                        <div class="image-grid" id="imageGrid_0">
+                          <% for(let i=0; i<6; i++) { %>
+                            <div class="image-upload-area">
+                              <span class="upload-overlay-text">+</span>
+                              <input type="file" id="imgInput_0_<%= i %>" accept="image/*">
+                              <img id="preview_0_<%= i %>" class="preview-img">
+                            </div>
+                            <% } %>
                         </div>
                       </div>
                     </div>
                   </div>
+                  <button type="button" class="btn btn-secondary" onclick="addVariantForm()">+ Add Another
+                    Variant</button>
                 </div>
 
                 <div class="side-column">
@@ -146,43 +171,7 @@
                     <button type="button" class="btn btn-secondary" id="discardBtn">Discard</button>
                   </div>
 
-                  <div class="card">
-                    <h2 class="card-title">Images (Min 3)</h2>
-                    <p style="font-size: 12px; color: #888; margin-bottom: 16px;">Square format (1:1). First image will
-                      be the thumbnail.</p>
-                    <div class="image-grid">
-                      <!-- Image 1 -->
-                      <div class="image-upload-area">
-                        <span class="upload-overlay-text">+</span>
-                        <input type="file" id="imgInput1" accept="image/*">
-                        <img id="preview1" class="preview-img">
-                      </div>
-                      <!-- Image 2 -->
-                      <div class="image-upload-area">
-                        <span class="upload-overlay-text">+</span>
-                        <input type="file" id="imgInput2" accept="image/*">
-                        <img id="preview2" class="preview-img">
-                      </div>
-                      <!-- Image 3 -->
-                      <div class="image-upload-area">
-                        <span class="upload-overlay-text">+</span>
-                        <input type="file" id="imgInput3" accept="image/*">
-                        <img id="preview3" class="preview-img">
-                      </div>
-                      <!-- Image 4 -->
-                      <div class="image-upload-area">
-                        <span class="upload-overlay-text">+</span>
-                        <input type="file" id="imgInput4" accept="image/*">
-                        <img id="preview4" class="preview-img">
-                      </div>
-                      <!-- Image 5 -->
-                      <div class="image-upload-area">
-                        <span class="upload-overlay-text">+</span>
-                        <input type="file" id="imgInput5" accept="image/*">
-                        <img id="preview5" class="preview-img">
-                      </div>
-                    </div>
-                  </div>
+
                 </div>
               </div>
             </form>
@@ -223,12 +212,71 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.js"></script>
   <script src="/js/imageCropper.js"></script>
   <script>
-    // Initialize cropper for each input
-    initializeCropper('imgInput1', 'preview1');
-    initializeCropper('imgInput2', 'preview2');
-    initializeCropper('imgInput3', 'preview3');
-    initializeCropper('imgInput4', 'preview4');
-    initializeCropper('imgInput5', 'preview5');
+    let variantCount = 1;
+
+    function addVariantForm() {
+      const idx = variantCount++;
+      const html = `
+        <div class="card variant-card" data-variant-index="${idx}" style="margin-top:20px;">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px;">
+            <h2 class="card-title" style="margin-bottom: 0;">Variant ${idx + 1}</h2>
+            <button type="button" style="padding:6px 12px; background:#fff; border:1px solid #ff4d4f; color:#ff4d4f; border-radius:4px; cursor:pointer; font-size:13px;" onclick="removeVariant(this)">Remove</button>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label>Size (e.g., 50ml)</label>
+              <div class="input-wrapper">
+                <input type="text" class="form-control variant-size" required>
+              </div>
+            </div>
+            <div class="form-group">
+              <label>Regular Price (₹)</label>
+              <div class="input-wrapper">
+                <input type="number" class="form-control variant-regular-price" min="0" step="0.01" required>
+              </div>
+            </div>
+            <div class="form-group">
+              <label>Sale Price (₹)</label>
+              <div class="input-wrapper">
+                <input type="number" class="form-control variant-sale-price" min="0" step="0.01">
+              </div>
+            </div>
+            <div class="form-group">
+              <label>Stock</label>
+              <div class="input-wrapper">
+                <input type="number" class="form-control variant-stock" min="0" required>
+              </div>
+            </div>
+          </div>
+          <div class="form-group" style="margin-top: 15px;">
+            <label>Images (Min 3, Max 6)</label>
+            <div class="image-grid" id="imageGrid_${idx}">
+              ${Array(6).fill(0).map((_, i) => `
+                <div class="image-upload-area">
+                  <span class="upload-overlay-text">+</span>
+                  <input type="file" id="imgInput_${idx}_${i}" accept="image/*">
+                  <img id="preview_${idx}_${i}" class="preview-img">
+                </div>
+              `).join('')}
+            </div>
+          </div>
+        </div>
+      `;
+      document.getElementById('variantsContainer').insertAdjacentHTML('beforeend', html);
+
+      for (let i = 0; i < 6; i++) {
+        initializeCropper(`imgInput_${idx}_${i}`, `preview_${idx}_${i}`);
+      }
+    }
+
+    function removeVariant(btn) {
+      btn.closest('.variant-card').remove();
+    }
+
+    // Initialize croppers for first variant
+    for (let i = 0; i < 6; i++) {
+      initializeCropper(`imgInput_0_${i}`, `preview_0_${i}`);
+    }
 
     // Custom Dropdown Logic
     function toggleSkinTypeDropdown(e) {
@@ -299,10 +347,7 @@
 
       const isValid = window.AdminValidator.validateForm(this, {
         name: 'productName',
-        description: 'description',
-        regularPrice: 'price',
-        salePrice: 'salePrice',
-        stock: 'stock'
+        description: 'description'
       });
 
       const category = document.querySelector('select[name="category"]');
@@ -315,18 +360,21 @@
         window.AdminValidator.addCustomError(brand.closest('.input-wrapper'), 'Brand is required.');
       }
 
-      const imageGrid = document.querySelector('.image-grid');
-      const validImagesCount = Object.keys(croppedBlobs).length;
       let hasImageError = false;
-
-      if (validImagesCount < 3) {
-        window.AdminValidator.addCustomError(imageGrid, 'You must upload at least 3 images for the product.');
-        hasImageError = true;
-      } else {
-        const err = imageGrid.parentNode.querySelector('.custom-error-dynamic');
-        if (err) err.remove();
-        imageGrid.classList.remove('has-error');
-      }
+      document.querySelectorAll('.variant-card').forEach((card) => {
+        const index = card.getAttribute('data-variant-index');
+        let imgCount = 0;
+        for (let i = 0; i < 6; i++) {
+          if (croppedBlobs[`imgInput_${index}_${i}`]) imgCount++;
+        }
+        if (imgCount < 3) {
+          hasImageError = true;
+          window.AdminValidator.addCustomError(card.querySelector('.image-grid'), 'At least 3 images required for this variant');
+        } else {
+          const err = card.querySelector('.custom-error-dynamic');
+          if (err) err.remove();
+        }
+      });
 
       if (!isValid || !category.value || !brand.value.trim() || hasImageError) {
         return;
@@ -351,10 +399,29 @@
         saveBtn.disabled = true;
 
         const formData = new FormData(this);
+        formData.delete('regularPrice');
+        formData.delete('salePrice');
+        formData.delete('stock');
 
-        Object.keys(croppedBlobs).forEach((key, index) => {
-          formData.append('images', croppedBlobs[key], `product_img_${index}.webp`);
+        const variants = [];
+        document.querySelectorAll('.variant-card').forEach((card) => {
+          const index = card.getAttribute('data-variant-index');
+          const size = card.querySelector('.variant-size').value;
+          const regularPrice = card.querySelector('.variant-regular-price').value;
+          const salePrice = card.querySelector('.variant-sale-price').value;
+          const stock = card.querySelector('.variant-stock').value;
+          variants.push({ size, regularPrice, salePrice, stock });
+
+          // Append blobs for this variant
+          for (let i = 0; i < 6; i++) {
+            const key = `imgInput_${index}_${i}`;
+            if (croppedBlobs[key]) {
+              formData.append(`variantImages_${index}`, croppedBlobs[key], `${key}.webp`);
+            }
+          }
         });
+
+        formData.append('variants', JSON.stringify(variants));
 
         try {
           const response = await fetch('/admin/products', {

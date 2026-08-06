@@ -165,11 +165,12 @@ export const loadProductDetails = async (req, res) => {
 
         const currentUserId = req.session && req.session.user ? (req.session.user.id || req.session.user._id) : null;
 
-        let inCart = false;
+        let inCartVariants = [];
         if (currentUserId) {
             const cart = await Cart.findOne({ user: currentUserId });
-            if (cart && cart.items.some(item => item.product.toString() === productId)) {
-                inCart = true;
+            if (cart) {
+                const cartItems = cart.items.filter(item => item.product.toString() === productId);
+                inCartVariants = cartItems.map(item => item.variantSize);
             }
         }
 
@@ -186,7 +187,7 @@ export const loadProductDetails = async (req, res) => {
             reviews,
             breadcrumbs,
             currentUserId,
-            inCart
+            inCartVariants
         });
 
     } catch (error) {

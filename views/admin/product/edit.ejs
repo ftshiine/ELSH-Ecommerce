@@ -22,7 +22,7 @@
             </div>
 
             <form id="editProductForm" data-product-id="<%= product._id %>"
-              data-images-count="<%= product.images.length %>">
+              data-images-count="<%= (product.images || []).length %>">
               <div class="form-layout">
                 <div class="main-column">
                   <div class="card">
@@ -123,31 +123,75 @@
                     </div>
                   </div>
 
-                  <div class="card">
-                    <h2 class="card-title">Pricing & Inventory</h2>
-                    <div class="form-row">
-                      <div class="form-group">
-                        <label>Regular Price (₹)</label>
-                        <div class="input-wrapper">
-                          <input type="number" name="regularPrice" class="form-control"
-                            value="<%= product.regularPrice %>" min="0" step="0.01">
+                  <% const variants=(product.variants && product.variants.length> 0) ? product.variants : [{ size: '',
+                    regularPrice: product.regularPrice || 0, salePrice: product.salePrice || '', stock: product.stock ||
+                    0, images: product.images || [] }] %>
+                    <div id="variantsContainer">
+                      <% variants.forEach((variant, index)=> { %>
+                        <div class="card variant-card" data-variant-index="<%= index %>" style="margin-top:20px;">
+                          <div
+                            style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px;">
+                            <h2 class="card-title" style="margin-bottom: 0;">Variant <%= index + 1 %>
+                            </h2>
+                            <button type="button"
+                              <%- index === 0 ? 'style="display:none;"' : 'style="padding:6px 12px; background:#fff; border:1px solid #ff4d4f; color:#ff4d4f; border-radius:4px; cursor:pointer; font-size:13px;"' %>
+                              onclick="removeVariant(this)">Remove</button>
+                          </div>
+                          <div class="form-row">
+                            <div class="form-group">
+                              <label>Size (e.g., 50ml)</label>
+                              <div class="input-wrapper">
+                                <input type="text" class="form-control variant-size" value="<%= variant.size %>"
+                                  required>
+                              </div>
+                            </div>
+                            <div class="form-group">
+                              <label>Regular Price (₹)</label>
+                              <div class="input-wrapper">
+                                <input type="number" class="form-control variant-regular-price"
+                                  value="<%= variant.regularPrice %>" min="0" step="0.01" required>
+                              </div>
+                            </div>
+                            <div class="form-group">
+                              <label>Sale Price (₹)</label>
+                              <div class="input-wrapper">
+                                <input type="number" class="form-control variant-sale-price"
+                                  value="<%= variant.salePrice %>" min="0" step="0.01">
+                              </div>
+                            </div>
+                            <div class="form-group">
+                              <label>Stock</label>
+                              <div class="input-wrapper">
+                                <input type="number" class="form-control variant-stock" value="<%= variant.stock %>"
+                                  min="0" required>
+                              </div>
+                            </div>
+                          </div>
+
+                          <div class="form-group" style="margin-top: 15px;">
+                            <label>Images (Min 3, Max 6)</label>
+                            <div class="image-grid" id="imageGrid_<%= index %>">
+                              <% for(let i=0; i<6; i++) { %>
+                                <div class="image-upload-area">
+                                  <% if (variant.images && variant.images[i]) { %>
+                                    <img id="preview_<%= index %>_<%= i %>" class="preview-img" style="display: block;"
+                                      src="<%= variant.images[i] %>">
+                                    <div class="edit-overlay">Replace</div>
+                                    <span class="upload-overlay-text" style="display: none;">+</span>
+                                    <% } else { %>
+                                      <span class="upload-overlay-text">+</span>
+                                      <img id="preview_<%= index %>_<%= i %>" class="preview-img">
+                                      <% } %>
+                                        <input type="file" id="imgInput_<%= index %>_<%= i %>" accept="image/*">
+                                </div>
+                                <% } %>
+                            </div>
+                          </div>
                         </div>
-                      </div>
-                      <div class="form-group">
-                        <label>Sale Price (₹) - Optional</label>
-                        <div class="input-wrapper">
-                          <input type="number" name="salePrice" class="form-control"
-                            value="<%= product.salePrice || '' %>" min="0" step="0.01">
-                        </div>
-                      </div>
-                      <div class="form-group">
-                        <label>Stock Quantity</label>
-                        <div class="input-wrapper">
-                          <input type="number" name="stock" class="form-control" value="<%= product.stock %>" min="0">
-                        </div>
-                      </div>
+                        <% }) %>
                     </div>
-                  </div>
+                    <button type="button" class="btn btn-secondary" style="margin-top: 10px;"
+                      onclick="addVariantForm()">+ Add Another Variant</button>
                 </div>
 
                 <div class="side-column">
@@ -156,14 +200,14 @@
                     <div class="toggle-switch form-group" style="margin-bottom: 12px;">
                       <span>Featured Product</span>
                       <label class="switch">
-                        <input type="checkbox" name="isFeatured" <%= product.isFeatured ? 'checked' : '' %>>
+                        <input type="checkbox" name="isFeatured" <%=product.isFeatured ? 'checked' : '' %>>
                         <span class="slider"></span>
                       </label>
                     </div>
                     <div class="toggle-switch form-group">
                       <span>Published</span>
                       <label class="switch">
-                        <input type="checkbox" name="isListed" <%= product.isListed ? 'checked' : '' %>>
+                        <input type="checkbox" name="isListed" <%=product.isListed ? 'checked' : '' %>>
                         <span class="slider"></span>
                       </label>
                     </div>
@@ -171,28 +215,7 @@
                     <button type="button" class="btn btn-secondary" id="discardBtn">Discard Changes</button>
                   </div>
 
-                  <div class="card">
-                    <h2 class="card-title">Images (Min 3)</h2>
-                    <p style="font-size: 12px; color: #888; margin-bottom: 16px;">Click an image to replace it with a
-                      new cropped version. Keep existing ones by doing nothing.</p>
-                    <div class="image-grid">
-                      <% for (let i=0; i < 5; i++) { %>
-                        <div class="image-upload-area">
-                          <% if (product.images[i]) { %>
-                            <!-- Pre-populated existing image -->
-                            <img id="preview<%= i+1 %>" class="preview-img" style="display: block;"
-                              src="<%= product.images[i] %>">
-                            <div class="edit-overlay">Replace</div>
-                            <% } else { %>
-                              <!-- Empty slot -->
-                              <span class="upload-overlay-text">+</span>
-                              <img id="preview<%= i+1 %>" class="preview-img">
-                              <% } %>
-                                <input type="file" id="imgInput<%= i+1 %>" accept="image/*">
-                        </div>
-                        <% } %>
-                    </div>
-                  </div>
+
                 </div>
               </div>
             </form>
@@ -232,14 +255,77 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.js"></script>
   <script src="/js/imageCropper.js"></script>
   <script>
-    initializeCropper('imgInput1', 'preview1');
-    initializeCropper('imgInput2', 'preview2');
-    initializeCropper('imgInput3', 'preview3');
-    initializeCropper('imgInput4', 'preview4');
-    initializeCropper('imgInput5', 'preview5');
+    let variantCount = Number('<%= variants.length %>');
 
-    // Common Modal Elements
-    const customModal = document.getElementById('customModal');
+    function addVariantForm() {
+      const idx = variantCount++;
+      const html = `
+    <div class="card variant-card" data-variant-index="${idx}" style="margin-top:20px;">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px;">
+        <h2 class="card-title" style="margin-bottom: 0;">Variant ${idx + 1}</h2>
+        <button type="button"
+          style="padding:6px 12px; background:#fff; border:1px solid #ff4d4f; color:#ff4d4f; border-radius:4px; cursor:pointer; font-size:13px;"
+          onclick="removeVariant(this)">Remove</button>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label>Size (e.g., 50ml)</label>
+          <div class="input-wrapper">
+            <input type="text" class="form-control variant-size" required>
+          </div>
+        </div>
+        <div class="form-group">
+          <label>Regular Price (₹)</label>
+          <div class="input-wrapper">
+            <input type="number" class="form-control variant-regular-price" min="0" step="0.01" required>
+          </div>
+        </div>
+        <div class="form-group">
+          <label>Sale Price (₹)</label>
+          <div class="input-wrapper">
+            <input type="number" class="form-control variant-sale-price" min="0" step="0.01">
+          </div>
+        </div>
+        <div class="form-group">
+          <label>Stock</label>
+          <div class="input-wrapper">
+            <input type="number" class="form-control variant-stock" min="0" required>
+          </div>
+        </div>
+      </div>
+      <div class="form-group" style="margin-top: 15px;">
+        <label>Images (Min 3, Max 6)</label>
+        <div class="image-grid" id="imageGrid_${idx}">
+          ${Array(6).fill(0).map((_, i) => `
+          <div class="image-upload-area">
+            <span class="upload-overlay-text">+</span>
+            <input type="file" id="imgInput_${idx}_${i}" accept="image/*">
+            <img id="preview_${idx}_${i}" class="preview-img">
+          </div>
+          `).join('')}
+        </div>
+      </div>
+    </div>
+    `;
+      document.getElementById('variantsContainer').insertAdjacentHTML('beforeend', html);
+
+      for (let i = 0; i < 6; i++) { initializeCropper(`imgInput_${idx}_${i}`, `preview_${idx}_${i}`); }
+    } 
+    
+    function removeVariant(btn) { 
+      btn.closest('.variant-card').remove(); 
+    } 
+    
+    // Initialize croppers for existing variants
+    const initialVariantsCount = Number('<%= variants.length %>');
+    for (let index = 0; index < initialVariantsCount; index++) {
+      for (let i = 0; i < 6; i++) {
+        initializeCropper(`imgInput_${index}_${i}`, `preview_${index}_${i}`);
+      }
+    }
+
+            // Common Modal Elements
+            const customModal = document.getElementById('customModal');
     const modalIcon = document.getElementById('modalIcon');
     const modalTitle = document.getElementById('modalTitle');
     const modalMessage = document.getElementById('modalMessage');
@@ -309,10 +395,7 @@
 
       const isValid = window.AdminValidator.validateForm(this, {
         name: 'productName',
-        description: 'description',
-        regularPrice: 'price',
-        salePrice: 'salePrice',
-        stock: 'stock'
+        description: 'description'
       });
 
       const category = document.querySelector('select[name="category"]');
@@ -325,64 +408,77 @@
         window.AdminValidator.addCustomError(brand.closest('.input-wrapper'), 'Brand is required.');
       }
 
-      // Calculate total images that will be in the product after this update
-      let validImagesCount = 0;
-      for (let i = 1; i <= 5; i++) {
-        if (croppedBlobs[`imgInput${i}`]) {
-          validImagesCount++; // New cropped image replacing this slot
-        } else if (document.getElementById(`preview${i}`).src.includes('cloudinary')) {
-          validImagesCount++; // Existing image in this slot
-        }
-      }
-
       let hasImageError = false;
-      const imageGrid = document.querySelector('.image-grid');
-      if (validImagesCount < 3) {
-        window.AdminValidator.addCustomError(imageGrid, 'You must have at least 3 images for the product.');
-        hasImageError = true;
-      } else {
-        const err = imageGrid.parentNode.querySelector('.custom-error-dynamic');
-        if (err) err.remove();
-        imageGrid.classList.remove('has-error');
-      }
-
-      if (!isValid || !category.value || !brand.value.trim() || hasImageError) {
-        return;
-      }
-
-      saveBtn.disabled = true;
-      saveBtn.textContent = 'Updating...';
-
-      const formData = new FormData(this);
-
-      // Send image mapping to backend so it knows the exact order
-      for (let i = 1; i <= 5; i++) {
-        if (croppedBlobs[`imgInput${i}`]) {
-          formData.append('images', croppedBlobs[`imgInput${i}`], `product_img_${i}.webp`);
-          formData.append('imageMapping', 'NEW');
-        } else {
-          const previewEl = document.getElementById(`preview${i}`);
-          if (previewEl && previewEl.src) {
-            const src = previewEl.src;
-            if (src.startsWith('http') && !src.startsWith('blob:')) {
-              formData.append('imageMapping', src);
+      document.querySelectorAll('.variant-card').forEach((card) => {
+        const index = card.getAttribute('data-variant-index');
+        let validImagesCount = 0;
+        for (let i = 0; i < 6; i++) {
+          if (croppedBlobs[`imgInput_${index}_${i}`]) { validImagesCount++; } else {
+            const
+              previewEl = document.getElementById(`preview_${index}_${i}`); if (previewEl && previewEl.src &&
+                previewEl.style.display !== 'none' && (previewEl.src.startsWith('http') || previewEl.src.startsWith('/'))) {
+              if (!previewEl.src.startsWith('blob:') && !previewEl.src.endsWith(window.location.host +
+                window.location.pathname)) { validImagesCount++; }
             }
           }
-        }
-      }
+        } if (validImagesCount < 3) {
+          hasImageError = true;
+          window.AdminValidator.addCustomError(card.querySelector('.image-grid'), 'At least 3 images required for this variant'
+          );
+        } else { const err = card.querySelector('.custom-error-dynamic'); if (err) err.remove(); }
+      }); if
+        (!isValid || !category.value || !brand.value.trim() || hasImageError) { return; } saveBtn.disabled = true;
+      saveBtn.textContent = 'Updating...'; const formData = new FormData(this); formData.delete('regularPrice');
+      formData.delete('salePrice'); formData.delete('stock'); const variants = [];
+      document.querySelectorAll('.variant-card').forEach((card) => {
+        const index = card.getAttribute('data-variant-index');
+        const size = card.querySelector('.variant-size').value;
+        const regularPrice = card.querySelector('.variant-regular-price').value;
+        const salePrice = card.querySelector('.variant-sale-price').value;
+        const stock = card.querySelector('.variant-stock').value;
 
-      // Show Confirmation Modal for Save
+        let existingImages = [];
+        for (let i = 0; i < 6; i++) {
+          if (croppedBlobs[`imgInput_${index}_${i}`]) {
+            formData.append(`variantImages_${index}`, croppedBlobs[`imgInput_${index}_${i}`],
+              `imgInput_${index}_${i}.webp`); formData.append(`variantImageMapping_${index}`, 'NEW');
+          } else {
+            const
+              previewEl = document.getElementById(`preview_${index}_${i}`); if (previewEl && previewEl.src &&
+                previewEl.style.display !== 'none' && (previewEl.src.startsWith('http') ||
+                  previewEl.src.startsWith('/'))) {
+              if (!previewEl.src.startsWith('blob:') &&
+                !previewEl.src.endsWith(window.location.host + window.location.pathname)) {
+                let path = new
+                  URL(previewEl.src).pathname; formData.append(`variantImageMapping_${index}`, path);
+                existingImages.push(path);
+              }
+            }
+          }
+        } 
+        
+        variants.push({
+          size, 
+          regularPrice, 
+          salePrice, 
+          stock, 
+          images: existingImages
+        });
+      }); 
+      
+      formData.append('variants', JSON.stringify(variants)); 
+      
+      // Show Confirmation Modal for Save 
       modalIcon.src = '/images/icons/admin/triangle-alert.svg';
-      modalTitle.textContent = 'Update Product?';
+      modalTitle.textContent = 'Update Product?' ;
       modalMessage.innerHTML = 'Are you sure you want to save these changes?';
-      modalConfirm.textContent = 'Save Changes';
+      modalConfirm.textContent = 'Save Changes'; 
       modalConfirm.classList.add('modal-btn-positive');
-      modalConfirm.disabled = false;
+      modalConfirm.disabled = false; 
       modalCancel.style.display = 'inline-block';
-
-      customModal.classList.add('active');
-      modalCancel.onclick = closeModal;
-
+      customModal.classList.add('active'); 
+      modalCancel.onclick = closeModal; 
+      
       modalConfirm.onclick = async () => {
         modalConfirm.disabled = true;
         modalConfirm.textContent = 'Updating...';
@@ -438,5 +534,7 @@
   </script>
   <script src="/js/admin/formValidator.js"></script>
 </body>
+
+</html>
 
 </html>

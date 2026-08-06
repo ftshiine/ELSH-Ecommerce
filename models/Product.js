@@ -1,23 +1,9 @@
 import mongoose from 'mongoose';
 
-const productSchema = new mongoose.Schema({
-    name: {
+const variantSchema = new mongoose.Schema({
+    size: {
         type: String,
-        required: [true, 'Product name is required'],
-        trim: true
-    },
-    description: {
-        type: String,
-        required: [true, 'Product description is required'],
-    },
-    category: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: 'Category',
-        required: [true, 'Product category is required']
-    },
-    brand: {
-        type: String,
-        required: [true, 'Product brand is required'],
+        required: [true, 'Variant size is required'],
         trim: true
     },
     regularPrice: {
@@ -39,11 +25,43 @@ const productSchema = new mongoose.Schema({
         type: [String],
         validate: {
             validator: function (v) {
-                return v && v.length >= 3;
+                return v && v.length >= 1;
             },
-            message: 'A product must have at least 3 images'
+            message: 'A variant must have at least 1 image'
         },
-        required: [true, 'Product images are required']
+        required: [true, 'Variant images are required']
+    }
+});
+
+const productSchema = new mongoose.Schema({
+    name: {
+        type: String,
+        required: [true, 'Product name is required'],
+        trim: true
+    },
+    description: {
+        type: String,
+        required: [true, 'Product description is required'],
+    },
+    category: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Category',
+        required: [true, 'Product category is required']
+    },
+    brand: {
+        type: String,
+        required: [true, 'Product brand is required'],
+        trim: true
+    },
+    variants: {
+        type: [variantSchema],
+        validate: {
+            validator: function(v) {
+                return v && v.length > 0;
+            },
+            message: 'A product must have at least one variant'
+        },
+        required: true
     },
     skinType: {
         type: [String],

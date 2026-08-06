@@ -15,10 +15,10 @@ const router = express.Router();
 router.get('/products', requireAuth('admin'), loadProducts);
 
 router.get('/products/add', requireAuth('admin'), loadAddProduct);
-router.post('/products', requireAuth('admin'), uploadProducts.array('images', 5), addProduct);
+router.post('/products', requireAuth('admin'), uploadProducts.any(), addProduct);
 
 router.get('/products/:id/edit', requireAuth('admin'), loadEditProduct);
-router.put('/products/:id', requireAuth('admin'), uploadProducts.array('images', 5), editProduct);
+router.put('/products/:id', requireAuth('admin'), uploadProducts.any(), editProduct);
 
 router.patch('/products/:id/status', requireAuth('admin'), toggleProductStatus);
 

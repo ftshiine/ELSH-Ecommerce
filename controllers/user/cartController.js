@@ -18,21 +18,22 @@ export const loadCart = async (req, res) => {
 
             for (const item of cart.items) {
                 if (item.product && item.product.isListed) {
+                    const variant = (item.product.variants && item.product.variants.length > 0) ? (item.product.variants.find(v => v.size === item.variantSize) || item.product.variants[0]) : { stock: item.product.stock || 0, salePrice: item.product.salePrice, regularPrice: item.product.regularPrice || 0 };
 
-                    if (item.quantity > item.product.stock) {
-                        item.quantity = item.product.stock;
+                    if (item.quantity > variant.stock) {
+                        item.quantity = variant.stock;
                         cartModified = true;
                         if (item.quantity === 0) {
-                            stockAdjustedMessages.push(`'${item.product.name}' is out of stock and was removed from your cart.`);
+                            stockAdjustedMessages.push(`'${item.product.name} (${item.variantSize || 'Default'})' is out of stock and was removed from your cart.`);
                         } else {
-                            stockAdjustedMessages.push(`Quantity for '${item.product.name}' was reduced to ${item.quantity} due to limited stock.`);
+                            stockAdjustedMessages.push(`Quantity for '${item.product.name} (${item.variantSize || 'Default'})' was reduced to ${item.quantity} due to limited stock.`);
                         }
                     }
 
                     if (item.quantity > 0) {
-                        const effectivePrice = item.product.salePrice && item.product.salePrice < item.product.regularPrice
-                            ? item.product.salePrice
-                            : item.product.regularPrice;
+                        const effectivePrice = variant.salePrice && variant.salePrice < variant.regularPrice
+                            ? variant.salePrice
+                            : variant.regularPrice;
 
                         item.price = effectivePrice;
                         item.totalPrice = effectivePrice * item.quantity;
@@ -87,13 +88,16 @@ export const addToCart = async (req, res) => {
             return res.status(404).json({ success: false, message: 'Product is unavailable.' });
         }
 
-        if (product.stock < quantity) {
+        const variantSize = req.body.variantSize;
+        const variant = (product.variants && product.variants.length > 0) ? (product.variants.find(v => v.size === variantSize) || product.variants[0]) : { stock: product.stock || 0, salePrice: product.salePrice, regularPrice: product.regularPrice || 0, size: 'Default' };
+
+        if (variant.stock < quantity) {
             return res.status(400).json({ success: false, message: 'Not enough stock available.' });
         }
 
-        const effectivePrice = product.salePrice && product.salePrice < product.regularPrice
-            ? product.salePrice
-            : product.regularPrice;
+        const effectivePrice = variant.salePrice && variant.salePrice < variant.regularPrice
+            ? variant.salePrice
+            : variant.regularPrice;
 
         let cart = await Cart.findOne({ user: userId });
 
@@ -102,6 +106,7 @@ export const addToCart = async (req, res) => {
                 user: userId,
                 items: [{
                     product: productId,
+                    variantSize: variant.size,
                     quantity: quantity,
                     price: effectivePrice,
                     totalPrice: effectivePrice * quantity
@@ -109,7 +114,7 @@ export const addToCart = async (req, res) => {
                 cartTotal: effectivePrice * quantity
             });
         } else {
-            const itemIndex = cart.items.findIndex(item => item.product.toString() === productId);
+            const itemIndex = cart.items.findIndex(item => item.product.toString() === productId && (item.variantSize === variant.size || (!item.variantSize && variant.size === 'Default')));
 
             if (itemIndex > -1) {
 
@@ -119,7 +124,7 @@ export const addToCart = async (req, res) => {
                     return res.status(400).json({ success: false, message: 'Maximum 5 items allowed per product.' });
                 }
 
-                if (product.stock < newQuantity) {
+                if (variant.stock < newQuantity) {
                     return res.status(400).json({ success: false, message: 'Not enough stock available.' });
                 }
 
@@ -130,6 +135,7 @@ export const addToCart = async (req, res) => {
 
                 cart.items.push({
                     product: productId,
+                    variantSize: variant.size,
                     quantity: quantity,
                     price: effectivePrice,
                     totalPrice: effectivePrice * quantity
@@ -157,13 +163,14 @@ export const updateQuantity = async (req, res) => {
         const productId = req.params.productId;
         const userId = req.session.user.id || req.session.user._id;
         const action = req.body.action;
+        const variantSize = req.body.variantSize;
 
         const cart = await Cart.findOne({ user: userId }).populate('items.product');
         if (!cart) {
             return res.status(404).json({ success: false, message: 'Cart not found.' });
         }
 
-        const itemIndex = cart.items.findIndex(item => item.product._id.toString() === productId);
+        const itemIndex = cart.items.findIndex(item => item.product._id.toString() === productId && (item.variantSize === variantSize || (!item.variantSize && !variantSize)));
         if (itemIndex === -1) {
             return res.status(404).json({ success: false, message: 'Product not found in cart.' });
         }
@@ -187,11 +194,13 @@ export const updateQuantity = async (req, res) => {
             return res.status(400).json({ success: false, message: 'Maximum 5 items allowed per product.' });
         }
 
-        if (item.product.stock < newQuantity) {
+        const variant = (item.product.variants && item.product.variants.length > 0) ? (item.product.variants.find(v => v.size === item.variantSize) || item.product.variants[0]) : { stock: item.product.stock || 0 };
+
+        if (variant.stock < newQuantity) {
             if (action === 'increment') {
                 return res.status(400).json({ success: false, message: 'Not enough stock available.' });
             } else {
-                newQuantity = item.product.stock;
+                newQuantity = variant.stock;
             }
         }
 
@@ -224,13 +233,14 @@ export const removeFromCart = async (req, res) => {
     try {
         const productId = req.params.productId;
         const userId = req.session.user.id || req.session.user._id;
+        const variantSize = req.body.variantSize;
 
         const cart = await Cart.findOne({ user: userId });
         if (!cart) {
             return res.status(404).json({ success: false, message: 'Cart not found.' });
         }
 
-        cart.items = cart.items.filter(item => item.product.toString() !== productId);
+        cart.items = cart.items.filter(item => !(item.product.toString() === productId && (item.variantSize === variantSize || (!item.variantSize && !variantSize))));
 
         cart.cartTotal = cart.items.reduce((total, item) => total + item.totalPrice, 0);
 

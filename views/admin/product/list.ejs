@@ -53,11 +53,14 @@
                   <td colspan="5" style="text-align: center; padding: 40px; color: #888;">No products found.</td>
                 </tr>
               <% } else { %>
-                <% products.forEach(product => { %>
+                <% products.forEach(product => { 
+                  const defaultVariant = (product.variants && product.variants.length > 0) ? product.variants[0] : { regularPrice: product.regularPrice || 0, salePrice: product.salePrice, stock: product.stock || 0, images: product.images || [] };
+                  const pImage = (defaultVariant.images && defaultVariant.images.length > 0) ? defaultVariant.images[0] : '/images/placeholder.jpg';
+                %>
                   <tr>
                     <td>
                       <div class="product-info">
-                        <img src="<%= product.images[0] || '/images/placeholder.jpg' %>" alt="<%= product.name %>" class="product-img">
+                        <img src="<%= pImage %>" alt="<%= product.name %>" class="product-img">
                         <div>
                           <div class="product-name"><%= product.name %></div>
                           <div class="product-category"><%= product.category ? product.category.name : 'Uncategorized' %></div>
@@ -65,20 +68,20 @@
                       </div>
                     </td>
                     <td>
-                      <% if (product.salePrice) { %>
-                        <strong>₹<%= product.salePrice %></strong>
-                        <br><span style="text-decoration: line-through; color: #888; font-size: 12px;">₹<%= product.regularPrice %></span>
+                      <% if (defaultVariant.salePrice) { %>
+                        <strong>₹<%= defaultVariant.salePrice %></strong>
+                        <br><span style="text-decoration: line-through; color: #888; font-size: 12px;">₹<%= defaultVariant.regularPrice %></span>
                       <% } else { %>
-                        <strong>₹<%= product.regularPrice %></strong>
+                        <strong>₹<%= defaultVariant.regularPrice %></strong>
                       <% } %>
                     </td>
                     <td>
-                      <% if (product.stock === 0) { %>
+                      <% if (defaultVariant.stock === 0) { %>
                         <span class="badge inactive">Out of Stock</span>
-                      <% } else if (product.stock < 10) { %>
-                        <span class="badge low-stock"><%= product.stock %> Low</span>
+                      <% } else if (defaultVariant.stock < 10) { %>
+                        <span class="badge low-stock"><%= defaultVariant.stock %> Low</span>
                       <% } else { %>
-                        <%= product.stock %>
+                        <%= defaultVariant.stock %>
                       <% } %>
                     </td>
                     <td>

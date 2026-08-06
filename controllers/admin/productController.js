@@ -54,13 +54,35 @@ export const loadAddProduct = async (req, res) => {
 //Add new product
 export const addProduct = async (req, res) => {
     try {
-        const { name, description, category, brand, regularPrice, salePrice, stock, isListed, isFeatured, skinType } = req.body;
+        const { name, description, category, brand, isListed, isFeatured, skinType, variants } = req.body;
 
-        const images = req.files ? req.files.map(file => file.path) : [];
-
-        if (images.length < 3) {
-            return res.status(400).json({ success: false, message: 'Minimum 3 images are required' });
+        let parsedVariants = [];
+        if (variants) {
+            try {
+                parsedVariants = typeof variants === 'string' ? JSON.parse(variants) : variants;
+            } catch (e) {
+                return res.status(400).json({ success: false, message: 'Invalid variants format' });
+            }
         }
+
+        if (!parsedVariants || !Array.isArray(parsedVariants) || parsedVariants.length === 0) {
+            return res.status(400).json({ success: false, message: 'At least one variant is required' });
+        }
+
+        // Attach images
+        parsedVariants.forEach((variant, index) => {
+            variant.images = [];
+            if (req.files) {
+                req.files.forEach(file => {
+                    if (file.fieldname === `variantImages_${index}`) {
+                        variant.images.push(file.path);
+                    }
+                });
+            }
+            if (variant.images.length < 3) {
+                throw new Error(`Variant ${index + 1} must have at least 3 images`);
+            }
+        });
 
         const processedSkinType = Array.isArray(skinType) ? skinType : (skinType ? [skinType] : []);
 
@@ -69,11 +91,8 @@ export const addProduct = async (req, res) => {
             description,
             category,
             brand,
-            regularPrice,
-            salePrice,
-            stock,
-            images,
             skinType: processedSkinType,
+            variants: parsedVariants,
             isListed: isListed === 'on' || isListed === true || isListed === 'true',
             isFeatured: isFeatured === 'on' || isFeatured === true || isFeatured === 'true'
         });
@@ -83,7 +102,7 @@ export const addProduct = async (req, res) => {
         return res.status(201).json({ success: true, message: 'Product added successfully' });
     } catch (error) {
         console.error('Error adding product:', error);
-        return res.status(500).json({ success: false, message: 'Internal Server Error' });
+        return res.status(500).json({ success: false, message: error.message || 'Internal Server Error' });
     }
 };
 
@@ -109,7 +128,60 @@ export const loadEditProduct = async (req, res) => {
 export const editProduct = async (req, res) => {
     try {
         const { id } = req.params;
-        const { name, description, category, brand, regularPrice, salePrice, stock, isListed, isFeatured, skinType } = req.body;
+        const { name, description, category, brand, isListed, isFeatured, skinType, variants } = req.body;
+
+        let parsedVariants = [];
+        if (variants) {
+            try {
+                parsedVariants = typeof variants === 'string' ? JSON.parse(variants) : variants;
+            } catch (e) {
+                return res.status(400).json({ success: false, message: 'Invalid variants format' });
+            }
+        }
+
+        if (!parsedVariants || !Array.isArray(parsedVariants) || parsedVariants.length === 0) {
+            return res.status(400).json({ success: false, message: 'At least one variant is required' });
+        }
+
+        // Process images for each variant
+        parsedVariants.forEach((variant, index) => {
+            let finalImages = [];
+            const mappingField = `variantImageMapping_${index}`;
+            const imageMapping = req.body[mappingField];
+
+            if (imageMapping) {
+                const mappings = Array.isArray(imageMapping) ? imageMapping : [imageMapping];
+                let fileIndex = 0;
+                
+                // Get files just for this variant
+                const variantFiles = (req.files || []).filter(f => f.fieldname === `variantImages_${index}`);
+
+                for (const map of mappings) {
+                    if (map === 'NEW') {
+                        if (variantFiles[fileIndex]) {
+                            finalImages.push(variantFiles[fileIndex].path);
+                            fileIndex++;
+                        }
+                    } else if (map.startsWith('http') || map.startsWith('/')) {
+                        finalImages.push(map);
+                    }
+                }
+            } else {
+                // If no mapping provided, just use the newly uploaded files
+                const variantFiles = (req.files || []).filter(f => f.fieldname === `variantImages_${index}`);
+                finalImages = variantFiles.map(f => f.path);
+            }
+            
+            // if finalImages is empty but they passed existingImages inside variant, keep them
+            if (finalImages.length === 0 && variant.images && variant.images.length > 0) {
+                finalImages = variant.images;
+            }
+
+            if (finalImages.length < 3) {
+                throw new Error(`Variant ${index + 1} must have at least 3 images`);
+            }
+            variant.images = finalImages;
+        });
 
         const processedSkinType = Array.isArray(skinType) ? skinType : (skinType ? [skinType] : []);
 
@@ -118,38 +190,11 @@ export const editProduct = async (req, res) => {
             description,
             category,
             brand,
-            regularPrice,
-            salePrice,
-            stock,
             skinType: processedSkinType,
+            variants: parsedVariants,
             isListed: isListed === 'on' || isListed === true || isListed === 'true',
             isFeatured: isFeatured === 'on' || isFeatured === true || isFeatured === 'true'
         };
-
-        let finalImages = [];
-        const imageMapping = req.body.imageMapping;
-
-        if (imageMapping) {
-            const mappings = Array.isArray(imageMapping) ? imageMapping : [imageMapping];
-            let fileIndex = 0;
-            for (const map of mappings) {
-                if (map === 'NEW') {
-                    if (req.files && req.files[fileIndex]) {
-                        finalImages.push(req.files[fileIndex].path);
-                        fileIndex++;
-                    }
-                } else if (map.startsWith('http')) {
-                    finalImages.push(map);
-                }
-            }
-            updateData.images = finalImages;
-        } else {
-            if (req.files && req.files.length > 0) {
-                const newImages = req.files.map(file => file.path);
-                const product = await Product.findById(id);
-                updateData.images = [...product.images, ...newImages];
-            }
-        }
 
         const updatedProduct = await Product.findByIdAndUpdate(
             id,
@@ -164,7 +209,7 @@ export const editProduct = async (req, res) => {
         return res.status(200).json({ success: true, message: 'Product updated successfully', product: updatedProduct });
     } catch (error) {
         console.error('Error editing product:', error);
-        return res.status(500).json({ success: false, message: 'Internal Server Error' });
+        return res.status(500).json({ success: false, message: error.message || 'Internal Server Error' });
     }
 };
 
