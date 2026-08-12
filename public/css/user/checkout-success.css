@@ -1,0 +1,177 @@
+body {
+  font-family: "SF Pro Display", "SF Pro Text", -apple-system, BlinkMacSystemFont, "Helvetica Neue", Helvetica, Arial, sans-serif;
+}
+
+.success-wrapper {
+  max-width: 900px;
+  margin: 60px auto;
+  padding: 0 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.success-header {
+  text-align: center;
+  margin-bottom: 50px;
+}
+
+.check-circle {
+  width: 80px;
+  height: 80px;
+  background: #F0F2EB;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 30px auto;
+}
+
+.check-circle svg {
+  width: 32px;
+  height: 32px;
+}
+
+.success-header h1 {
+  font-family: "SF Pro Display", "SF Pro Text", -apple-system, BlinkMacSystemFont, "Helvetica Neue", Helvetica, Arial, sans-serif;
+  font-size: 42px;
+  font-weight: 500;
+  margin: 0 0 15px 0;
+  color: #222;
+}
+
+.success-header p {
+  color: #666;
+  font-size: 15px;
+  max-width: 500px;
+  margin: 0 auto;
+  line-height: 1.6;
+}
+
+.order-status-card {
+  width: 100%;
+  background: linear-gradient(to right, #FBFbfb, #F2EFE8);
+  border-radius: 12px;
+  padding: 40px;
+  margin-bottom: 50px;
+  position: relative;
+}
+
+.status-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 50px;
+}
+
+.estimated-arrival .label {
+  display: block;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 1px;
+  color: #666;
+  margin-bottom: 8px;
+}
+
+.estimated-arrival .date {
+  display: block;
+  font-family: "SF Pro Display", "SF Pro Text", -apple-system, BlinkMacSystemFont, "Helvetica Neue", Helvetica, Arial, sans-serif;
+  font-size: 28px;
+  color: #222;
+}
+
+.timeline {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 50px;
+}
+
+.timeline-step {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 15px;
+  position: relative;
+}
+
+.dot {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: #ccc;
+  z-index: 2;
+}
+
+.timeline-step.active .dot {
+  background: #556B44;
+}
+
+.timeline-step span {
+  font-size: 12px;
+  color: #888;
+}
+
+.timeline-step.active span {
+  color: #222;
+  font-weight: 500;
+}
+
+.timeline-line {
+  flex-grow: 1;
+  height: 2px;
+  background: #E0E0E0;
+  margin: 0 10px;
+  position: relative;
+  top: -15px;
+}
+
+.status-actions {
+  display: flex;
+}
+
+.btn-track {
+  background: #556B44;
+  color: #fff;
+  padding: 12px 24px;
+  border-radius: 4px;
+  text-decoration: none;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+  transition: background 0.2s;
+}
+
+.btn-track:hover {
+  background: #4A5D3B;
+}
+
+.order-details-grid {
+  width: 100%;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 40px;
+  padding-top: 40px;
+  border-top: 1px solid #EAEAEA;
+}
+
+.detail-block h5 {
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 1px;
+  color: #666;
+  margin: 0 0 15px 0;
+}
+
+.detail-block p {
+  margin: 0;
+  font-size: 14px;
+  color: #444;
+  line-height: 1.6;
+}
+
+.payment-method {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}

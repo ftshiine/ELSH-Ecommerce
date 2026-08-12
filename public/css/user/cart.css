@@ -4,12 +4,12 @@
     max-width: 1200px;
     margin: 0 auto;
     padding: 20px;
-    font-family: 'Inter', sans-serif;
+    font-family: "SF Pro Display", "SF Pro Text", -apple-system, BlinkMacSystemFont, "Helvetica Neue", Helvetica, Arial, sans-serif;
     color: #222;
 }
 
 .cart-header-title h1 {
-    font-family: 'Playfair Display', serif;
+    font-family: "SF Pro Display", "SF Pro Text", -apple-system, BlinkMacSystemFont, "Helvetica Neue", Helvetica, Arial, sans-serif;
     font-size: 48px;
     font-weight: 400;
     margin-bottom: 40px;
@@ -68,7 +68,7 @@
 }
 
 .item-details h3 {
-    font-family: 'Playfair Display', serif;
+    font-family: "SF Pro Display", "SF Pro Text", -apple-system, BlinkMacSystemFont, "Helvetica Neue", Helvetica, Arial, sans-serif;
     font-size: 20px;
     font-weight: 400;
     margin: 0 0 8px 0;
@@ -166,7 +166,7 @@
 }
 
 .summary-box h2 {
-    font-family: 'Playfair Display', serif;
+    font-family: "SF Pro Display", "SF Pro Text", -apple-system, BlinkMacSystemFont, "Helvetica Neue", Helvetica, Arial, sans-serif;
     font-size: 24px;
     font-weight: 400;
     margin: 0 0 30px 0;
@@ -229,7 +229,7 @@
 .summary-total-row {
     display: flex;
     justify-content: space-between;
-    font-family: 'Playfair Display', serif;
+    font-family: "SF Pro Display", "SF Pro Text", -apple-system, BlinkMacSystemFont, "Helvetica Neue", Helvetica, Arial, sans-serif;
     font-size: 24px;
     margin-bottom: 30px;
 }
@@ -287,7 +287,7 @@
 }
 
 .cts-header h2 {
-    font-family: 'Playfair Display', serif;
+    font-family: "SF Pro Display", "SF Pro Text", -apple-system, BlinkMacSystemFont, "Helvetica Neue", Helvetica, Arial, sans-serif;
     font-size: 36px;
     font-weight: 400;
     margin: 0;

@@ -105,7 +105,7 @@
 }
 
 .product-title {
-  font-family: 'Playfair Display', serif;
+  font-family: "SF Pro Display", "SF Pro Text", -apple-system, BlinkMacSystemFont, "Helvetica Neue", Helvetica, Arial, sans-serif;
   font-size: 48px;
   font-weight: 400;
   color: #222;
@@ -165,7 +165,7 @@
   border: 1px solid #EAEAEA;
   background: transparent;
   font-size: 12px;
-  font-family: inherit;
+  font-family: "SF Pro Display", "SF Pro Text", -apple-system, BlinkMacSystemFont, "Helvetica Neue", Helvetica, Arial, sans-serif;
   color: #555;
   cursor: pointer;
   transition: all 0.2s;
@@ -208,7 +208,7 @@
   text-align: center;
   border: none;
   background: transparent;
-  font-family: inherit;
+  font-family: "SF Pro Display", "SF Pro Text", -apple-system, BlinkMacSystemFont, "Helvetica Neue", Helvetica, Arial, sans-serif;
   font-size: 14px;
   pointer-events: none;
 }
@@ -265,6 +265,16 @@
 .wishlist-btn:hover {
   border-color: #222;
   color: #222;
+}
+
+.wishlist-btn.active {
+  color: #ff4d4f;
+  border-color: #ff4d4f;
+}
+
+.wishlist-btn.active svg {
+  fill: #ff4d4f;
+  stroke: #ff4d4f;
 }
 
 .buy-now-btn {
@@ -351,7 +361,7 @@
 }
 
 .reviews-title-area h2 {
-  font-family: 'Playfair Display', serif;
+  font-family: "SF Pro Display", "SF Pro Text", -apple-system, BlinkMacSystemFont, "Helvetica Neue", Helvetica, Arial, sans-serif;
   font-size: 36px;
   font-weight: 400;
   color: #222;
@@ -452,7 +462,7 @@
 }
 
 .related-header h2 {
-  font-family: 'Playfair Display', serif;
+  font-family: "SF Pro Display", "SF Pro Text", -apple-system, BlinkMacSystemFont, "Helvetica Neue", Helvetica, Arial, sans-serif;
   font-size: 32px;
   font-weight: 400;
   color: #222;

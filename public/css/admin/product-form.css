@@ -337,4 +337,18 @@ input:checked+.slider {
 
 input:checked+.slider:before {
   transform: translateX(20px);
+}.dropdown-option {
+.dropdown-option {
+  padding: 12px 16px;
+  font-size: 13px;
+  color: var(--text-dark, #222);
+  cursor: pointer;
+  transition: background-color 0.1s, color 0.1s;
+}
+
+.dropdown-option:hover,
+.dropdown-option.active {
+  background-color: #ead6c3;
+  color: #222;
+  font-weight: 600;
 }

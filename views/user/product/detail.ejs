@@ -25,7 +25,8 @@
             regularPrice: product.regularPrice || 0, salePrice: product.salePrice, stock: product.stock || 0, images:
             product.images || [] }]; %>
             <% const defaultVariant=variants[0]; %>
-              <% const pImage = (defaultVariant.images && defaultVariant.images.length > 0) ? defaultVariant.images[0].replace(/\\/g, '/') : ''; %>
+              <% const pImage=(defaultVariant.images && defaultVariant.images.length> 0) ?
+                defaultVariant.images[0].replace(/\\/g, '/') : ''; %>
                 <div class="product-gallery">
                   <div class="main-image-container" id="mainImageContainer">
                     <img src="<%= pImage %>" alt="<%= product.name %>" id="mainImage">
@@ -33,11 +34,11 @@
                   </div>
                   <div class="thumbnail-list" id="thumbnailList">
                     <% (defaultVariant.images || []).slice(0, 4).forEach((img, index)=> { %>
-                      <% const safeImg = img.replace(/\\/g, '/'); %>
-                      <img src="<%= safeImg %>" alt="<%= product.name %> thumbnail"
-                        class="thumbnail <%= index === 0 ? 'active' : '' %>"
-                        onclick="changeMainImage('<%= safeImg %>', this)">
-                      <% }) %>
+                      <% const safeImg=img.replace(/\\/g, '/' ); %>
+                        <img src="<%= safeImg %>" alt="<%= product.name %> thumbnail"
+                          class="thumbnail <%= index === 0 ? 'active' : '' %>"
+                          onclick="changeMainImage('<%= safeImg %>', this)">
+                        <% }) %>
                   </div>
                 </div>
 
@@ -103,44 +104,48 @@
                   <div class="action-row">
 
                     <div id="cartActionContainer" style="flex: 1;">
-                      <% const isDefaultInCart = (typeof inCartVariants !== 'undefined') && inCartVariants.includes(defaultVariant.size); %>
-                      <% if (isDefaultInCart) { %>
-                        <button class="add-to-cart-btn" style="width: 100%;" onclick="window.location.href='/cart'">
-                          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
-                            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                            <circle cx="9" cy="21" r="1"></circle>
-                            <circle cx="20" cy="21" r="1"></circle>
-                            <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path>
-                          </svg>
-                          GO TO CART
-                        </button>
-                      <% } else { %>
-                        <button class="add-to-cart-btn" id="addToCartBtn" style="width: 100%;" onclick="addToCart('<%= product._id %>')" <%-
-                          defaultVariant.stock === 0 ? 'disabled style="background-color: #ccc; cursor: not-allowed;"'
-                          : '' %>>
-                          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
-                            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                            <circle cx="9" cy="21" r="1"></circle>
-                            <circle cx="20" cy="21" r="1"></circle>
-                            <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path>
-                          </svg>
-                          ADD TO CART
-                        </button>
-                      <% } %>
-                    </div>
-
-                          <button class="wishlist-btn">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
+                      <% const isDefaultInCart=(typeof inCartVariants !=='undefined' ) &&
+                        inCartVariants.includes(defaultVariant.size); %>
+                        <% if (isDefaultInCart) { %>
+                          <button class="add-to-cart-btn" style="width: 100%;" onclick="window.location.href='/cart'">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24"
                               fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
                               stroke-linejoin="round">
-                              <path
-                                d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z">
-                              </path>
+                              <circle cx="9" cy="21" r="1"></circle>
+                              <circle cx="20" cy="21" r="1"></circle>
+                              <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path>
                             </svg>
+                            GO TO CART
                           </button>
+                          <% } else { %>
+                            <button class="add-to-cart-btn" id="addToCartBtn" style="width: 100%;"
+                              onclick="addToCart('<%= product._id %>')" <%- defaultVariant.stock===0
+                              ? 'disabled style="background-color: #ccc; cursor: not-allowed;"' : '' %>>
+                              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24"
+                                fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                stroke-linejoin="round">
+                                <circle cx="9" cy="21" r="1"></circle>
+                                <circle cx="20" cy="21" r="1"></circle>
+                                <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path>
+                              </svg>
+                              ADD TO CART
+                            </button>
+                            <% } %>
+                    </div>
+
+                    <button class="wishlist-btn <%= typeof inWishlist !== 'undefined' && inWishlist ? 'active' : '' %>" 
+                            id="wishlistDetailBtn"
+                            onclick="toggleWishlist(event, '<%= product._id %>')">
+                      <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
+                        stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path
+                          d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z">
+                        </path>
+                      </svg>
+                    </button>
                   </div>
 
-                  <button class="buy-now-btn" id="buyNowBtn" <%=defaultVariant.stock===0
+                  <button class="buy-now-btn" id="buyNowBtn" onclick="buyNow('<%= product._id %>')" <%- defaultVariant.stock===0
                     ? 'disabled style="background-color: #ccc; cursor: not-allowed; color: #666;"' : '' %>>BUY
                     NOW</button>
 
@@ -175,7 +180,9 @@
                       %></span>
               </div>
             </div>
-            <button class="write-review-btn" onclick="openReviewModal()">WRITE A REVIEW</button>
+            <% if (typeof hasDeliveredOrder !== 'undefined' && hasDeliveredOrder) { %>
+              <button class="write-review-btn" onclick="openReviewModal()">WRITE A REVIEW</button>
+            <% } %>
           </div>
 
           <div class="review-cards">
@@ -254,7 +261,8 @@
                 const rVariant = (relProd.variants && relProd.variants.length > 0) ? relProd.variants[0] : {
                 regularPrice: relProd.regularPrice || 0, salePrice: relProd.salePrice, stock: relProd.stock || 0,
                 images: relProd.images || [] };
-                const rImage = (rVariant.images && rVariant.images.length > 0) ? rVariant.images[0].replace(/\\/g, '/') : '';
+                const rImage = (rVariant.images && rVariant.images.length > 0) ? rVariant.images[0].replace(/\\/g, '/')
+                : '';
                 %>
                 <div class="product-card" onclick="window.location.href='/product/<%= relProd._id %>'">
                   <div class="product-image-container">
@@ -320,6 +328,54 @@
           const userInCartVariants = <%- typeof inCartVariants !== 'undefined' ? JSON.stringify(inCartVariants) : '[]' %>;
           let currentVariantIndex = 0;
 
+          async function buyNow(productId) {
+            const qtyInput = document.getElementById('qtyInput');
+            const quantity = qtyInput ? parseInt(qtyInput.value) : 1;
+
+            if (quantity > 5) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Limit Exceeded',
+                    text: 'You can only buy up to 5 units of this item.',
+                    confirmButtonColor: '#000'
+                });
+                return;
+            }
+
+            try {
+                const response = await fetch(`/checkout/direct-start`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ productId, quantity, variantSize: productVariants[currentVariantIndex].size })
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    window.location.href = '/checkout?type=direct';
+                } else if (response.status === 401) {
+                    window.location.href = '/login';
+                } else {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Oops...',
+                        text: data.message || 'Error processing request',
+                        confirmButtonColor: '#000'
+                    });
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Oops...',
+                    text: 'Something went wrong',
+                    confirmButtonColor: '#000'
+                });
+            }
+          }
+
           function selectVariant(index, btnElement) {
             currentVariantIndex = index;
             document.querySelectorAll('.size-btn').forEach(b => b.classList.remove('active'));
@@ -344,11 +400,11 @@
             const stockContainer = document.getElementById('stockContainer');
             const cartActionContainer = document.getElementById('cartActionContainer');
             const buyNowBtn = document.getElementById('buyNowBtn');
-            
+
             const isInCart = userInCartVariants.includes(variant.size);
 
             if (isInCart) {
-                cartActionContainer.innerHTML = `
+              cartActionContainer.innerHTML = `
                     <button class="add-to-cart-btn" style="width: 100%;" onclick="window.location.href='/cart'">
                         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
                         stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -359,29 +415,29 @@
                         GO TO CART
                     </button>
                 `;
-                
-                if (variant.stock === 0) {
-                    stockContainer.innerHTML = `<span style="color: #d32f2f; font-weight: 600; font-size: 14px;">Out of Stock</span>`;
-                    if (buyNowBtn) {
-                        buyNowBtn.disabled = true;
-                        buyNowBtn.style.backgroundColor = '#ccc';
-                        buyNowBtn.style.cursor = 'not-allowed';
-                        buyNowBtn.style.color = '#fff';
-                    }
-                } else {
-                    stockContainer.innerHTML = variant.stock < 10 
-                        ? `<span style="color: #f57c00; font-weight: 600; font-size: 14px;">Only ${variant.stock} left in stock!</span>`
-                        : `<span style="color: #2e7d32; font-weight: 600; font-size: 14px;">In Stock</span>`;
-                    if (buyNowBtn) {
-                        buyNowBtn.disabled = false;
-                        buyNowBtn.style.backgroundColor = '';
-                        buyNowBtn.style.cursor = 'pointer';
-                        buyNowBtn.style.color = '';
-                    }
+
+              if (variant.stock === 0) {
+                stockContainer.innerHTML = `<span style="color: #d32f2f; font-weight: 600; font-size: 14px;">Out of Stock</span>`;
+                if (buyNowBtn) {
+                  buyNowBtn.disabled = true;
+                  buyNowBtn.style.backgroundColor = '#ccc';
+                  buyNowBtn.style.cursor = 'not-allowed';
+                  buyNowBtn.style.color = '#fff';
                 }
+              } else {
+                stockContainer.innerHTML = variant.stock < 10
+                  ? `<span style="color: #f57c00; font-weight: 600; font-size: 14px;">Only ${variant.stock} left in stock!</span>`
+                  : `<span style="color: #2e7d32; font-weight: 600; font-size: 14px;">In Stock</span>`;
+                if (buyNowBtn) {
+                  buyNowBtn.disabled = false;
+                  buyNowBtn.style.backgroundColor = '';
+                  buyNowBtn.style.cursor = 'pointer';
+                  buyNowBtn.style.color = '';
+                }
+              }
             } else {
-                const stockDisabled = variant.stock === 0 ? 'disabled style="background-color: #ccc; cursor: not-allowed;"' : '';
-                cartActionContainer.innerHTML = `
+              const stockDisabled = variant.stock === 0 ? 'disabled style="background-color: #ccc; cursor: not-allowed;"' : '';
+              cartActionContainer.innerHTML = `
                     <button class="add-to-cart-btn" id="addToCartBtn" style="width: 100%;" onclick="addToCart('<%= product._id %>')" ${stockDisabled}>
                         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
                         stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -392,279 +448,334 @@
                         ADD TO CART
                     </button>
                 `;
-                
-                if (variant.stock === 0) {
-                    stockContainer.innerHTML = `<span style="color: #d32f2f; font-weight: 600; font-size: 14px;">Out of Stock</span>`;
-                    if (buyNowBtn) {
-                        buyNowBtn.disabled = true;
-                        buyNowBtn.style.backgroundColor = '#ccc';
-                        buyNowBtn.style.cursor = 'not-allowed';
-                        buyNowBtn.style.color = '#fff';
-                    }
-                } else {
-                    stockContainer.innerHTML = variant.stock < 10 
-                        ? `<span style="color: #f57c00; font-weight: 600; font-size: 14px;">Only ${variant.stock} left in stock!</span>`
-                        : `<span style="color: #2e7d32; font-weight: 600; font-size: 14px;">In Stock</span>`;
-                    if (buyNowBtn) {
-                        buyNowBtn.disabled = false;
-                        buyNowBtn.style.backgroundColor = '';
-                        buyNowBtn.style.cursor = 'pointer';
-                        buyNowBtn.style.color = '';
-                    }
+
+              if (variant.stock === 0) {
+                stockContainer.innerHTML = `<span style="color: #d32f2f; font-weight: 600; font-size: 14px;">Out of Stock</span>`;
+                if (buyNowBtn) {
+                  buyNowBtn.disabled = true;
+                  buyNowBtn.style.backgroundColor = '#ccc';
+                  buyNowBtn.style.cursor = 'not-allowed';
+                  buyNowBtn.style.color = '#fff';
                 }
+              } else {
+                stockContainer.innerHTML = variant.stock < 10
+                  ? `<span style="color: #f57c00; font-weight: 600; font-size: 14px;">Only ${variant.stock} left in stock!</span>`
+                  : `<span style="color: #2e7d32; font-weight: 600; font-size: 14px;">In Stock</span>`;
+                if (buyNowBtn) {
+                  buyNowBtn.disabled = false;
+                  buyNowBtn.style.backgroundColor = '';
+                  buyNowBtn.style.cursor = 'pointer';
+                  buyNowBtn.style.color = '';
+                }
+              }
             }
 
             // Update Images
             if (variant.images && variant.images.length > 0) {
               document.getElementById('mainImage').src = variant.images[0];
               document.getElementById('zoomOverlay').style.backgroundImage = `url('${variant.images[0]}')`;
-            
-            let thumbnailsHtml = '';
-            variant.images.slice(0, 4).forEach((img, idx) => {
+
+              let thumbnailsHtml = '';
+              variant.images.slice(0, 4).forEach((img, idx) => {
                 thumbnailsHtml += `<img src="${img}" alt="thumbnail" class="thumbnail ${idx === 0 ? 'active' : ''}" onclick="changeMainImage('${img}', this)">`;
-            });
-            document.getElementById('thumbnailList').innerHTML = thumbnailsHtml;
-        }
-    }
-
-    function changeMainImage(src, element) {
-      document.getElementById('mainImage').src = src;
-      document.getElementById('zoomOverlay').style.backgroundImage = `url('${src}')`;
-      document.querySelectorAll('.thumbnail').forEach(t => t.classList.remove('active'));
-      if(element) element.classList.add('active');
-    }
-
-    // Zoom Logic (Click to Zoom)
-    const mainImageContainer = document.getElementById('mainImageContainer');
-    const zoomOverlay = document.getElementById('zoomOverlay');
-
-    mainImageContainer.addEventListener('click', function(e) {
-      mainImageContainer.classList.toggle('zoomed');
-      
-      // If we just zoomed in, immediately calculate the position so it doesn't jump
-      if (mainImageContainer.classList.contains('zoomed')) {
-        updateZoomPosition(e);
-      }
-    });
-
-    mainImageContainer.addEventListener('mousemove', function(e) {
-      if (mainImageContainer.classList.contains('zoomed')) {
-        updateZoomPosition(e);
-      }
-    });
-
-    mainImageContainer.addEventListener('mouseleave', function() {
-      // Auto-unzoom when the mouse leaves the image container
-      mainImageContainer.classList.remove('zoomed');
-    });
-
-    function updateZoomPosition(e) {
-      const rect = mainImageContainer.getBoundingClientRect();
-      const x = e.clientX - rect.left;
-      const y = e.clientY - rect.top;
-
-      // Calculate percentages
-      const xPercent = (x / rect.width) * 100;
-      const yPercent = (y / rect.height) * 100;
-
-      zoomOverlay.style.backgroundPosition = `${ xPercent }% ${ yPercent }% `;
-    }
-
-
-    function toggleAccordion(header) {
-      const accordion = header.parentElement;
-      accordion.classList.toggle('active');
-    }
-
-    // Review Modal Logic
-    const reviewModal = document.getElementById('reviewModal');
-    let selectedRating = 0;
-
-    function openReviewModal() {
-      reviewModal.style.display = 'flex';
-    }
-
-    function closeReviewModal() {
-      reviewModal.style.display = 'none';
-    }
-
-    // Star rating interaction
-    const stars = document.querySelectorAll('.star-rating .star');
-    stars.forEach(star => {
-      star.addEventListener('click', function() {
-        selectedRating = parseInt(this.getAttribute('data-value'));
-        document.getElementById('ratingInput').value = selectedRating;
-        updateStars();
-      });
-      star.addEventListener('mouseover', function() {
-        updateStars(parseInt(this.getAttribute('data-value')));
-      });
-      star.addEventListener('mouseout', function() {
-        updateStars();
-      });
-    });
-
-    function updateStars(hoverValue = 0) {
-      const activeValue = hoverValue || selectedRating;
-      stars.forEach(star => {
-        const val = parseInt(star.getAttribute('data-value'));
-        star.style.color = val <= activeValue ? '#222' : '#ccc';
-      });
-    }
-
-    async function submitReviewForm(event) {
-      event.preventDefault();
-      const rating = document.getElementById('ratingInput').value;
-      const comment = document.getElementById('reviewComment').value;
-
-      if (!rating) {
-        showCustomModal({
-          title: 'Rating Required',
-          message: 'Please select a star rating.',
-          iconType: 'error'
-        });
-        return;
-      }
-
-      try {
-        const response = await fetch('/product/<%= product._id %>/review', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ rating, comment })
-        });
-        
-        const data = await response.json();
-        
-        if (data.success) {
-          showCustomModal({
-            title: 'Thank You!',
-            message: 'Your review has been submitted successfully.',
-            iconType: 'success',
-            confirmText: 'Awesome',
-            onConfirm: () => window.location.reload()
-          });
-        } else {
-          showCustomModal({
-            title: 'Error!',
-            message: data.message || 'Error submitting review.',
-            iconType: 'error'
-          });
-        }
-      } catch (error) {
-        console.error('Error:', error);
-        showCustomModal({
-          title: 'Oops...',
-          message: 'An unexpected error occurred.',
-          iconType: 'error'
-        });
-      }
-    }
-
-    async function deleteReview(productId, reviewId) {
-      showCustomModal({
-        title: 'Are you sure?',
-        message: 'You won\'t be able to revert this! Your review will be permanently deleted.',
-        iconType: 'warning',
-        confirmText: 'Yes, delete it!',
-        showCancel: true,
-        onConfirm: async () => {
-          try {
-            const response = await fetch(`/product/${productId}/review/${reviewId}`, {
-              method: 'DELETE',
-              headers: { 'Content-Type': 'application/json' }
-            });
-            
-            const data = await response.json();
-            
-            if (data.success) {
-              showCustomModal({
-                title: 'Deleted!',
-                message: 'Your review has been deleted.',
-                iconType: 'success',
-                confirmText: 'OK',
-                onConfirm: () => window.location.reload()
               });
-            } else {
+              document.getElementById('thumbnailList').innerHTML = thumbnailsHtml;
+            }
+          }
+
+          function changeMainImage(src, element) {
+            document.getElementById('mainImage').src = src;
+            document.getElementById('zoomOverlay').style.backgroundImage = `url('${src}')`;
+            document.querySelectorAll('.thumbnail').forEach(t => t.classList.remove('active'));
+            if (element) element.classList.add('active');
+          }
+
+          // Zoom Logic (Click to Zoom)
+          const mainImageContainer = document.getElementById('mainImageContainer');
+          const zoomOverlay = document.getElementById('zoomOverlay');
+
+          mainImageContainer.addEventListener('click', function (e) {
+            mainImageContainer.classList.toggle('zoomed');
+
+            // If we just zoomed in, immediately calculate the position so it doesn't jump
+            if (mainImageContainer.classList.contains('zoomed')) {
+              updateZoomPosition(e);
+            }
+          });
+
+          mainImageContainer.addEventListener('mousemove', function (e) {
+            if (mainImageContainer.classList.contains('zoomed')) {
+              updateZoomPosition(e);
+            }
+          });
+
+          mainImageContainer.addEventListener('mouseleave', function () {
+            // Auto-unzoom when the mouse leaves the image container
+            mainImageContainer.classList.remove('zoomed');
+          });
+
+          function updateZoomPosition(e) {
+            const rect = mainImageContainer.getBoundingClientRect();
+            const x = e.clientX - rect.left;
+            const y = e.clientY - rect.top;
+
+            // Calculate percentages
+            const xPercent = (x / rect.width) * 100;
+            const yPercent = (y / rect.height) * 100;
+
+            zoomOverlay.style.backgroundPosition = `${xPercent}% ${yPercent}% `;
+          }
+
+
+          function toggleAccordion(header) {
+            const accordion = header.parentElement;
+            accordion.classList.toggle('active');
+          }
+
+          // Review Modal Logic
+          const reviewModal = document.getElementById('reviewModal');
+          let selectedRating = 0;
+
+          function openReviewModal() {
+            reviewModal.style.display = 'flex';
+          }
+
+          function closeReviewModal() {
+            reviewModal.style.display = 'none';
+          }
+
+          // Star rating interaction
+          const stars = document.querySelectorAll('.star-rating .star');
+          stars.forEach(star => {
+            star.addEventListener('click', function () {
+              selectedRating = parseInt(this.getAttribute('data-value'));
+              document.getElementById('ratingInput').value = selectedRating;
+              updateStars();
+            });
+            star.addEventListener('mouseover', function () {
+              updateStars(parseInt(this.getAttribute('data-value')));
+            });
+            star.addEventListener('mouseout', function () {
+              updateStars();
+            });
+          });
+
+          function updateStars(hoverValue = 0) {
+            const activeValue = hoverValue || selectedRating;
+            stars.forEach(star => {
+              const val = parseInt(star.getAttribute('data-value'));
+              star.style.color = val <= activeValue ? '#222' : '#ccc';
+            });
+          }
+
+          async function submitReviewForm(event) {
+            event.preventDefault();
+            const rating = document.getElementById('ratingInput').value;
+            const comment = document.getElementById('reviewComment').value;
+
+            if (!rating) {
               showCustomModal({
-                title: 'Error!',
-                message: data.message || 'Error deleting review.',
+                title: 'Rating Required',
+                message: 'Please select a star rating.',
+                iconType: 'error'
+              });
+              return;
+            }
+
+            try {
+              const response = await fetch('/product/<%= product._id %>/review', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ rating, comment })
+              });
+
+              const data = await response.json();
+
+              if (data.success) {
+                showCustomModal({
+                  title: 'Thank You!',
+                  message: 'Your review has been submitted successfully.',
+                  iconType: 'success',
+                  confirmText: 'Awesome',
+                  onConfirm: () => window.location.reload()
+                });
+              } else {
+                showCustomModal({
+                  title: 'Error!',
+                  message: data.message || 'Error submitting review.',
+                  iconType: 'error'
+                });
+              }
+            } catch (error) {
+              console.error('Error:', error);
+              showCustomModal({
+                title: 'Oops...',
+                message: 'An unexpected error occurred.',
                 iconType: 'error'
               });
             }
-          } catch (error) {
-            console.error('Error:', error);
-            showCustomModal({
-              title: 'Oops...',
-              message: 'An unexpected error occurred.',
-              iconType: 'error'
-            });
           }
-        }
-      });
-    }
 
-    // Close modal if clicking outside
-    window.onclick = function(event) {
-      if (event.target == reviewModal) {
-        closeReviewModal();
-      }
-    }
-
-    // Size selection handles the active state within selectVariant already
-
-    async function addToCart(productId) {
-      const qtyInput = document.getElementById('qtyInput');
-      const quantity = qtyInput ? parseInt(qtyInput.value) : 1;
-
-      try {
-        const response = await fetch(`/cart/add/${productId}`, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify({ quantity, variantSize: productVariants[currentVariantIndex].size })
-        });
-        
-        const data = await response.json();
-        
-        if (data.success) {
-          if (typeof showCustomModal !== 'undefined') {
+          async function deleteReview(productId, reviewId) {
             showCustomModal({
-              title: 'Added!',
-              message: 'Product added to cart successfully',
-              iconType: 'success',
-              confirmText: 'View Cart',
+              title: 'Are you sure?',
+              message: 'You won\'t be able to revert this! Your review will be permanently deleted.',
+              iconType: 'warning',
+              confirmText: 'Yes, delete it!',
               showCancel: true,
-              cancelText: 'Continue Shopping',
-              onConfirm: () => window.location.href = '/cart'
+              onConfirm: async () => {
+                try {
+                  const response = await fetch(`/product/${productId}/review/${reviewId}`, {
+                    method: 'DELETE',
+                    headers: { 'Content-Type': 'application/json' }
+                  });
+
+                  const data = await response.json();
+
+                  if (data.success) {
+                    showCustomModal({
+                      title: 'Deleted!',
+                      message: 'Your review has been deleted.',
+                      iconType: 'success',
+                      confirmText: 'OK',
+                      onConfirm: () => window.location.reload()
+                    });
+                  } else {
+                    showCustomModal({
+                      title: 'Error!',
+                      message: data.message || 'Error deleting review.',
+                      iconType: 'error'
+                    });
+                  }
+                } catch (error) {
+                  console.error('Error:', error);
+                  showCustomModal({
+                    title: 'Oops...',
+                    message: 'An unexpected error occurred.',
+                    iconType: 'error'
+                  });
+                }
+              }
             });
-          } else {
-            alert('Product added to cart successfully');
-            window.location.href = '/cart';
           }
-        } else {
-          if (typeof showCustomModal !== 'undefined') {
-            showCustomModal({
-              title: 'Oops...',
-              message: data.message || 'Error adding to cart',
-              iconType: 'error'
-            });
-          } else {
-            alert(data.message || 'Error adding to cart');
+
+          // Close modal if clicking outside
+          window.onclick = function (event) {
+            if (event.target == reviewModal) {
+              closeReviewModal();
+            }
           }
-        }
-      } catch (error) {
-        console.error('Error:', error);
-        if (typeof showCustomModal !== 'undefined') {
-            showCustomModal({
-              title: 'Oops...',
-              message: 'An unexpected error occurred.',
-              iconType: 'error'
-            });
-        }
-      }
-    }
+
+          // Size selection handles the active state within selectVariant already
+
+          async function addToCart(productId) {
+            const qtyInput = document.getElementById('qtyInput');
+            const quantity = qtyInput ? parseInt(qtyInput.value) : 1;
+
+            try {
+              const response = await fetch(`/cart/add/${productId}`, {
+                method: 'POST',
+                headers: {
+                  'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ quantity, variantSize: productVariants[currentVariantIndex].size })
+              });
+
+              const data = await response.json();
+
+              if (data.success) {
+                // Push variant to array so UI updates to GO TO CART
+                if (!userInCartVariants.includes(productVariants[currentVariantIndex].size)) {
+                  userInCartVariants.push(productVariants[currentVariantIndex].size);
+                }
+                // Refresh the button UI dynamically without reload
+                selectVariant(currentVariantIndex, document.querySelector('.size-btn.active'));
+
+                if (typeof showCustomModal !== 'undefined') {
+                  showCustomModal({
+                    title: 'Added!',
+                    message: 'Product added to cart successfully',
+                    iconType: 'success',
+                    confirmText: 'View Cart',
+                    showCancel: true,
+                    cancelText: 'Continue Shopping',
+                    onConfirm: () => window.location.href = '/cart'
+                  });
+                } else {
+                  alert('Product added to cart successfully');
+                  window.location.href = '/cart';
+                }
+              } else {
+                if (typeof showCustomModal !== 'undefined') {
+                  showCustomModal({
+                    title: 'Oops...',
+                    message: data.message || 'Error adding to cart',
+                    iconType: 'error'
+                  });
+                } else {
+                  alert(data.message || 'Error adding to cart');
+                }
+              }
+            } catch (error) {
+              console.error('Error:', error);
+              if (typeof showCustomModal !== 'undefined') {
+                showCustomModal({
+                  title: 'Oops...',
+                  message: 'An unexpected error occurred.',
+                  iconType: 'error'
+                });
+              }
+            }
+          }
         </script>
+      <script>
+        async function toggleWishlist(event, productId) {
+            event.preventDefault(); 
+            event.stopPropagation();
+
+            try {
+                const response = await fetch('/wishlist/toggle', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ productId })
+                });
+
+                if (response.status === 401) {
+                    window.location.href = '/login';
+                    return;
+                }
+
+                const data = await response.json();
+                if (data.success) {
+                    const btn = document.getElementById('wishlistDetailBtn');
+                    if (data.inWishlist) {
+                        btn.classList.add('active');
+                    } else {
+                        btn.classList.remove('active');
+                    }
+                    
+                    if (window.showToast) {
+                        window.showToast(data.message);
+                    }
+
+                    // Update navbar badge
+                    const badge = document.querySelector('.wishlist-badge');
+                    if (badge) {
+                        let currentCount = parseInt(badge.textContent) || 0;
+                        if (data.inWishlist) {
+                            currentCount += 1;
+                        } else {
+                            currentCount = Math.max(0, currentCount - 1);
+                        }
+                        badge.textContent = currentCount;
+                        badge.style.display = currentCount > 0 ? 'flex' : 'none';
+                    }
+                }
+            } catch (error) {
+                console.error('Error toggling wishlist:', error);
+            }
+        }
+      </script>
 </body>
 
 </html>

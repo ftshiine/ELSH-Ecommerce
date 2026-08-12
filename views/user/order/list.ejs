@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ELSH | <%= title %></title>
+  
+  <!-- Preload Fonts and External CSS to prevent FOUC -->
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;1,400&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/css/user/home-navbar.css" />
+  <link rel="stylesheet" href="/css/user/breadcrumbs.css" />
+  <link rel="stylesheet" href="/css/user/footer.css" />
+  <link rel="stylesheet" href="/css/admin/modal.css" />
+  <link rel="stylesheet" href="/css/user/order.css" />
+
+  <% 
+    locals._homeNavbarCssLoaded = true;
+    locals._breadcrumbsCssLoaded = true;
+    locals._footerCssLoaded = true;
+  %>
+</head>
+
+<body>
+  <%- include('../partials/home-navbar') %>
+  <%- include('../partials/breadcrumbs') %>
+
+  <div class="orders-wrapper">
+    <div class="orders-page-header" style="display: flex; justify-content: space-between; align-items: flex-end; flex-wrap: wrap; gap: 20px;">
+      <div>
+        <h1>My Orders</h1>
+        <p>Track your ritual shipments and revisit your past purchases for a more intentional wellness journey.</p>
+      </div>
+      <form action="/orders" method="GET" class="order-search-form" style="display: flex; gap: 8px; margin-bottom: 5px;">
+        <input type="hidden" name="tab" value="<%= activeTab %>">
+        <input type="text" name="search" placeholder="Search by Order ID or Product..." value="<%= locals.searchQuery || '' %>" style="padding: 10px 14px; border: 1px solid #ddd; border-radius: 6px; width: 250px; font-family: 'Inter', sans-serif; font-size: 13px;">
+        <button type="submit" class="btn-solid" style="padding: 10px 20px; border-radius: 6px; font-weight: 500;">Search</button>
+      </form>
+    </div>
+
+    <!-- Tabs -->
+    <div class="order-tabs">
+      <a href="/orders?tab=all<%= locals.searchQuery ? '&search=' + locals.searchQuery : '' %>" class="tab-link <%= activeTab === 'all' ? 'active' : '' %>">All Orders</a>
+      <a href="/orders?tab=in-progress<%= locals.searchQuery ? '&search=' + locals.searchQuery : '' %>" class="tab-link <%= activeTab === 'in-progress' ? 'active' : '' %>">In Progress</a>
+      <a href="/orders?tab=delivered<%= locals.searchQuery ? '&search=' + locals.searchQuery : '' %>" class="tab-link <%= activeTab === 'delivered' ? 'active' : '' %>">Delivered</a>
+      <a href="/orders?tab=cancelled<%= locals.searchQuery ? '&search=' + locals.searchQuery : '' %>" class="tab-link <%= activeTab === 'cancelled' ? 'active' : '' %>">Cancelled</a>
+    </div>
+
+    <div class="orders-list">
+      <% if (orders && orders.length > 0) { %>
+        <% orders.forEach(order => { 
+             const firstItem = order.items[0];
+             const date = new Date(order.createdAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+             
+             let badgeClass = '';
+             let displayStatus = order.orderStatus;
+             
+             if (['PENDING', 'PROCESSING'].includes(order.orderStatus)) {
+               badgeClass = 'badge-progress';
+               displayStatus = 'IN PROGRESS';
+              } else if (order.orderStatus === 'SHIPPED') {
+               badgeClass = 'badge-transit';
+               displayStatus = 'IN TRANSIT';
+             } else if (order.orderStatus === 'OUT FOR DELIVERY') {
+               badgeClass = 'badge-transit';
+               displayStatus = 'OUT FOR DELIVERY';
+             } else if (order.orderStatus === 'DELIVERED') {
+               badgeClass = 'badge-delivered';
+             } else if (order.orderStatus === 'CANCELLED') {
+               badgeClass = 'badge-cancelled';
+             } else {
+               badgeClass = 'badge-default';
+             }
+        %>
+          <div class="order-card">
+            <div class="order-card-inner">
+              <div class="order-image">
+                <% if (firstItem && firstItem.thumbnail) { %>
+                  <img src="<%= firstItem.thumbnail %>" alt="<%= firstItem.productName %>">
+                <% } else { %>
+                  <div class="no-image"></div>
+                <% } %>
+              </div>
+              <div class="order-details">
+                <span class="order-badge <%= badgeClass %>"><%= displayStatus %></span>
+                <h3 class="order-title">
+                  <%= firstItem ? firstItem.productName : 'Order items' %>
+                  <% if (order.items.length > 1) { %>
+                    <span class="more-items">(+<%= order.items.length - 1 %> more)</span>
+                  <% } %>
+                </h3>
+                <p class="order-meta">Order ID: #<%= order.orderId %> &bull; <%= date %></p>
+                
+                <div class="order-actions">
+                  <% if (['PENDING', 'PROCESSING', 'SHIPPED', 'OUT FOR DELIVERY'].includes(order.orderStatus)) { %>
+                    <% if (['SHIPPED', 'OUT FOR DELIVERY'].includes(order.orderStatus)) { %>
+                      <a href="javascript:void(0)" class="btn-solid">Track Order</a>
+                    <% } %>
+                    <a href="/orders/<%= order._id %>" class="btn-outline">Order Details</a>
+                    <% if (['PENDING', 'PROCESSING'].includes(order.orderStatus)) { %>
+                      <button onclick="cancelOrder('<%= order._id %>')" class="btn-outline">Cancel Order</button>
+                    <% } %>
+                  <% } else if (order.orderStatus === 'DELIVERED') { %>
+                    <a href="/shop" class="btn-outline">Buy Again</a>
+                    <a href="/orders/<%= order._id %>" class="btn-outline">Order Details</a>
+                    <button onclick="returnOrder('<%= order._id %>')" class="btn-outline">Return Order</button>
+                  <% } else { %>
+                    <a href="/orders/<%= order._id %>" class="btn-outline">Order Details</a>
+                  <% } %>
+                </div>
+              </div>
+              <div class="order-price">
+                ₹<%= order.pricing.totalAmount.toFixed(2) %>
+              </div>
+            </div>
+          </div>
+        <% }) %>
+      <% } else { %>
+        <div class="no-orders">
+          <% if (locals.searchQuery) { %>
+            <p>No orders found matching "<%= locals.searchQuery %>".</p>
+            <a href="/orders" class="btn-solid">Clear Search</a>
+          <% } else { %>
+            <p>You have no orders in this category.</p>
+            <a href="/shop" class="btn-solid">Start Shopping</a>
+          <% } %>
+        </div>
+      <% } %>
+    </div>
+  </div>
+
+  <%- include('../partials/footer') %>
+
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+  <script>
+    function cancelOrder(orderId) {
+      showCustomModal({
+        title: 'Cancel Order?',
+        message: 'Are you sure you want to cancel this order? This action cannot be undone.',
+        iconType: 'warning',
+        confirmText: 'Yes, cancel it',
+        showCancel: true,
+        showInput: true,
+        inputPlaceholder: 'Please tell us why you want to cancel (optional)...',
+        requireInput: false,
+        onConfirm: async (reason) => {
+          try {
+            const response = await fetch(`/orders/${orderId}/cancel`, {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ reason })
+            });
+            const data = await response.json();
+            if (data.success) {
+              showCustomModal({
+                title: 'Cancelled!',
+                message: data.message,
+                iconType: 'success',
+                confirmText: 'OK',
+                showCancel: false,
+                onConfirm: () => window.location.reload()
+              });
+            } else {
+              showCustomModal({
+                title: 'Error',
+                message: data.message || 'Failed to cancel order',
+                iconType: 'warning',
+                confirmText: 'OK',
+                showCancel: false,
+                onConfirm: () => closeCustomModal()
+              });
+            }
+          } catch (error) {
+            console.error('Cancel order error:', error);
+            showCustomModal({
+              title: 'Error',
+              message: 'Something went wrong',
+              iconType: 'warning',
+              confirmText: 'OK',
+              showCancel: false,
+              onConfirm: () => closeCustomModal()
+            });
+          }
+        }
+      });
+    }
+
+    async function returnOrder(orderId) {
+      const { value: reason } = await Swal.fire({
+        title: 'Return Order',
+        input: 'textarea',
+        inputLabel: 'Reason for return',
+        inputPlaceholder: 'Please tell us why you are returning this item...',
+        inputAttributes: {
+          'aria-label': 'Return reason'
+        },
+        showCancelButton: true,
+        inputValidator: (value) => {
+          if (!value) {
+            return 'You need to write something!'
+          }
+        }
+      });
+
+      if (reason) {
+        try {
+          const response = await fetch(`/orders/${orderId}/return`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ reason })
+          });
+          const data = await response.json();
+          if (data.success) {
+            Swal.fire('Submitted!', data.message, 'success').then(() => {
+              window.location.reload();
+            });
+          } else {
+            Swal.fire('Error', data.message || 'Failed to submit return request', 'error');
+          }
+        } catch (error) {
+          Swal.fire('Error', 'Server error. Please try again later.', 'error');
+        }
+      }
+    }
+  </script>
+</body>
+</html>

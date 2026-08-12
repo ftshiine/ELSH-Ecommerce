@@ -1,0 +1,384 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ELSH | <%= title %>
+  </title>
+  <% locals._adminLayoutCssLoaded=true; %>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;1,400&family=Inter:wght@300;400;500;600&display=swap"
+      rel="stylesheet" />
+    <link rel="stylesheet" href="/css/admin/layout.css" />
+    <link rel="stylesheet" href="/css/admin/modal.css" />
+    <link rel="stylesheet" href="/css/admin/inventory.css" />
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+</head>
+
+<body>
+  <div class="admin-layout">
+    <%- include('../partials/sidebar') %>
+
+      <main class="main-content">
+        <%- include('../partials/topbar') %>
+
+          <div class="page-content">
+            <!-- Inventory Header -->
+            <div class="page-header">
+              <div class="header-titles">
+                <h1>Inventory Management</h1>
+                <p>Oversee stock levels and reorder parameters across the product line.</p>
+              </div>
+              <div class="header-actions">
+                <button class="btn-outline">Export CSV</button>
+                <button class="btn-solid">
+                  Bulk Actions
+                </button>
+              </div>
+            </div>
+
+            <!-- Metrics Cards -->
+            <div class="metrics-grid">
+              <div class="metric-card">
+                <div class="card-top">
+                  <h3>Total Products</h3>
+                  <img src="/images/icons/admin/products.svg" alt="Total Products" width="24" style="opacity: 0.5;">
+                </div>
+                <div class="card-value">
+                  <%= metrics.totalProducts %>
+                </div>
+              </div>
+
+              <div class="metric-card">
+                <div class="card-top">
+                  <h3>Stock Units</h3>
+                  <img src="/images/icons/admin/inventory.svg" alt="Stock Units" width="24" style="opacity: 0.5;">
+                </div>
+                <div class="card-value">
+                  <%= metrics.stockUnits.toLocaleString() %>
+                </div>
+              </div>
+
+              <div class="metric-card">
+                <div class="card-top">
+                  <h3>Low Stock Items</h3>
+                  <img src="/images/icons/admin/triangle-alert.svg" alt="Low Stock" width="24" style="opacity: 0.5;">
+                </div>
+                <div class="card-value">
+                  <%= metrics.lowStockItems %>
+                </div>
+              </div>
+
+              <div class="metric-card">
+                <div class="card-top">
+                  <h3>Out of Stock</h3>
+                  <img src="/images/icons/admin/circle-pile.svg" alt="Out of Stock" width="24"
+                    style="opacity: 0.5; color: red;">
+                </div>
+                <div class="card-value">
+                  <%= metrics.outOfStockItems %>
+                </div>
+              </div>
+
+              <div class="metric-card">
+                <div class="card-top">
+                  <h3>Inventory Value</h3>
+                  <img src="/images/icons/admin/inventory.svg" alt="Value" width="24" style="opacity: 0.5;">
+                </div>
+                <div class="card-value">₹<%= metrics.inventoryValue.toLocaleString(undefined, { minimumFractionDigits: 2
+                    }) %>
+                </div>
+              </div>
+            </div>
+
+            <!-- Filters Section -->
+            <div class="filters-section">
+              <form action="/admin/inventory" method="GET" class="filters-form" id="filtersForm">
+                <div class="search-box">
+                  <img src="/images/icons/admin/search.svg" alt="Search" width="18">
+                  <input type="text" name="search" placeholder="Search by product name..." value="<%= filters.search %>"
+                    onchange="document.getElementById('filtersForm').submit()">
+                </div>
+
+                <div class="custom-dropdown-wrapper filter-dropdown">
+                  <div class="custom-dropdown" id="categoryDropdown">
+                    <div class="dropdown-selected" onclick="toggleDropdown(event, 'categoryOptions')">
+                      <span id="selectedCategoryText">
+                        <%= filters.category ? (categories.find(c=> c._id.toString() === filters.category)?.name ||
+                          'Category') : 'Category' %>
+                      </span>
+                      <img src="/images/icons/admin/circle-pile.svg" alt="Drop" width="16">
+                    </div>
+                    <div class="dropdown-options" id="categoryOptions" style="display: none;">
+                      <div class="dropdown-option" onclick="selectFilter('category', '', 'Category')">All Categories
+                      </div>
+                      <% categories.forEach(cat=> { %>
+                        <div class="dropdown-option <%= filters.category === cat._id.toString() ? 'active' : '' %>"
+                          onclick="selectFilter('category', '<%= cat._id %>', '<%= cat.name %>')">
+                          <%= cat.name %>
+                        </div>
+                        <% }) %>
+                    </div>
+                  </div>
+                  <input type="hidden" name="category" id="categoryInput" value="<%= filters.category %>">
+                </div>
+
+                <div class="custom-dropdown-wrapper filter-dropdown">
+                  <div class="custom-dropdown" id="statusDropdown">
+                    <div class="dropdown-selected" onclick="toggleDropdown(event, 'statusOptions')">
+                      <span id="selectedStatusText">
+                        <%= filters.status || 'Stock Status' %>
+                      </span>
+                      <img src="/images/icons/admin/chart-spline.svg" alt="Drop" width="16">
+                    </div>
+                    <div class="dropdown-options" id="statusOptions" style="display: none;">
+                      <div class="dropdown-option" onclick="selectFilter('status', '', 'Stock Status')">All Statuses
+                      </div>
+                      <div class="dropdown-option <%= filters.status === 'In Stock' ? 'active' : '' %>"
+                        onclick="selectFilter('status', 'In Stock', 'In Stock')">In Stock</div>
+                      <div class="dropdown-option <%= filters.status === 'Low Stock' ? 'active' : '' %>"
+                        onclick="selectFilter('status', 'Low Stock', 'Low Stock')">Low Stock</div>
+                      <div class="dropdown-option <%= filters.status === 'Out of Stock' ? 'active' : '' %>"
+                        onclick="selectFilter('status', 'Out of Stock', 'Out of Stock')">Out of Stock</div>
+                    </div>
+                  </div>
+                  <input type="hidden" name="status" id="statusInput" value="<%= filters.status %>">
+                </div>
+
+                <a href="/admin/inventory" class="clear-filters">Clear Filters</a>
+              </form>
+            </div>
+
+            <!-- Inventory Table -->
+            <div class="table-container">
+              <table class="inventory-table">
+                <thead>
+                  <tr>
+                    <th>Product</th>
+                    <th>Category</th>
+                    <th>Available</th>
+                    <th style="width: 140px;">Status</th>
+                    <th>Last Updated</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <% if (variants && variants.length> 0) { %>
+                    <% variants.forEach(variant=> {
+                      let statusBadge = 'In Stock';
+                      let badgeClass = 'badge-success';
+                      if (variant.stock === 0) {
+                      statusBadge = 'Out of Stock';
+                      badgeClass = 'badge-danger';
+                      } else if (variant.stock <= 10) { statusBadge='Low Stock' ; badgeClass='badge-warning' ; } const
+                        formattedDate=new Date(variant.lastUpdated).toLocaleDateString('en-US', { year: 'numeric' ,
+                        month: 'short' , day: 'numeric' }); %>
+                        <tr>
+                          <td>
+                            <div class="product-cell">
+                              <img src="<%= variant.image %>" alt="<%= variant.productName %>" class="product-thumb">
+                              <div class="product-details">
+                                <span class="product-name">
+                                  <%= variant.productName %>
+                                </span>
+                                <span class="product-variant">
+                                  <%= variant.variantSize %>
+                                </span>
+                              </div>
+                            </div>
+                          </td>
+                          <td>
+                            <%= variant.categoryName %>
+                          </td>
+                          <td>
+                            <input type="number" class="quick-edit-input" value="<%= variant.stock %>" min="0"
+                              data-product-id="<%= variant.productId %>" data-variant-id="<%= variant.variantId %>"
+                              onchange="updateStock(this)">
+                          </td>
+                          <td>
+                            <span class="status-badge <%= badgeClass %>" id="status-<%= variant.variantId %>">
+                              <%= statusBadge %>
+                            </span>
+                          </td>
+                          <td>
+                            <%= formattedDate %>
+                          </td>
+                        </tr>
+                        <% }) %>
+                          <% } else { %>
+                            <tr>
+                              <td colspan="5" style="text-align: center; padding: 40px; color: #888;">No inventory items
+                                found.</td>
+                            </tr>
+                            <% } %>
+                </tbody>
+              </table>
+
+              <!-- Pagination -->
+              <% if (totalPages> 1) { %>
+                <div class="pagination">
+                  <span class="showing-text">Showing <%= ((currentPage - 1) * 10) + 1 %> to <%= Math.min(currentPage *
+                        10, totalItems) %> of <%= totalItems %> products</span>
+                  <div class="page-controls">
+                    <% if (currentPage> 1) { %>
+                      <a href="/admin/inventory?page=<%= currentPage - 1 %>&search=<%= filters.search %>&category=<%= filters.category %>&status=<%= filters.status %>"
+                        class="page-btn prev">
+                        <img src="/images/icons/admin/chevron-left.svg" alt="Prev" width="16">
+                      </a>
+                      <% } %>
+
+                        <% for(let i=1; i <=totalPages; i++) { %>
+                          <% if(i===1 || i===totalPages || (i>= currentPage - 1 && i <= currentPage + 1)) { %>
+                              <a href="/admin/inventory?page=<%= i %>&search=<%= filters.search %>&category=<%= filters.category %>&status=<%= filters.status %>"
+                                class="page-num <%= currentPage === i ? 'active' : '' %>">
+                                <%= i %>
+                              </a>
+                              <% } else if(i===currentPage - 2 || i===currentPage + 2) { %>
+                                <span class="page-dots">...</span>
+                                <% } %>
+                                  <% } %>
+
+                                    <% if (currentPage < totalPages) { %>
+                                      <a href="/admin/inventory?page=<%= currentPage + 1 %>&search=<%= filters.search %>&category=<%= filters.category %>&status=<%= filters.status %>"
+                                        class="page-btn next">
+                                        <img src="/images/icons/admin/chevron-right.svg" alt="Next" width="16">
+                                      </a>
+                                      <% } %>
+                  </div>
+                </div>
+                <% } else if (totalItems> 0) { %>
+                  <div class="pagination" style="justify-content: flex-start;">
+                    <span class="showing-text">Showing 1 to <%= totalItems %> of <%= totalItems %> products</span>
+                  </div>
+                  <% } %>
+            </div>
+          </div> <!-- End page-content -->
+      </main>
+  </div>
+
+  <%- include('../partials/footer') %>
+
+    <!-- Toast Notification Container -->
+    <div id="toast-container" style="position: fixed; bottom: 30px; right: 30px; z-index: 9999;"></div>
+
+    <script>
+      function toggleDropdown(event, dropdownId) {
+        event.stopPropagation();
+        const dropdowns = document.querySelectorAll('.dropdown-options');
+        dropdowns.forEach(d => {
+          if (d.id !== dropdownId) d.style.display = 'none';
+        });
+        const options = document.getElementById(dropdownId);
+        options.style.display = options.style.display === 'none' || options.style.display === '' ? 'block' : 'none';
+      }
+
+      document.addEventListener('click', function () {
+        const dropdowns = document.querySelectorAll('.dropdown-options');
+        dropdowns.forEach(d => d.style.display = 'none');
+      });
+
+      async function loadTableData(url) {
+        try {
+          const response = await fetch(url, { headers: { 'X-Requested-With': 'XMLHttpRequest' } });
+          const html = await response.text();
+          const parser = new DOMParser();
+          const doc = parser.parseFromString(html, 'text/html');
+          
+          document.querySelector('.table-container').innerHTML = doc.querySelector('.table-container').innerHTML;
+          window.history.pushState({}, '', url);
+        } catch (error) {
+          window.location.href = url;
+        }
+      }
+
+      function selectFilter(filterName, value, text) {
+        document.getElementById(filterName + 'Input').value = value;
+        document.getElementById('selected' + filterName.charAt(0).toUpperCase() + filterName.slice(1) + 'Text').innerText = text;
+        const form = document.getElementById('filtersForm');
+        const params = new URLSearchParams(new FormData(form));
+        loadTableData('/admin/inventory?' + params.toString());
+      }
+
+      document.getElementById('filtersForm').addEventListener('submit', function(e) {
+        e.preventDefault();
+        const params = new URLSearchParams(new FormData(this));
+        loadTableData('/admin/inventory?' + params.toString());
+      });
+
+      document.addEventListener('click', function(e) {
+        const pageLink = e.target.closest('.page-num, .page-btn');
+        if (pageLink && pageLink.tagName === 'A' && pageLink.href) {
+          e.preventDefault();
+          loadTableData(pageLink.href);
+        }
+      });
+
+      async function updateStock(inputElement) {
+        const productId = inputElement.dataset.productId;
+        const variantId = inputElement.dataset.variantId;
+        const newStock = inputElement.value;
+
+        try {
+          const response = await fetch('/admin/inventory/update', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ productId, variantId, newStock })
+          });
+
+          const data = await response.json();
+
+          if (data.success) {
+            // Update Status Badge dynamically
+            const badge = document.getElementById('status-' + variantId);
+            badge.textContent = data.newStatus;
+
+            badge.className = 'status-badge ' +
+              (data.newStatus === 'Out of Stock' ? 'badge-danger' :
+                (data.newStatus === 'Low Stock' ? 'badge-warning' : 'badge-success'));
+
+            showToast('Stock updated successfully', 'success');
+          } else {
+            showToast(data.message || 'Error updating stock', 'error');
+            // Revert back or reload maybe?
+          }
+        } catch (error) {
+          console.error("Update stock error", error);
+          showToast('Network error, could not save stock.', 'error');
+        }
+      }
+
+      function showToast(message, type) {
+        const toast = document.createElement('div');
+        toast.style.background = type === 'success' ? '#4CAF50' : '#F44336';
+        toast.style.color = '#fff';
+        toast.style.padding = '12px 24px';
+        toast.style.borderRadius = '6px';
+        toast.style.marginBottom = '10px';
+        toast.style.boxShadow = '0 4px 12px rgba(0,0,0,0.15)';
+        toast.style.fontFamily = 'Inter, sans-serif';
+        toast.style.fontSize = '14px';
+        toast.style.opacity = '0';
+        toast.style.transition = 'opacity 0.3s ease, transform 0.3s ease';
+        toast.style.transform = 'translateY(20px)';
+        toast.innerText = message;
+
+        const container = document.getElementById('toast-container');
+        container.appendChild(toast);
+
+        setTimeout(() => {
+          toast.style.opacity = '1';
+          toast.style.transform = 'translateY(0)';
+        }, 10);
+
+        setTimeout(() => {
+          toast.style.opacity = '0';
+          toast.style.transform = 'translateY(20px)';
+          setTimeout(() => toast.remove(), 300);
+        }, 3000);
+      }
+    </script>
+</body>
+
+</html>

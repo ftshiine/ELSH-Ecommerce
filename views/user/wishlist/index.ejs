@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ELSH | Your Wishlist</title>
+    <link rel="stylesheet" href="/css/user/wishlist.css">
+</head>
+
+<body>
+
+    <%- include('../partials/home-navbar') %>
+
+        <main class="wishlist-container">
+
+            <header class="wishlist-header">
+                <h1>Your Wishlist</h1>
+                <p>A collection of your intentional skincare rituals.</p>
+            </header>
+
+            <% if (wishlistItems && wishlistItems.length> 0) { %>
+                <div class="wishlist-grid">
+                    <% wishlistItems.forEach(item=> {
+                        const product = item.product;
+                        const defaultVariant = (product.variants && product.variants.length > 0) ? product.variants[0] :
+                        { regularPrice: product.regularPrice || 0, salePrice: product.salePrice, stock: product.stock ||
+                        0, images: product.images || [] };
+                        const pImage = (defaultVariant.images && defaultVariant.images.length > 0) ?
+                        defaultVariant.images[0] : '';
+                        const price = (defaultVariant.salePrice && defaultVariant.salePrice <
+                            defaultVariant.regularPrice) ? defaultVariant.salePrice : defaultVariant.regularPrice; %>
+                            <div class="wishlist-card" id="wishlist-item-<%= product._id %>">
+                                <div class="card-image-wrapper">
+                                    <a href="/product/<%= product._id %>">
+                                        <img src="<%= pImage %>" alt="<%= product.name %>" class="product-image">
+                                    </a>
+                                    <button class="remove-btn" onclick="removeFromWishlist('<%= product._id %>')"
+                                        aria-label="Remove from wishlist">
+                                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none"
+                                            stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                            stroke-linejoin="round">
+                                            <line x1="18" y1="6" x2="6" y2="18"></line>
+                                            <line x1="6" y1="6" x2="18" y2="18"></line>
+                                        </svg>
+                                    </button>
+                                </div>
+                                <div class="card-details">
+                                    <h3 class="product-title"><a href="/product/<%= product._id %>">
+                                            <%= product.name %>
+                                        </a></h3>
+                                    <p class="product-subtitle">
+                                        <%= product.category ? product.category.name : 'Skincare' %>
+                                    </p>
+                                    <div class="card-bottom">
+                                        <span class="product-price">₹<%= price %></span>
+                                        <% const variantSize = defaultVariant.size || 'Default'; %>
+                                        <button class="btn-add-cart"
+                                            onclick="addToCart('<%= product._id %>', '<%= variantSize %>')">Add
+                                            to Cart</button>
+                                    </div>
+                                </div>
+                            </div>
+                            <% }); %>
+                </div>
+                <% } else { %>
+                    <div class="empty-wishlist">
+                        <p>Your wishlist is currently empty.</p>
+                        <a href="/shop" class="btn-explore">Explore Shop</a>
+                    </div>
+                    <% } %>
+
+                        <section class="discover-more-section">
+                            <div class="discover-content">
+                                <span class="section-label">DISCOVER MORE</span>
+                                <h2>Complete Your Daily Ritual</h2>
+                                <p>Experience the synergy of science and nature. Our collections are designed to work in
+                                    harmony, providing your skin with the essential nutrients it needs for a radiant,
+                                    healthy glow.</p>
+                                <a href="/shop" class="btn-explore-shop">EXPLORE SHOP</a>
+                            </div>
+                            <div class="discover-image-wrapper">
+                                <img src="/images/user/balm.png" alt="ELSH Skincare Collection">
+                            </div>
+                        </section>
+
+        </main>
+
+        <%- include('../partials/footer') %>
+
+            <!-- Toast Notification -->
+            <div id="toast-container"></div>
+
+            <script>
+                function showToast(message, type = 'success') {
+                    const container = document.getElementById('toast-container');
+                    const toast = document.createElement('div');
+                    toast.className = `toast toast-${type}`;
+                    toast.textContent = message;
+
+                    container.appendChild(toast);
+
+                    setTimeout(() => {
+                        toast.classList.add('show');
+                    }, 100);
+
+                    setTimeout(() => {
+                        toast.classList.remove('show');
+                        setTimeout(() => {
+                            container.removeChild(toast);
+                        }, 300);
+                    }, 3000);
+                }
+
+                async function removeFromWishlist(productId) {
+                    try {
+                        const response = await fetch(`/wishlist/${productId}`, {
+                            method: 'DELETE',
+                            headers: { 'Content-Type': 'application/json' }
+                        });
+
+                        const data = await response.json();
+
+                        if (data.success) {
+                            const card = document.getElementById(`wishlist-item-${productId}`);
+                            if (card) {
+                                card.remove();
+                            }
+                            showToast(data.message);
+
+                            // Update navbar badge
+                            const badge = document.querySelector('.wishlist-badge');
+                            if (badge) {
+                                let currentCount = parseInt(badge.textContent) || 0;
+                                currentCount = Math.max(0, currentCount - 1);
+                                badge.textContent = currentCount;
+                                badge.style.display = currentCount > 0 ? 'flex' : 'none';
+                            }
+
+                            // Check if empty
+                            const grid = document.querySelector('.wishlist-grid');
+                            if (grid && grid.children.length === 0) {
+                                location.reload(); // Reload to show empty state
+                            }
+                        } else {
+                            showToast(data.message, 'error');
+                        }
+                    } catch (error) {
+                        console.error('Error removing from wishlist:', error);
+                        showToast('Failed to remove item', 'error');
+                    }
+                }
+
+                async function addToCart(productId, variantSize) {
+                    try {
+                        const response = await fetch(`/cart/add/${productId}`, {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ quantity: 1, variantSize })
+                        });
+
+                        const data = await response.json();
+
+                        if (data.success) {
+                            showToast('Added to cart');
+                            // Remove from wishlist visually
+                            const card = document.getElementById(`wishlist-item-${productId}`);
+                            if (card) {
+                                card.remove();
+                            }
+                            // Update cart count
+                            const cartCountElement = document.querySelector('.cart-badge');
+                            if (cartCountElement) {
+                                let currentCount = parseInt(cartCountElement.textContent) || 0;
+                                currentCount += 1;
+                                cartCountElement.textContent = currentCount;
+                                cartCountElement.style.display = 'flex';
+                            }
+
+                            const badge = document.querySelector('.wishlist-badge');
+                            if (badge) {
+                                let currentCount = parseInt(badge.textContent) || 0;
+                                currentCount = Math.max(0, currentCount - 1);
+                                badge.textContent = currentCount;
+                                badge.style.display = currentCount > 0 ? 'flex' : 'none';
+                            }
+
+                            const grid = document.querySelector('.wishlist-grid');
+                            if (grid && grid.children.length === 0) {
+                                setTimeout(() => location.reload(), 1000);
+                            }
+                        } else {
+                            showToast(data.message || 'Failed to add to cart', 'error');
+                        }
+                    } catch (error) {
+                        console.error('Error:', error);
+                        showToast('Failed to add to cart', 'error');
+                    }
+                }
+            </script>
+</body>
+
+</html>

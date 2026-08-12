@@ -8,6 +8,8 @@ import dashboardRoutes from './admin/dashboardRoutes.js';
 import userRoutes from './admin/userRoutes.js';
 import categoryRoutes from './admin/categoryRoutes.js';
 import productRoutes from './admin/productRoutes.js';
+import orderRoutes from './admin/orderRoutes.js';
+import inventoryRoutes from './admin/inventoryRoutes.js';
 
 const router = express.Router();
 
@@ -22,5 +24,7 @@ router.use('/', dashboardRoutes);
 router.use('/', userRoutes);
 router.use('/', categoryRoutes);
 router.use('/', productRoutes);
+router.use('/', orderRoutes);
+router.use('/', inventoryRoutes);
 
 export default router;

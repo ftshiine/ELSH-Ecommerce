@@ -30,8 +30,9 @@
         <% } %>
 
           <div class="form-card">
-            <form action="/profile/addresses/<%= locals.address ? locals.address._id + '?_method=PUT' : 'add' %>"
-              method="POST" id="addressForm">
+            <% const actionUrl = locals.address ? `/profile/addresses/${locals.address._id}?_method=PUT` : '/profile/addresses/add'; %>
+            <% const returnUrl = locals.returnTo ? (actionUrl.includes('?') ? `&returnTo=${locals.returnTo}` : `?returnTo=${locals.returnTo}`) : ''; %>
+            <form action="<%= actionUrl %><%= returnUrl %>" method="POST" id="addressForm">
 
               <div class="form-row">
                 <div class="form-group">
@@ -95,42 +96,53 @@
                 <div class="form-group">
                   <label>COUNTRY</label>
                   <% const selectedCountry=locals.formData?.country || locals.address?.country || 'India' ; %>
-                    <div class="input-wrapper">
-                      <select name="country" id="countrySelect">
-                        <option value="India" <%=selectedCountry==='India' ? 'selected' : '' %>>India</option>
-                      </select>
-                    </div>
-                    <% if (locals.fieldErrors?.country) { %>
-                      <div class="field-error">
-                        <%= locals.fieldErrors?.country ? locals.fieldErrors.country : '' %>
+                  <div class="input-wrapper custom-dropdown-wrapper" style="position: relative; border-bottom: none; padding: 0;">
+                    <div class="custom-dropdown form-control" id="countryDropdown" style="padding: 0; border: none; background: transparent; width: 100%;">
+                      <div class="dropdown-selected" onclick="toggleDropdown(event, 'countryOptions')" style="display: flex; align-items: center; justify-content: space-between; cursor: pointer; padding: 8px 0 12px; border-bottom: 1px solid #e0e0d8; width: 100%;">
+                        <span id="selectedCountryText"><%= selectedCountry %></span>
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#222" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                          <polyline points="6 9 12 15 18 9"></polyline>
+                        </svg>
                       </div>
-                      <% } %>
+                      <div class="dropdown-options" id="countryOptions" style="display: none; position: absolute; top: 100%; left: 0; width: 100%; background: white; border: 1px solid #e0e0d8; z-index: 10; max-height: 200px; overflow-y: auto;">
+                        <div class="dropdown-option <%= selectedCountry==='India' ? 'active' : '' %>" onclick="selectCountry('India', 'India')">India</div>
+                      </div>
+                    </div>
+                    <input type="hidden" name="country" id="countryInput" value="<%= selectedCountry %>">
+                  </div>
+                  <% if (locals.fieldErrors?.country) { %>
+                    <div class="field-error">
+                      <%= locals.fieldErrors?.country ? locals.fieldErrors.country : '' %>
+                    </div>
+                  <% } %>
                 </div>
+
                 <div class="form-group">
                   <label>STATE</label>
                   <% const selectedState=locals.formData?.state || locals.address?.state || '' ; %>
-                    <div class="input-wrapper">
-                      <select name="state" id="stateSelect">
-                        <option value="" disabled <%=!selectedState ? 'selected' : '' %>>Select State</option>
-                        <% var indiaStatesList=[ 'Andhra Pradesh' , 'Arunachal Pradesh' , 'Assam' , 'Bihar'
-                          , 'Chhattisgarh' , 'Goa' , 'Gujarat' , 'Haryana' , 'Himachal Pradesh' , 'Jharkhand'
-                          , 'Karnataka' , 'Kerala' , 'Madhya Pradesh' , 'Maharashtra' , 'Manipur' , 'Meghalaya'
-                          , 'Mizoram' , 'Nagaland' , 'Odisha' , 'Punjab' , 'Rajasthan' , 'Sikkim' , 'Tamil Nadu'
-                          , 'Telangana' , 'Tripura' , 'Uttar Pradesh' , 'Uttarakhand' , 'West Bengal'
-                          , 'Andaman and Nicobar Islands' , 'Chandigarh' , 'Dadra and Nagar Haveli and Daman and Diu'
-                          , 'Delhi' , 'Jammu and Kashmir' , 'Ladakh' , 'Lakshadweep' , 'Puducherry' ];
-                          indiaStatesList.forEach(s=> {
-                          %>
-                          <option value="<%= s %>" <%=selectedState===s ? 'selected' : '' %>><%= s %>
-                          </option>
-                          <% }); %>
-                      </select>
-                    </div>
-                    <% if (locals.fieldErrors?.state) { %>
-                      <div class="field-error">
-                        <%= locals.fieldErrors?.state ? locals.fieldErrors.state : '' %>
+                  <div class="input-wrapper custom-dropdown-wrapper" style="position: relative; border-bottom: none; padding: 0;">
+                    <div class="custom-dropdown form-control" id="stateDropdown" style="padding: 0; border: none; background: transparent; width: 100%;">
+                      <div class="dropdown-selected" onclick="toggleDropdown(event, 'stateOptions')" style="display: flex; align-items: center; justify-content: space-between; cursor: pointer; padding: 8px 0 12px; border-bottom: 1px solid #e0e0d8; width: 100%;">
+                        <span id="selectedStateText" style="color: <%= selectedState ? '#333' : '#ccc' %>;"><%= selectedState || 'Select State' %></span>
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#222" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                          <polyline points="6 9 12 15 18 9"></polyline>
+                        </svg>
                       </div>
-                      <% } %>
+                      <div class="dropdown-options" id="stateOptions" style="display: none; position: absolute; top: 100%; left: 0; width: 100%; background: white; border: 1px solid #e0e0d8; z-index: 10; max-height: 200px; overflow-y: auto;">
+                        <div class="dropdown-option <%= !selectedState ? 'active' : '' %>" onclick="selectState('', 'Select State')">Select State</div>
+                        <% var indiaStatesList=[ 'Andhra Pradesh' , 'Arunachal Pradesh' , 'Assam' , 'Bihar', 'Chhattisgarh' , 'Goa' , 'Gujarat' , 'Haryana' , 'Himachal Pradesh' , 'Jharkhand', 'Karnataka' , 'Kerala' , 'Madhya Pradesh' , 'Maharashtra' , 'Manipur' , 'Meghalaya', 'Mizoram' , 'Nagaland' , 'Odisha' , 'Punjab' , 'Rajasthan' , 'Sikkim' , 'Tamil Nadu', 'Telangana' , 'Tripura' , 'Uttar Pradesh' , 'Uttarakhand' , 'West Bengal', 'Andaman and Nicobar Islands' , 'Chandigarh' , 'Dadra and Nagar Haveli and Daman and Diu', 'Delhi' , 'Jammu and Kashmir' , 'Ladakh' , 'Lakshadweep' , 'Puducherry' ];
+                        indiaStatesList.forEach(s=> { %>
+                          <div class="dropdown-option <%= selectedState===s ? 'active' : '' %>" onclick="selectState('<%= s %>', '<%= s %>')"><%= s %></div>
+                        <% }); %>
+                      </div>
+                    </div>
+                    <input type="hidden" name="state" id="stateInput" value="<%= selectedState %>">
+                  </div>
+                  <% if (locals.fieldErrors?.state) { %>
+                    <div class="field-error">
+                      <%= locals.fieldErrors?.state ? locals.fieldErrors.state : '' %>
+                    </div>
+                  <% } %>
                 </div>
               </div>
 
@@ -189,26 +201,51 @@
     <%- include('../../partials/footer') %>
 
       <script>
-        document.addEventListener('DOMContentLoaded', () => {
-          const countrySelect = document.getElementById('countrySelect');
-          const stateSelect = document.getElementById('stateSelect');
-          const indiaStatesList = "<%- JSON.stringify(indiaStatesList || []) %>";
-          const currentState = "<%= locals.address?.state || '' %>";
+        // Custom Dropdown Logic
+        function toggleDropdown(event, optionsId) {
+          event.stopPropagation();
+          const optionsDiv = document.getElementById(optionsId);
+          const isCurrentlyVisible = optionsDiv.style.display === 'block';
 
-          countrySelect.addEventListener('change', (e) => {
-            const country = e.target.value;
-            stateSelect.innerHTML = '<option value="" disabled selected>Select State</option>';
-            if (country === 'India') {
-              indiaStatesList.forEach(s => {
-                const opt = document.createElement('option');
-                opt.value = s;
-                opt.textContent = s;
-                if (s === currentState) opt.selected = true;
-                stateSelect.appendChild(opt);
-              });
-            }
+          // Close all dropdowns
+          document.querySelectorAll('.dropdown-options').forEach(el => {
+            el.style.display = 'none';
+          });
+
+          // Toggle the clicked one
+          if (!isCurrentlyVisible) {
+            optionsDiv.style.display = 'block';
+          }
+        }
+
+        // Close dropdowns when clicking outside
+        document.addEventListener('click', () => {
+          document.querySelectorAll('.dropdown-options').forEach(el => {
+            el.style.display = 'none';
           });
         });
+
+        function selectCountry(value, text) {
+          document.getElementById('countryInput').value = value;
+          document.getElementById('selectedCountryText').textContent = text;
+          document.getElementById('selectedCountryText').style.color = '#333';
+          
+          // Update active class
+          const options = document.getElementById('countryOptions').querySelectorAll('.dropdown-option');
+          options.forEach(opt => opt.classList.remove('active'));
+          event.target.classList.add('active');
+        }
+
+        function selectState(value, text) {
+          document.getElementById('stateInput').value = value;
+          document.getElementById('selectedStateText').textContent = text;
+          document.getElementById('selectedStateText').style.color = value ? '#333' : '#ccc';
+
+          // Update active class
+          const options = document.getElementById('stateOptions').querySelectorAll('.dropdown-option');
+          options.forEach(opt => opt.classList.remove('active'));
+          event.target.classList.add('active');
+        }
       </script>
       <script src="/js/validation.js"></script>
       <script>

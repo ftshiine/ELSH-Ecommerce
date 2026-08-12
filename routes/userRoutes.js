@@ -10,6 +10,10 @@ import profileRoutes from './user/profileRoutes.js';
 import addressRoutes from './user/addressRoutes.js';
 import shopRoutes from './user/shopRoutes.js';
 import cartRoutes from './user/cartRoutes.js';
+import orderRoutes from './user/orderRoutes.js';
+import checkoutRoutes from './user/checkoutRoutes.js';
+import walletRoutes from './user/walletRoutes.js';
+import wishlistRoutes from './user/wishlistRoutes.js';
 
 const router = express.Router();
 
@@ -26,5 +30,9 @@ router.use('/', profileRoutes);
 router.use('/', addressRoutes);
 router.use('/', shopRoutes);
 router.use('/', cartRoutes);
+router.use('/', orderRoutes);
+router.use('/', checkoutRoutes);
+router.use('/', walletRoutes);
+router.use('/wishlist', wishlistRoutes);
 
 export default router;

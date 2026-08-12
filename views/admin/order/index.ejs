@@ -1,0 +1,434 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin | Orders</title>
+  <link rel="stylesheet" href="/css/admin/order/index.css">
+</head>
+
+<body>
+  <div class="admin-layout">
+    <%- include('../partials/sidebar') %>
+
+      <div class="main-content">
+        <%- include('../partials/topbar') %>
+
+          <div class="page-container">
+
+            <!-- Header Section -->
+            <div class="page-header">
+              <div class="header-left">
+                <div class="breadcrumbs">
+                  <a href="/admin/dashboard">DASHBOARD</a> <span class="separator">/</span> <span>ORDERS</span>
+                </div>
+                <h1>Orders</h1>
+              </div>
+              <div class="header-right">
+                <button class="btn btn-secondary">
+                  <img src="/images/icons/admin/arrow-down-to-line.svg" alt="Export"> Export Report
+                </button>
+              </div>
+            </div>
+
+            <!-- Summary Cards -->
+            <div class="summary-cards">
+              <div class="card">
+                <div class="card-top">
+                  <div class="card-icon" style="background: #fdf0e6;">
+                    <img src="/images/icons/admin/baggage-claim.svg" alt="Orders">
+                  </div>
+                  <span class="trend up">+12.5%</span>
+                </div>
+                <div class="card-bottom">
+                  <span class="card-label">Total Orders</span>
+                  <span class="card-value">
+                    <%= allOrdersCount.toLocaleString() %>
+                  </span>
+                </div>
+              </div>
+              <div class="card">
+                <div class="card-top">
+                  <div class="card-icon" style="background: #e8f5e9;">
+                    <img src="/images/icons/admin/clipboard-pen.svg" alt="Pending">
+                  </div>
+                </div>
+                <div class="card-bottom">
+                  <span class="card-label">Pending Fulfillment</span>
+                  <span class="card-value">
+                    <%= pendingFulfillmentCount.toLocaleString() %>
+                  </span>
+                </div>
+              </div>
+              <div class="card">
+                <div class="card-top">
+                  <div class="card-icon" style="background: #f4f6f8;">
+                    <img src="/images/icons/admin/truck.svg" alt="Delivery">
+                  </div>
+                </div>
+                <div class="card-bottom">
+                  <span class="card-label">Out for Delivery</span>
+                  <span class="card-value">
+                    <%= outForDeliveryCount.toLocaleString() %>
+                  </span>
+                </div>
+              </div>
+              <div class="card">
+                <div class="card-top">
+                  <div class="card-icon" style="background: #fff3e0;">
+                    <img src="/images/icons/admin/wallet-cards.svg" alt="Revenue">
+                  </div>
+                  <span class="trend up">+8.2%</span>
+                </div>
+                <div class="card-bottom">
+                  <span class="card-label">Total Revenue (Monthly)</span>
+                  <span class="card-value">₹<%= monthlyRevenue.toLocaleString(undefined, {minimumFractionDigits: 2}) %>
+                  </span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Filters Section -->
+            <form action="/admin/orders" method="GET" class="filters-section" id="orderFiltersForm">
+              <div class="filters-left" style="display: flex; gap: 12px; align-items: center;">
+                <div class="search-box" style="position: relative; display: flex; align-items: center;">
+                  <input type="text" name="search" class="search-input" placeholder="Search orders, name, email..."
+                    value="<%= typeof searchQuery !== 'undefined' ? searchQuery : '' %>"
+                    style="padding: 10px 16px 10px 36px; border: 1px solid var(--border-color); border-radius: 8px; font-size: 13px; width: 250px; background: #f9f9f9; outline: none;">
+                  <svg style="position: absolute; left: 12px; top: 50%; transform: translateY(-50%);"
+                    xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
+                    stroke="#888" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <circle cx="11" cy="11" r="8"></circle>
+                    <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                  </svg>
+                </div>
+
+                <div class="custom-dropdown-wrapper filter-dropdown" style="position: relative;">
+                  <div class="custom-dropdown" id="statusDropdown">
+                    <div class="dropdown-selected" onclick="toggleDropdown(event, 'statusOptions')">
+                      <span id="selectedStatusText">
+                        <%= typeof currentStatusFilter !=='undefined' ? currentStatusFilter : 'All Status' %>
+                      </span>
+                      <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none"
+                        stroke="#888" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <polyline points="6 9 12 15 18 9"></polyline>
+                      </svg>
+                    </div>
+                    <div class="dropdown-options" id="statusOptions" style="display: none;">
+                      <div class="dropdown-option <%= currentStatusFilter === 'All Status' ? 'active' : '' %>"
+                        onclick="selectStatus('All Status')">All Status</div>
+                      <div class="dropdown-option <%= currentStatusFilter === 'PENDING' ? 'active' : '' %>"
+                        onclick="selectStatus('PENDING')">PENDING</div>
+                      <div class="dropdown-option <%= currentStatusFilter === 'PROCESSING' ? 'active' : '' %>"
+                        onclick="selectStatus('PROCESSING')">PROCESSING</div>
+                      <div class="dropdown-option <%= currentStatusFilter === 'SHIPPED' ? 'active' : '' %>"
+                        onclick="selectStatus('SHIPPED')">SHIPPED</div>
+                      <div class="dropdown-option <%= currentStatusFilter === 'OUT FOR DELIVERY' ? 'active' : '' %>"
+                        onclick="selectStatus('OUT FOR DELIVERY')">OUT FOR DELIVERY</div>
+                      <div class="dropdown-option <%= currentStatusFilter === 'DELIVERED' ? 'active' : '' %>"
+                        onclick="selectStatus('DELIVERED')">DELIVERED</div>
+                      <div class="dropdown-option <%= currentStatusFilter === 'CANCELLED' ? 'active' : '' %>"
+                        onclick="selectStatus('CANCELLED')">CANCELLED</div>
+                    </div>
+                  </div>
+                  <input type="hidden" name="status" id="statusInput"
+                    value="<%= typeof currentStatusFilter !== 'undefined' ? currentStatusFilter : 'All Status' %>">
+                </div>
+
+                <div class="custom-dropdown-wrapper filter-dropdown" style="position: relative;">
+                  <div class="custom-dropdown" id="dateDropdown">
+                    <div class="dropdown-selected" onclick="toggleDropdown(event, 'dateOptions')">
+                      <span id="selectedDateText">
+                        <%= typeof currentDateFilter !=='undefined' ? currentDateFilter : 'Last 30 Days' %>
+                      </span>
+                      <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none"
+                        stroke="#888" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <polyline points="6 9 12 15 18 9"></polyline>
+                      </svg>
+                    </div>
+                    <div class="dropdown-options" id="dateOptions" style="display: none;">
+                      <div
+                        class="dropdown-option <%= (typeof currentDateFilter !== 'undefined' ? currentDateFilter : 'Last 30 Days') === 'All Time' ? 'active' : '' %>"
+                        onclick="selectDate('All Time')">All Time</div>
+                      <div
+                        class="dropdown-option <%= (typeof currentDateFilter !== 'undefined' ? currentDateFilter : 'Last 30 Days') === 'Last 30 Days' ? 'active' : '' %>"
+                        onclick="selectDate('Last 30 Days')">Last 30 Days</div>
+                      <div
+                        class="dropdown-option <%= (typeof currentDateFilter !== 'undefined' ? currentDateFilter : 'Last 30 Days') === 'Last 7 Days' ? 'active' : '' %>"
+                        onclick="selectDate('Last 7 Days')">Last 7 Days</div>
+                      <div
+                        class="dropdown-option <%= (typeof currentDateFilter !== 'undefined' ? currentDateFilter : 'Last 30 Days') === 'This Year' ? 'active' : '' %>"
+                        onclick="selectDate('This Year')">This Year</div>
+                    </div>
+                  </div>
+                  <input type="hidden" name="date" id="dateInput"
+                    value="<%= typeof currentDateFilter !== 'undefined' ? currentDateFilter : 'Last 30 Days' %>">
+                </div>
+
+                <button type="submit"
+                  style="padding: 10px 16px; background: #556B44; color: white; border: none; border-radius: 8px; cursor: pointer; font-size: 13px; font-weight: 500;">Search</button>
+                <% if (typeof searchQuery !=='undefined' && searchQuery || typeof currentStatusFilter !=='undefined' &&
+                  currentStatusFilter !=='All Status' ) { %>
+                  <a href="/admin/orders"
+                    style="padding: 10px 16px; background: #f4f6f8; color: #555; text-decoration: none; border-radius: 8px; font-size: 13px; border: 1px solid #e0e0e0;">Clear</a>
+                  <% } %>
+              </div>
+              <div class="filters-right">
+                <button type="button" class="btn-advanced">
+                  <img src="/images/icons/admin/list-filter.svg" alt="Filter"> Advanced Filters
+                </button>
+                <span class="showing-text">Showing 10 of <%= totalOrdersCount.toLocaleString() %> orders</span>
+              </div>
+            </form>
+
+            <!-- Data Table -->
+            <div class="table-container">
+              <table class="orders-table">
+                <thead>
+                  <tr>
+                    <th>ORDER ID</th>
+                    <th>CUSTOMER NAME</th>
+                    <th>DATE</th>
+                    <th>PRODUCTS</th>
+                    <th>PAYMENT STATUS</th>
+                    <th>FULFILLMENT</th>
+                    <th>TOTAL</th>
+                    <th>ACTION</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <% if (orders && orders.length> 0) { %>
+                    <% orders.forEach(order=> { %>
+                      <tr>
+                        <td class="col-id">#<%= order.orderId %>
+                        </td>
+                        <td class="col-customer">
+                          <div class="customer-info">
+                            <% const initial=order.user ? (order.user.fullName ? order.user.fullName.charAt(0) : 'U' )
+                              : 'G' %>
+                              <div class="avatar">
+                                <%= initial.toUpperCase() %>
+                              </div>
+                              <div class="details">
+                                <span class="name">
+                                  <%= order.user ? (order.user.fullName) : 'Guest User' %>
+                                </span>
+                                <span class="email">
+                                  <%= order.user ? order.user.email : '-' %>
+                                </span>
+                              </div>
+                          </div>
+                        </td>
+                        <td class="col-date">
+                          <span class="date">
+                            <%= order.createdAt.toLocaleDateString('en-US', { month: 'short' , day: 'numeric' ,
+                              year: 'numeric' }) %>
+                          </span>
+                        </td>
+                        <td class="col-products">
+                          <div class="product-thumbnails">
+                            <% order.items.slice(0, 2).forEach(item=> { %>
+                              <img src="<%= item.thumbnail || '/images/placeholder.jpg' %>" alt="Product">
+                              <% }) %>
+                                <% if (order.items.length> 2) { %>
+                                  <div class="more-items">+<%= order.items.length - 2 %>
+                                  </div>
+                                  <% } %>
+                          </div>
+                        </td>
+                        <td class="col-payment">
+                          <% if (order.paymentInfo.status==='PAID' ) { %>
+                            <span class="badge payment-paid"><span class="dot"></span> PAID</span>
+                            <% } else if (order.paymentInfo.status==='PENDING' ) { %>
+                              <span class="badge payment-pending"><span class="dot"></span> PENDING</span>
+                              <% } else if (order.paymentInfo.status==='REFUNDED' ) { %>
+                                <span class="badge payment-refunded"><span class="dot"></span> REFUNDED</span>
+                                <% } else { %>
+                                  <span class="badge payment-failed"><span class="dot"></span>
+                                    <%= order.paymentInfo.status %>
+                                  </span>
+                                  <% } %>
+                        </td>
+                        <td class="col-fulfillment">
+                          <% if (order.orderStatus==='SHIPPED' ) { %>
+                            <span class="badge status-shipped">SHIPPED</span>
+                            <% } else if (order.orderStatus==='OUT FOR DELIVERY' ) { %>
+                              <span class="badge status-shipped">OUT FOR DELIVERY</span>
+                            <% } else if (order.orderStatus==='PROCESSING' ) { %>
+                              <span class="badge status-processing">PROCESSING</span>
+                              <% } else if (order.orderStatus==='DELIVERED' ) { %>
+                                <span class="badge status-delivered">DELIVERED</span>
+                                <% } else if (order.orderStatus==='CANCELLED' ) { %>
+                                  <span class="badge status-cancelled">CANCELLED</span>
+                                  <% } else { %>
+                                    <span class="badge status-processing">
+                                      <%= order.orderStatus %>
+                                    </span>
+                                    <% } %>
+                        </td>
+                        <td class="col-total">₹<%= order.pricing.totalAmount.toLocaleString(undefined,
+                            {minimumFractionDigits: 2}) %>
+                        </td>
+                        <td class="col-action">
+                          <a href="/admin/orders/<%= order._id %>" class="btn-view" title="View Details">
+                            <img src="/images/icons/admin/eye.svg" alt="View" style="width: 18px; height: 18px;">
+                          </a>
+                        </td>
+                      </tr>
+                      <% }) %>
+                        <% } else { %>
+                          <tr>
+                            <td colspan="7" class="text-center" style="padding: 40px; color: #888;">No orders found.
+                            </td>
+                          </tr>
+                          <% } %>
+                </tbody>
+              </table>
+
+              <!-- Pagination -->
+              <% if (totalPages> 1) {
+                let queryStr = '';
+                if (typeof searchQuery !== 'undefined' && searchQuery) queryStr += '&search=' +
+                encodeURIComponent(searchQuery);
+                if (typeof currentStatusFilter !== 'undefined' && currentStatusFilter !== 'All Status') queryStr +=
+                '&status=' + encodeURIComponent(currentStatusFilter);
+                if (typeof currentDateFilter !== 'undefined' && currentDateFilter !== 'All Time') queryStr += '&date=' +
+                encodeURIComponent(currentDateFilter);
+                %>
+                <div class="pagination">
+                  <span class="page-info">PAGE <%= currentPage %> OF <%= totalPages %></span>
+                  <div class="page-controls">
+                    <a href="?page=<%= currentPage - 1 %><%= queryStr %>"
+                      class="page-btn <%= currentPage === 1 ? 'disabled' : '' %>">&lt;</a>
+                    <a href="?page=1<%= queryStr %>" class="page-num <%= currentPage === 1 ? 'active' : '' %>">1</a>
+                    <% if (totalPages> 1) { %>
+                      <a href="?page=2<%= queryStr %>" class="page-num <%= currentPage === 2 ? 'active' : '' %>">2</a>
+                      <% } %>
+                        <% if (totalPages> 2) { %>
+                          <a href="?page=3<%= queryStr %>"
+                            class="page-num <%= currentPage === 3 ? 'active' : '' %>">3</a>
+                          <% } %>
+                            <% if (totalPages> 3) { %>
+                              <span class="page-dots">...</span>
+                              <% } %>
+                                <a href="?page=<%= currentPage + 1 %><%= queryStr %>"
+                                  class="page-btn <%= currentPage === totalPages ? 'disabled' : '' %>">&gt;</a>
+                  </div>
+                </div>
+                <% } %>
+            </div>
+
+            <!-- Lower Analytics Section (Placeholders matching design) -->
+            <div class="analytics-section">
+              <div class="chart-container">
+                <div class="chart-header">
+                  <div>
+                    <h3>Order Fulfillment Velocity</h3>
+                    <p>Average time from order to delivery</p>
+                  </div>
+                  <div class="chart-legend">
+                    <span class="legend-item"><span class="dot target"></span> Target</span>
+                    <span class="legend-item"><span class="dot actual"></span> Actual</span>
+                  </div>
+                </div>
+                <div class="chart-body">
+                  <!-- Placeholder bars -->
+                  <div class="bars">
+                    <div class="bar-group">
+                      <div class="bar h-30"></div>
+                    </div>
+                    <div class="bar-group">
+                      <div class="bar h-50"></div>
+                    </div>
+                    <div class="bar-group">
+                      <div class="bar h-80"></div>
+                    </div>
+                    <div class="bar-group">
+                      <div class="bar h-60"></div>
+                    </div>
+                    <div class="bar-group">
+                      <div class="bar h-40"></div>
+                    </div>
+                    <div class="bar-group">
+                      <div class="bar h-20"></div>
+                    </div>
+                    <div class="bar-group">
+                      <div class="bar h-50"></div>
+                    </div>
+                    <div class="bar-group">
+                      <div class="bar h-90"></div>
+                    </div>
+                  </div>
+                  <div class="chart-labels">
+                    <span>OCT 10</span>
+                    <span>OCT 15</span>
+                    <span>OCT 20</span>
+                    <span>OCT 25</span>
+                  </div>
+                </div>
+              </div>
+
+              <div class="loyalty-card">
+                <h3>Customer Loyalty</h3>
+                <p>72% of orders this month are from returning customers. High retention indicates strong brand
+                  affinity.</p>
+                <button class="btn-segments">View Segments</button>
+                <div class="bg-shape"></div>
+              </div>
+            </div>
+
+          </div>
+      </div>
+  </div>
+  <script>
+    // Custom Dropdown Logic
+    function toggleDropdown(e, optionsId) {
+      e.stopPropagation();
+      document.querySelectorAll('.dropdown-options').forEach(opt => {
+        if (opt.id !== optionsId) opt.style.display = 'none';
+      });
+
+      const options = document.getElementById(optionsId);
+      if (options.style.display === 'none' || options.style.display === '') {
+        options.style.display = 'block';
+      } else {
+        options.style.display = 'none';
+      }
+    }
+
+    function selectStatus(value) {
+      document.getElementById('statusInput').value = value;
+      document.getElementById('selectedStatusText').textContent = value;
+
+      const optionsList = document.querySelectorAll('#statusOptions .dropdown-option');
+      optionsList.forEach(opt => opt.classList.remove('active'));
+      event.target.classList.add('active');
+
+      document.getElementById('statusOptions').style.display = 'none';
+      document.getElementById('orderFiltersForm').submit();
+    }
+
+    function selectDate(value) {
+      document.getElementById('dateInput').value = value;
+      document.getElementById('selectedDateText').textContent = value;
+
+      const optionsList = document.querySelectorAll('#dateOptions .dropdown-option');
+      optionsList.forEach(opt => opt.classList.remove('active'));
+      event.target.classList.add('active');
+
+      document.getElementById('dateOptions').style.display = 'none';
+      document.getElementById('orderFiltersForm').submit();
+    }
+
+    document.addEventListener('click', function (event) {
+      if (!event.target.closest('.custom-dropdown-wrapper')) {
+        document.querySelectorAll('.dropdown-options').forEach(opt => {
+          opt.style.display = 'none';
+        });
+      }
+    });
+  </script>
+</body>
+
+</html>

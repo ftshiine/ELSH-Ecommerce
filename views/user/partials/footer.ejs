@@ -9,28 +9,28 @@
             <h3>ELSH</h3>
             <p>Elevating skincare to a practice of essential luxury and intentional well-being.</p>
             <div class="footer-social">
-              <a href="#">⊕</a>
-              <a href="#">⊙</a>
+              <a href="javascript:void(0)">⊕</a>
+              <a href="javascript:void(0)">⊙</a>
             </div>
           </div>
           <div class="footer-links-group">
             <h4>DISCOVER</h4>
-            <a href="#">Our Story</a>
-            <a href="#">Scientific Focus</a>
-            <a href="#">Sustainability</a>
-            <a href="#">Ritual Journal</a>
+            <a href="javascript:void(0)">Our Story</a>
+            <a href="javascript:void(0)">Scientific Focus</a>
+            <a href="javascript:void(0)">Sustainability</a>
+            <a href="javascript:void(0)">Ritual Journal</a>
           </div>
           <div class="footer-links-group">
             <h4>SERVICE</h4>
-            <a href="#">Privacy Policy</a>
-            <a href="#">Terms of Service</a>
-            <a href="#">Shipping & Returns</a>
-            <a href="#">FAQ</a>
+            <a href="javascript:void(0)">Privacy Policy</a>
+            <a href="javascript:void(0)">Terms of Service</a>
+            <a href="javascript:void(0)">Shipping & Returns</a>
+            <a href="javascript:void(0)">FAQ</a>
           </div>
           <div class="footer-links-group">
             <h4>INQUIRIES</h4>
-            <a href="#">concierge@elsh.com</a>
-            <a href="#">+1 (800) ELSH-LUX</a>
+            <a href="javascript:void(0)">concierge@elsh.com</a>
+            <a href="javascript:void(0)">+1 (800) ELSH-LUX</a>
           </div>
         </div>
         <div class="footer-bottom">
@@ -51,6 +51,8 @@
           </div>
           <h2 class="modal-title" id="modalTitle">Title</h2>
           <p class="modal-message" id="modalMessage">Message</p>
+          <textarea class="modal-input" id="modalInput" style="display: none;" placeholder="Reason..."></textarea>
+          <div class="modal-error" id="modalError" style="display: none; color: #d32f2f; font-size: 12px; margin-bottom: 12px; text-align: left;"></div>
           <div class="modal-actions" id="modalActions">
             <button type="button" class="modal-btn modal-btn-cancel" id="modalCancel">Cancel</button>
             <button type="button" class="modal-btn modal-btn-confirm" id="modalConfirm">Confirm</button>
@@ -63,6 +65,8 @@
         const modalIcon = document.getElementById('modalIcon');
         const modalTitle = document.getElementById('modalTitle');
         const modalMessage = document.getElementById('modalMessage');
+        const modalInput = document.getElementById('modalInput');
+        const modalError = document.getElementById('modalError');
         const modalConfirm = document.getElementById('modalConfirm');
         const modalCancel = document.getElementById('modalCancel');
 
@@ -70,11 +74,21 @@
           if (customModal) customModal.classList.remove('active');
         }
 
-        function showCustomModal({ title, message, iconType, confirmText, showCancel, onConfirm }) {
+        function showCustomModal({ title, message, iconType, confirmText, showCancel, showInput, inputPlaceholder, requireInput, onConfirm }) {
           if (!customModal) return;
 
           modalTitle.textContent = title;
           modalMessage.innerHTML = message;
+
+          if (showInput) {
+            modalInput.style.display = 'block';
+            modalInput.placeholder = inputPlaceholder || '';
+            modalInput.value = '';
+            modalError.style.display = 'none';
+          } else {
+            modalInput.style.display = 'none';
+            modalError.style.display = 'none';
+          }
 
           // Reset button state
           modalConfirm.disabled = false;
@@ -106,10 +120,15 @@
           modalCancel.onclick = closeCustomModal;
 
           modalConfirm.onclick = () => {
+            if (showInput && requireInput && !modalInput.value.trim()) {
+              modalError.textContent = 'Please provide a reason';
+              modalError.style.display = 'block';
+              return;
+            }
             if (onConfirm) {
               modalConfirm.disabled = true;
               modalConfirm.textContent = 'Please wait...';
-              onConfirm();
+              onConfirm(showInput ? modalInput.value.trim() : undefined);
             } else {
               closeCustomModal();
             }

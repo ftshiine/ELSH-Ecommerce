@@ -8,7 +8,7 @@
 
 body {
   background-color: #FDFCF8;
-  font-family: "SF Pro Text", -apple-system, BlinkMacSystemFont, "Helvetica Neue", sans-serif;
+  font-family: "SF Pro Display", "SF Pro Text", -apple-system, BlinkMacSystemFont, "Helvetica Neue", Helvetica, Arial, sans-serif;
   color: #333;
 }
 
@@ -30,7 +30,7 @@ body {
 }
 
 .shop-title-section h1 {
-  font-family: 'Playfair Display', serif;
+  font-family: "SF Pro Display", "SF Pro Text", -apple-system, BlinkMacSystemFont, "Helvetica Neue", Helvetica, Arial, sans-serif;
   font-size: 56px;
   font-weight: 400;
   color: #222;
@@ -69,7 +69,7 @@ body {
   display: flex;
   align-items: center;
   gap: 8px;
-  font-family: inherit;
+  font-family: "SF Pro Display", "SF Pro Text", -apple-system, BlinkMacSystemFont, "Helvetica Neue", Helvetica, Arial, sans-serif;
   font-size: 11px;
   font-weight: 600;
   border: none;
@@ -168,7 +168,7 @@ body {
   padding: 4px 12px 4px 24px;
   border: none;
   background: transparent;
-  font-family: inherit;
+  font-family: "SF Pro Display", "SF Pro Text", -apple-system, BlinkMacSystemFont, "Helvetica Neue", Helvetica, Arial, sans-serif;
   font-size: 11px;
   font-weight: 600;
   color: #222;
@@ -367,7 +367,7 @@ body {
 }
 
 .product-name {
-  font-family: 'Playfair Display', serif;
+  font-family: "SF Pro Display", "SF Pro Text", -apple-system, BlinkMacSystemFont, "Helvetica Neue", Helvetica, Arial, sans-serif;
   font-size: 24px;
   font-weight: 400;
   color: #222;
@@ -480,4 +480,43 @@ body {
   font-size: 12px;
   font-weight: 600;
   text-transform: uppercase;
+}
+
+/* Wishlist Toggle Button */
+.wishlist-toggle-btn {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background-color: rgba(255, 255, 255, 0.9);
+  border: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  color: #2c2c2c;
+  transition: transform 0.2s, color 0.2s;
+  z-index: 5;
+}
+
+.wishlist-toggle-btn:hover {
+  transform: scale(1.1);
+}
+
+.wishlist-toggle-btn.active {
+  color: #ff4d4f;
+}
+
+.wishlist-toggle-btn.active svg {
+  fill: #ff4d4f;
+  stroke: #ff4d4f;
+}
+
+.wishlist-toggle-btn svg {
+  width: 16px;
+  height: 16px;
+  transition: fill 0.2s, stroke 0.2s;
 }

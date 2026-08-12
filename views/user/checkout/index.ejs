@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ELSH | <%= title %></title>
+  <link rel="stylesheet" href="/css/user/checkout.css" />
+</head>
+
+<body>
+
+  <header class="checkout-header">
+    <a href="/home" class="logo">ELSH</a>
+    <a href="/cart" class="return-link">&larr; Return to Cart</a>
+  </header>
+
+  <main class="checkout-wrapper">
+    <div class="checkout-container">
+      
+      <!-- Left Column: Address & Payment -->
+      <div class="checkout-left">
+        
+        <!-- Address Section -->
+        <section class="checkout-section">
+          <div class="section-header">
+            <span class="step-num">01</span>
+            <h2>Choose Address</h2>
+          </div>
+
+          <div class="address-list">
+            <% if (addresses && addresses.length > 0) { %>
+              <% addresses.forEach((address, index) => { %>
+                <label class="address-card <%= address.isPrimary || index === 0 ? 'selected' : '' %>">
+                  <input type="radio" name="selectedAddress" value="<%= address._id %>" <%= address.isPrimary || index === 0 ? 'checked' : '' %>>
+                  
+                  <div class="address-card-inner">
+                    <div class="address-header">
+                      <div class="address-name">
+                        <strong><%= address.fullName %></strong>
+                        <% if (address.isPrimary) { %>
+                          <span class="badge">Default</span>
+                        <% } %>
+                      </div>
+                      <a href="/profile/addresses/edit/<%= address._id %>?returnTo=/checkout" class="edit-btn">Edit</a>
+                    </div>
+                    <div class="address-phone"><%= address.phone %></div>
+                    <div class="address-details">
+                      <%= address.addressLine1 %>, 
+                      <% if (address.landmark) { %><%= address.landmark %>, <% } %>
+                      <%= address.city %>, <%= address.state %> <%= address.pincode %>, <%= address.country %>
+                    </div>
+                  </div>
+                </label>
+              <% }) %>
+            <% } else { %>
+              <div class="no-address-msg">
+                <p>You haven't saved any addresses yet.</p>
+              </div>
+            <% } %>
+
+            <a href="/profile/addresses/add?returnTo=/checkout" class="add-address-btn">
+              + Add New Address
+            </a>
+          </div>
+        </section>
+
+        <!-- Payment Section -->
+        <section class="checkout-section">
+          <div class="section-header">
+            <span class="step-num">02</span>
+            <h2>Payment Details</h2>
+          </div>
+
+          <div class="payment-methods">
+            
+            <label class="payment-card disabled">
+              <input type="radio" name="paymentMethod" value="Razorpay" disabled>
+              <div class="payment-card-inner">
+                <div class="payment-info">
+                  <strong>Razorpay (Online Payment)</strong>
+                  <p>Currently disabled for maintenance.</p>
+                </div>
+              </div>
+            </label>
+
+            <label class="payment-card selected">
+              <input type="radio" name="paymentMethod" value="COD" checked>
+              <div class="payment-card-inner">
+                <div class="payment-info">
+                  <strong>Cash on Delivery</strong>
+                  <p>Pay with cash upon arrival</p>
+                </div>
+                <div class="radio-circle"></div>
+              </div>
+            </label>
+
+          </div>
+        </section>
+
+      </div>
+
+      <!-- Right Column: Order Summary -->
+      <div class="checkout-right">
+        <div class="summary-card">
+          <h2>Order Summary</h2>
+          
+          <div class="cart-items">
+            <% 
+              let subtotal = 0;
+              cart.items.forEach(item => { 
+                subtotal += item.totalPrice;
+                const product = item.product;
+                const variant = product.variants.id(item.variant) || product.variants[0];
+                const imagePath = variant && variant.images.length > 0 ? variant.images[0].replace(/^public[\\/]/, '/') : '/images/placeholder.jpg';
+            %>
+              <div class="summary-item">
+                <div class="item-img">
+                  <img src="<%= imagePath %>" alt="<%= product.name %>">
+                </div>
+                <div class="item-details">
+                  <h4><%= product.name %></h4>
+                  <p class="item-variant"><%= item.variantSize %></p>
+                  <p class="item-qty">Qty: <%= item.quantity %></p>
+                </div>
+                <div class="item-price">
+                  ₹<%= item.totalPrice.toFixed(2) %>
+                </div>
+              </div>
+            <% }) %>
+          </div>
+
+          <% 
+            const shipping = 0;
+            const estimatedTax = subtotal * 0.08; 
+            const total = subtotal + shipping + estimatedTax;
+          %>
+
+          <div class="summary-totals">
+            <div class="total-row">
+              <span>Subtotal</span>
+              <span>₹<%= subtotal.toFixed(2) %></span>
+            </div>
+            <div class="total-row">
+              <span>Shipping</span>
+              <span>COMPLIMENTARY</span>
+            </div>
+            <div class="total-row">
+              <span>Estimated Tax</span>
+              <span>₹<%= estimatedTax.toFixed(2) %></span>
+            </div>
+          </div>
+
+          <div class="summary-final-total">
+            <h3>Total</h3>
+            <h3>₹<%= total.toFixed(2) %></h3>
+          </div>
+
+          <button class="btn-solid btn-place-order" id="placeOrderBtn">PLACE ORDER</button>
+          
+          <div class="secure-badge">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+              <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+            </svg>
+            Secure Encrypted Transaction
+          </div>
+        </div>
+
+        <div class="promo-card">
+          <span>Promotional Code</span>
+          <span>+</span>
+        </div>
+      </div>
+
+    </div>
+  </main>
+
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+  <script>
+    // Handle radio button selection styling
+    document.querySelectorAll('.address-card input[type="radio"]').forEach(radio => {
+      radio.addEventListener('change', function() {
+        document.querySelectorAll('.address-card').forEach(card => card.classList.remove('selected'));
+        if (this.checked) {
+          this.closest('.address-card').classList.add('selected');
+        }
+      });
+    });
+
+    document.getElementById('placeOrderBtn').addEventListener('click', async function() {
+      const selectedAddress = document.querySelector('input[name="selectedAddress"]:checked');
+      const selectedPayment = document.querySelector('input[name="paymentMethod"]:checked');
+
+      if (!selectedAddress) {
+        Swal.fire('Address Required', 'Please select a delivery address.', 'warning');
+        return;
+      }
+
+      this.disabled = true;
+      this.textContent = 'PROCESSING...';
+
+      try {
+        const response = await fetch('/checkout/place-order', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            addressId: selectedAddress.value,
+            paymentMethod: selectedPayment.value,
+            checkoutType: '<%= checkoutType %>'
+          })
+        });
+
+        const data = await response.json();
+
+        if (data.success) {
+          window.location.href = '/checkout/success/' + data.orderId;
+        } else {
+          Swal.fire('Error', data.message || 'Failed to place order.', 'error');
+          this.disabled = false;
+          this.textContent = 'PLACE ORDER';
+        }
+      } catch (err) {
+        console.error(err);
+        Swal.fire('Error', 'A network error occurred.', 'error');
+        this.disabled = false;
+        this.textContent = 'PLACE ORDER';
+      }
+    });
+  </script>
+</body>
+</html>

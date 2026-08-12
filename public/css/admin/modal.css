@@ -33,6 +33,7 @@
   text-align: center;
   transform: translateY(-10px);
   transition: transform 0.25s ease;
+  font-family: "SF Pro Display", "SF Pro Text", -apple-system, BlinkMacSystemFont, "Helvetica Neue", Helvetica, Arial, sans-serif;
 }
 
 .modal-overlay.active .modal-box {
@@ -70,6 +71,25 @@
   color: #888;
   line-height: 1.6;
   margin-bottom: 28px;
+}
+
+.modal-input {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 12px;
+  border: 1px solid #dcdcdc;
+  border-radius: 8px;
+  font-family: inherit;
+  font-size: 13px;
+  color: #333;
+  margin-bottom: 20px;
+  resize: vertical;
+  min-height: 80px;
+  outline: none;
+}
+
+.modal-input:focus {
+  border-color: #222;
 }
 
 /* ── MODAL BUTTONS ── */

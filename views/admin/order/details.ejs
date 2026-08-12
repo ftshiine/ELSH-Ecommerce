@@ -1,0 +1,544 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>
+    <%= title %>
+  </title>
+  <link rel="stylesheet" href="/css/admin/order/details.css">
+  <link rel="stylesheet" href="/css/admin/modal.css">
+</head>
+
+<body>
+  <div class="admin-layout">
+    <%- include('../partials/sidebar') %>
+
+      <div class="main-content">
+        <%- include('../partials/topbar') %>
+
+          <div class="page-container">
+
+            <!-- Header Section -->
+            <div class="details-header">
+              <a href="/admin/orders" class="btn-back">
+                <img src="/images/icons/admin/arrow-left.svg" alt="Back" width="16" height="16">
+              </a>
+              <div class="header-info">
+                <h1>Order #<%= order.orderId %>
+                </h1>
+                <div class="status-meta">
+                  <span class="status-dot <%= order.orderStatus.toLowerCase() %>"></span>
+                  <span class="status-text">
+                    <%= order.orderStatus.charAt(0).toUpperCase() + order.orderStatus.slice(1).toLowerCase() %>
+                  </span>
+                  <span class="dot-separator">•</span>
+                  <span class="date">
+                    <%= order.createdAt.toLocaleDateString('en-US', { month: 'short' , day: 'numeric' , year: 'numeric'
+                      }) %>
+                  </span>
+                </div>
+              </div>
+            </div>
+
+            <div class="details-grid">
+
+              <!-- Left Column -->
+              <div class="left-col">
+
+                <!-- Order Summary -->
+                <div class="card summary-card">
+                  <div class="card-header">
+                    <h2>Order Summary</h2>
+                    <span class="items-badge">
+                      <%= order.items.length %> Items
+                    </span>
+                  </div>
+
+                  <table class="items-table">
+                    <thead>
+                      <tr>
+                        <th>Product</th>
+                        <th>SKU</th>
+                        <th>Qty</th>
+                        <th>Price</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <% order.items.forEach(item=> { %>
+                        <tr>
+                          <td class="product-cell">
+                            <img src="<%= item.thumbnail || '/images/placeholder.jpg' %>" alt="<%= item.productName %>"
+                              class="product-img">
+                            <div class="product-meta">
+                              <span class="product-name">
+                                <%= item.productName %>
+                              </span>
+                              <span class="product-variant">
+                                <%= item.variantName %>
+                              </span>
+                            </div>
+                          </td>
+                          <td class="sku-cell">SKU-<%= item.product.toString().slice(-6).toUpperCase() %>
+                          </td>
+                          <td class="qty-cell">
+                            <%= item.quantity %>
+                          </td>
+                          <td class="price-cell">₹<%= item.price.toLocaleString(undefined, {minimumFractionDigits: 2})
+                              %>
+                          </td>
+                        </tr>
+                        <% }) %>
+                    </tbody>
+                  </table>
+                </div>
+
+                <!-- Profiles Grid -->
+                <div class="profiles-grid">
+
+                  <!-- Customer Profile -->
+                  <div class="card profile-card">
+                    <h2>Customer Profile</h2>
+                    <div class="customer-info-header">
+                      <% const initial=order.user ? (order.user.fullName ? order.user.fullName.charAt(0) : 'U' ) : 'G'
+                        %>
+                        <div class="avatar">
+                          <%= initial.toUpperCase() %>
+                        </div>
+                        <div class="details">
+                          <span class="name">
+                            <%= order.user ? (order.user.fullName) : 'Guest User' %>
+                          </span>
+                          <span class="email">
+                            <%= order.user ? order.user.email : '-' %>
+                          </span>
+                        </div>
+                    </div>
+                    <div class="info-rows">
+                      <div class="info-row">
+                        <span class="label">Phone</span>
+                        <span class="value">
+                          <%= order.shippingAddress.phone %>
+                        </span>
+                      </div>
+                      <div class="info-row">
+                        <span class="label">Member Since</span>
+                        <span class="value">
+                          <%= order.user ? order.user.createdAt.toLocaleString('en-US', { month: 'short' ,
+                            year: 'numeric' }) : 'N/A' %>
+                        </span>
+                      </div>
+                      <div class="info-row">
+                        <span class="label">Lifetime Spend</span>
+                        <span class="value">
+                          <%= order.user && order.user.totalSpend !==undefined ? '₹' +
+                            order.user.totalSpend.toLocaleString(undefined, {minimumFractionDigits: 2}) : '₹0.00' %>
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+
+                  <!-- Shipping Address -->
+                  <div class="card address-card">
+                    <div class="card-header">
+                      <h2>Shipping Address</h2>
+                      <button class="btn-edit-text">Edit</button>
+                    </div>
+                    <div class="address-details">
+                      <span class="name">
+                        <%= order.shippingAddress.fullName %>
+                      </span>
+                      <span class="line">
+                        <%= order.shippingAddress.addressLine1 %>
+                      </span>
+                      <% if (order.shippingAddress.addressLine2) { %>
+                        <span class="line">
+                          <%= order.shippingAddress.addressLine2 %>
+                        </span>
+                        <% } %>
+                          <span class="line">
+                            <%= order.shippingAddress.city %>, <%= order.shippingAddress.state %>
+                                <%= order.shippingAddress.postalCode %>
+                          </span>
+                          <span class="line">
+                            <%= order.shippingAddress.country %>
+                          </span>
+                    </div>
+                    <div class="shipping-method">
+                      <img src="/images/icons/admin/truck.svg" alt="Shipping" width="20">
+                      <span>Standard Express (2-3 Days)</span>
+                    </div>
+                  </div>
+
+                </div>
+              </div>
+
+              <!-- Right Column -->
+              <div class="right-col">
+
+                <!-- Quick Actions -->
+                <div class="card actions-card">
+                  <h2>Quick Actions</h2>
+                  <div class="actions-grid">
+                    <a href="/admin/orders/<%= order._id %>/invoice" class="action-btn" target="_blank" style="text-decoration: none; display: flex; align-items: center; justify-content: center; gap: 8px;">
+                      <img src="/images/icons/admin/arrow-down-to-line.svg" alt="Invoice" width="20">
+                      <span>Invoice</span>
+                    </a>
+                    <button class="action-btn">
+                      <img src="/images/icons/admin/share-2.svg" alt="Tracking" width="20">
+                      <span>Tracking</span>
+                    </button>
+                  </div>
+
+                  <div class="update-status-section">
+                    <label
+                      style="display: block; margin-bottom: 8px; font-weight: 500; font-size: 13px; color: #555;">Update
+                      Status</label>
+                    <div class="custom-dropdown-wrapper filter-dropdown" style="position: relative;">
+                      <div class="custom-dropdown" id="statusDropdown">
+                        <div class="dropdown-selected" onclick="toggleDropdown(event, 'statusOptions')"
+                          style="border: 1px solid #ddd; padding: 12px 15px; border-radius: 8px; display: flex; justify-content: space-between; align-items: center; cursor: pointer; background: #fff; font-size: 14px;">
+                          <span id="selectedStatusText" style="text-transform: capitalize;">
+                            <%= order.orderStatus.toLowerCase() %>
+                          </span>
+                          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
+                            stroke="#666" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <polyline points="6 9 12 15 18 9"></polyline>
+                          </svg>
+                        </div>
+                        <div class="dropdown-options" id="statusOptions"
+                          style="display: none; position: absolute; top: 100%; left: 0; right: 0; background: #fff; border: 1px solid #ddd; border-radius: 8px; margin-top: 5px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); z-index: 100; overflow: hidden;">
+                          <div class="dropdown-option <%= order.orderStatus === 'PENDING' ? 'active' : '' %>"
+                            onclick="selectStatus('PENDING')"
+                            style="padding: 12px 15px; cursor: pointer; font-size: 14px; transition: background 0.2s;">
+                            Pending</div>
+                          <div class="dropdown-option <%= order.orderStatus === 'PROCESSING' ? 'active' : '' %>"
+                            onclick="selectStatus('PROCESSING')"
+                            style="padding: 12px 15px; cursor: pointer; font-size: 14px; transition: background 0.2s;">
+                            Processing</div>
+                          <div class="dropdown-option <%= order.orderStatus === 'SHIPPED' ? 'active' : '' %>"
+                            onclick="selectStatus('SHIPPED')"
+                            style="padding: 12px 15px; cursor: pointer; font-size: 14px; transition: background 0.2s;">
+                            Shipped</div>
+                          <div class="dropdown-option <%= order.orderStatus === 'OUT FOR DELIVERY' ? 'active' : '' %>"
+                            onclick="selectStatus('OUT FOR DELIVERY')"
+                            style="padding: 12px 15px; cursor: pointer; font-size: 14px; transition: background 0.2s;">
+                            Out for Delivery</div>
+                          <div class="dropdown-option <%= order.orderStatus === 'DELIVERED' ? 'active' : '' %>"
+                            onclick="selectStatus('DELIVERED')"
+                            style="padding: 12px 15px; cursor: pointer; font-size: 14px; transition: background 0.2s;">
+                            Delivered</div>
+                          <div class="dropdown-option <%= order.orderStatus === 'CANCELLED' ? 'active' : '' %>"
+                            onclick="selectStatus('CANCELLED')"
+                            style="padding: 12px 15px; cursor: pointer; font-size: 14px; transition: background 0.2s;">
+                            Cancelled</div>
+                        </div>
+                      </div>
+                      <input type="hidden" id="statusSelect" value="<%= order.orderStatus %>">
+                    </div>
+                  </div>
+
+                  <div class="danger-actions">
+                    <button class="btn-refund" onclick="processRefund('<%= order._id %>')">Refund</button>
+                    <button class="btn-cancel">Cancel</button>
+                  </div>
+                </div>
+
+                <!-- Order Timeline -->
+                <div class="card timeline-card">
+                  <h2>Order Timeline</h2>
+                  <div class="timeline">
+                    <div class="timeline-item completed">
+                      <div class="indicator">
+                        <img src="/images/icons/admin/check-circle.svg" alt="Check">
+                      </div>
+                      <div class="content">
+                        <h4>Order Placed</h4>
+                        <span class="time">
+                          <%= order.createdAt.toLocaleString('en-US', { month: 'short' , day: 'numeric' ,
+                            year: 'numeric' , hour: '2-digit' , minute:'2-digit' }) %>
+                        </span>
+                      </div>
+                    </div>
+
+                    <div
+                      class="timeline-item <%= ['PROCESSING', 'SHIPPED', 'OUT FOR DELIVERY', 'DELIVERED'].includes(order.orderStatus) ? 'completed' : 'pending' %>">
+                      <div class="indicator">
+                        <% if (['PROCESSING', 'SHIPPED', 'OUT FOR DELIVERY', 'DELIVERED'].includes(order.orderStatus)) { %>
+                          <img src="/images/icons/admin/check-circle.svg" alt="Check">
+                          <% } else { %>
+                            <div class="circle"></div>
+                            <% } %>
+                      </div>
+                      <div class="content">
+                        <h4>Processing</h4>
+                        <span class="time">
+                          <%= ['PROCESSING', 'SHIPPED', 'OUT FOR DELIVERY', 'DELIVERED'].includes(order.orderStatus)
+                            ? 'Picking & Packing in progress' : 'Pending' %>
+                        </span>
+                      </div>
+                    </div>
+
+                    <div
+                      class="timeline-item <%= ['SHIPPED', 'OUT FOR DELIVERY', 'DELIVERED'].includes(order.orderStatus) ? 'completed' : 'pending' %>">
+                      <div class="indicator">
+                        <% if (['SHIPPED', 'OUT FOR DELIVERY', 'DELIVERED'].includes(order.orderStatus)) { %>
+                          <img src="/images/icons/admin/check-circle.svg" alt="Check">
+                          <% } else { %>
+                            <div class="circle"></div>
+                            <% } %>
+                      </div>
+                      <div class="content">
+                        <h4>Shipped</h4>
+                        <span class="time">
+                          <%= ['SHIPPED', 'OUT FOR DELIVERY', 'DELIVERED'].includes(order.orderStatus) ? 'In transit' : 'Expected soon' %>
+                        </span>
+                      </div>
+                    </div>
+
+                    <div
+                      class="timeline-item <%= ['OUT FOR DELIVERY', 'DELIVERED'].includes(order.orderStatus) ? 'completed' : 'pending' %>">
+                      <div class="indicator">
+                        <% if (['OUT FOR DELIVERY', 'DELIVERED'].includes(order.orderStatus)) { %>
+                          <img src="/images/icons/admin/check-circle.svg" alt="Check">
+                        <% } else { %>
+                          <div class="circle"></div>
+                        <% } %>
+                      </div>
+                      <div class="content">
+                        <h4>Out for Delivery</h4>
+                        <span class="time">
+                          <%= ['OUT FOR DELIVERY', 'DELIVERED'].includes(order.orderStatus) ? 'Out for delivery' : 'Pending' %>
+                        </span>
+                      </div>
+                    </div>
+
+                    <div class="timeline-item <%= order.orderStatus === 'DELIVERED' ? 'completed' : 'pending' %>">
+                      <div class="indicator">
+                        <% if (order.orderStatus==='DELIVERED' ) { %>
+                          <img src="/images/icons/admin/check-circle.svg" alt="Check">
+                          <% } else { %>
+                            <div class="circle"></div>
+                            <% } %>
+                      </div>
+                      <div class="content">
+                        <h4>Delivered</h4>
+                        <span class="time">
+                          <%= order.orderStatus==='DELIVERED' ? 'Delivered successfully' : 'Pending delivery' %>
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Payment Summary -->
+                <div class="card payment-card">
+                  <h2>Payment Summary</h2>
+                  <div class="summary-rows">
+                    <div class="row">
+                      <span class="label">Subtotal</span>
+                      <span class="value">₹<%= order.pricing.subtotal.toLocaleString(undefined, {minimumFractionDigits:
+                          2}) %></span>
+                    </div>
+                    <div class="row">
+                      <span class="label">Discount <span class="discount-badge">COUPON</span></span>
+                      <span class="value">-₹<%= order.pricing.discount.toLocaleString(undefined, {minimumFractionDigits:
+                          2}) %></span>
+                    </div>
+                    <div class="row">
+                      <span class="label">Shipping</span>
+                      <span class="value">₹<%= order.pricing.shippingFee.toLocaleString(undefined,
+                          {minimumFractionDigits: 2}) %></span>
+                    </div>
+                    <div class="row total-row">
+                      <span class="label">Total Paid</span>
+                      <span class="value">₹<%= order.pricing.totalAmount.toLocaleString(undefined,
+                          {minimumFractionDigits: 2}) %></span>
+                    </div>
+                  </div>
+                  <div class="payment-method-box">
+                    <div class="method-icon">
+                      <img src="/images/icons/admin/wallet-cards.svg" alt="Wallet">
+                    </div>
+                    <div class="method-details">
+                      <span class="method-name">
+                        <%= order.paymentInfo.method %>
+                      </span>
+                      <span class="transaction-id">Transaction ID: <%= order.paymentInfo.transactionId || 'N/A' %>
+                      </span>
+                    </div>
+                  </div>
+                </div>
+
+              </div>
+            </div>
+          </div>
+      </div>
+  </div>
+
+  <!-- Global Custom Modal -->
+  <div class="modal-overlay" id="customModal">
+    <div class="modal-box">
+      <div class="modal-icon">
+        <img src="/images/icons/admin/triangle-alert.svg" alt="Alert" id="modalIcon" />
+      </div>
+      <h2 class="modal-title" id="modalTitle">Title</h2>
+      <p class="modal-message" id="modalMessage">Message</p>
+      <div class="modal-actions" id="modalActions">
+        <button type="button" class="modal-btn modal-btn-cancel" id="modalCancel">Cancel</button>
+        <button type="button" class="modal-btn modal-btn-confirm" id="modalConfirm">Confirm</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const customModal = document.getElementById('customModal');
+    const modalIcon = document.getElementById('modalIcon');
+    const modalTitle = document.getElementById('modalTitle');
+    const modalMessage = document.getElementById('modalMessage');
+    const modalConfirm = document.getElementById('modalConfirm');
+    const modalCancel = document.getElementById('modalCancel');
+
+    function closeCustomModal() {
+      if (customModal) customModal.classList.remove('active');
+    }
+
+    function showCustomModal({ title, message, iconType, confirmText, showCancel, onConfirm }) {
+      if (!customModal) return;
+      modalTitle.textContent = title;
+      modalMessage.innerHTML = message;
+      modalConfirm.disabled = false;
+      if (iconType === 'success') {
+        modalIcon.src = '/images/icons/admin/check-circle.svg';
+        modalConfirm.style.background = '#222';
+        modalConfirm.style.color = '#fff';
+      } else if (iconType === 'warning') {
+        modalIcon.src = '/images/icons/admin/triangle-alert.svg';
+        modalConfirm.style.background = '#d32f2f';
+        modalConfirm.style.color = '#fff';
+      } else {
+        modalIcon.src = '/images/icons/admin/triangle-alert.svg';
+        modalConfirm.style.background = '#d32f2f';
+        modalConfirm.style.color = '#fff';
+      }
+      modalConfirm.textContent = confirmText || 'OK';
+      modalCancel.style.display = showCancel ? 'inline-block' : 'none';
+      customModal.classList.add('active');
+      modalCancel.onclick = closeCustomModal;
+      modalConfirm.onclick = () => {
+        if (onConfirm) {
+          modalConfirm.disabled = true;
+          modalConfirm.textContent = 'Please wait...';
+          onConfirm();
+        } else {
+          closeCustomModal();
+        }
+      };
+    }
+
+    function toggleDropdown(e, optionsId) {
+      e.stopPropagation();
+      const options = document.getElementById(optionsId);
+      const isVisible = options.style.display === 'block';
+      document.querySelectorAll('.dropdown-options').forEach(opt => opt.style.display = 'none');
+      if (!isVisible) options.style.display = 'block';
+    }
+
+    document.addEventListener('click', () => {
+      document.querySelectorAll('.dropdown-options').forEach(opt => opt.style.display = 'none');
+    });
+
+    async function selectStatus(status) {
+      document.getElementById('selectedStatusText').textContent = status.charAt(0).toUpperCase() + status.slice(1).toLowerCase();
+      document.getElementById('statusSelect').value = status;
+      document.getElementById('statusOptions').style.display = 'none';
+
+      try {
+        const response = await fetch(`/admin/orders/<%= order._id %>/status`, {
+          method: 'PATCH',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({ status: status })
+        });
+
+        const data = await response.json();
+
+        if (data.success) {
+          showCustomModal({
+            title: 'Status Updated',
+            message: 'The order status has been successfully updated.',
+            iconType: 'success',
+            confirmText: 'Awesome',
+            onConfirm: () => window.location.reload()
+          });
+        } else {
+          showCustomModal({
+            title: 'Update Failed',
+            message: data.message || 'Error updating status.',
+            iconType: 'error',
+            confirmText: 'OK'
+          });
+        }
+      } catch (error) {
+        console.error('Error:', error);
+        showCustomModal({
+          title: 'Update Failed',
+          message: 'An unexpected error occurred.',
+          iconType: 'error',
+          confirmText: 'OK'
+        });
+      }
+    }
+
+    function processRefund(orderId) {
+      showCustomModal({
+        title: 'Process Refund?',
+        message: 'Are you sure you want to process the refund? This will credit the user\'s wallet.',
+        iconType: 'warning',
+        confirmText: 'Yes, Refund',
+        showCancel: true,
+        onConfirm: async () => {
+          try {
+            const response = await fetch(`/admin/orders/${orderId}/refund`, {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json'
+              }
+            });
+
+            const data = await response.json();
+
+            if (data.success) {
+              showCustomModal({
+                title: 'Refund Processed',
+                message: data.message,
+                iconType: 'success',
+                confirmText: 'Awesome',
+                onConfirm: () => window.location.reload()
+              });
+            } else {
+              showCustomModal({
+                title: 'Refund Failed',
+                message: data.message || 'Error processing refund.',
+                iconType: 'error',
+                confirmText: 'OK'
+              });
+            }
+          } catch (error) {
+            console.error('Error:', error);
+            showCustomModal({
+              title: 'Refund Failed',
+              message: 'An unexpected error occurred.',
+              iconType: 'error',
+              confirmText: 'OK'
+            });
+          }
+        }
+      });
+    }
+  </script>
+</body>
+
+</html>

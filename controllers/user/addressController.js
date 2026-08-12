@@ -33,7 +33,7 @@ export const loadAddAddress = (req, res) => {
     { name: 'Ritual Sites', url: '/profile/addresses' },
     { name: 'Add New', url: '/profile/addresses/add' }
   ];
-  res.render('user/profile/addresses/form', { address: null, breadcrumbs });
+  res.render('user/profile/addresses/form', { address: null, breadcrumbs, returnTo: req.query.returnTo });
 };
 
 export const addAddress = async (req, res) => {
@@ -43,7 +43,8 @@ export const addAddress = async (req, res) => {
     const validation = validate(req.body, ['fullName', 'username', 'phone', 'addressLine1', 'landmark', 'country', 'city', 'state', 'pincode']);
 
     if (!validation.isValid) {
-      return res.redirectWithState('/profile/addresses/add', {
+      const returnUrl = req.query.returnTo ? `?returnTo=${req.query.returnTo}` : '';
+      return res.redirectWithState('/profile/addresses/add' + returnUrl, {
         error: 'Please correct the highlighted fields.',
         fieldErrors: validation.errors
       });
@@ -55,7 +56,7 @@ export const addAddress = async (req, res) => {
 
     req.session.success = 'Address added successfully.';
     req.session.save(() => {
-      res.redirect('/profile/addresses');
+      res.redirect(req.query.returnTo || '/profile/addresses');
     });
   } catch (error) {
     console.error('Add address error:', error);
@@ -75,7 +76,7 @@ export const loadEditAddress = async (req, res) => {
       { name: 'Ritual Sites', url: '/profile/addresses' },
       { name: 'Edit', url: `/profile/addresses/edit/${address._id}` }
     ];
-    res.render('user/profile/addresses/form', { address, breadcrumbs });
+    res.render('user/profile/addresses/form', { address, breadcrumbs, returnTo: req.query.returnTo });
   } catch (error) {
     console.error('Load edit address error:', error);
     res.redirect('/profile/addresses');
@@ -89,7 +90,8 @@ export const editAddress = async (req, res) => {
     const validation = validate(req.body, ['fullName', 'phone', 'addressLine1', 'landmark', 'country', 'city', 'state', 'pincode']);
 
     if (!validation.isValid) {
-      return res.redirectWithState(`/profile/addresses/edit/${req.params.id}`, {
+      const returnUrl = req.query.returnTo ? `?returnTo=${req.query.returnTo}` : '';
+      return res.redirectWithState(`/profile/addresses/edit/${req.params.id}` + returnUrl, {
         error: 'Please correct the highlighted fields.',
         fieldErrors: validation.errors
       });
@@ -101,7 +103,7 @@ export const editAddress = async (req, res) => {
 
     req.session.success = 'Address updated successfully.';
     req.session.save(() => {
-      res.redirect('/profile/addresses');
+      res.redirect(req.query.returnTo || '/profile/addresses');
     });
   } catch (error) {
     console.error('Edit address error:', error);

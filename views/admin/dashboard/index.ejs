@@ -105,10 +105,31 @@
             <div class="card-header">
               <h2>⚠ Low Stock</h2>
             </div>
-            <div class="coming-soon-placeholder" style="padding: 20px; text-align: center; color: #666; background: #fafafa; border-radius: 8px; margin-top: 15px; border: 1px dashed #ddd;">
-              <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#999" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="margin-bottom: 10px;"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>
-              <h3 style="margin-bottom: 5px; color: #333; font-weight: 500; font-size: 16px;">Coming Soon</h3>
-              <p style="font-size: 13px;">Inventory tracking is under development.</p>
+            <div class="low-stock-list" style="margin-top: 15px; display: flex; flex-direction: column; gap: 10px; max-height: 300px; overflow-y: auto;">
+              <% if (typeof lowStockItems !== 'undefined' && lowStockItems.length > 0) { %>
+                <% lowStockItems.forEach(item => { %>
+                  <div class="low-stock-item" style="display: flex; align-items: center; justify-content: space-between; padding: 12px; background: #fff; border: 1px solid #eee; border-radius: 8px;">
+                    <div style="display: flex; align-items: center; gap: 10px;">
+                      <img src="<%= item.image %>" alt="<%= item.productName %>" style="width: 40px; height: 40px; border-radius: 6px; object-fit: cover;">
+                      <div style="display: flex; flex-direction: column;">
+                        <span style="font-size: 14px; font-weight: 500; color: #333;"><%= item.productName %></span>
+                        <span style="font-size: 12px; color: #666;"><%= item.variantName %></span>
+                      </div>
+                    </div>
+                    <div style="display: flex; flex-direction: column; align-items: flex-end;">
+                      <span style="font-size: 14px; font-weight: 600; color: <%= item.stock === 0 ? '#c22929' : '#b87a0f' %>;">
+                        <%= item.stock %> Left
+                      </span>
+                      <a href="/admin/inventory?search=<%= encodeURIComponent(item.productName) %>" style="font-size: 11px; color: #5b6e51; text-decoration: none; margin-top: 4px;">Update Stock</a>
+                    </div>
+                  </div>
+                <% }) %>
+              <% } else { %>
+                <div style="padding: 20px; text-align: center; color: #666; background: #fafafa; border-radius: 8px; border: 1px dashed #ddd;">
+                  <h3 style="margin-bottom: 5px; color: #333; font-weight: 500; font-size: 14px;">All Good</h3>
+                  <p style="font-size: 12px;">No low stock items currently.</p>
+                </div>
+              <% } %>
             </div>
           </div>
         </div>

@@ -144,7 +144,14 @@
             <% if (products.length> 0) { %>
               <div class="product-grid">
                 <% products.forEach(product=> { 
-                    const defaultVariant = (product.variants && product.variants.length > 0) ? product.variants[0] : { regularPrice: product.regularPrice || 0, salePrice: product.salePrice, stock: product.stock || 0, images: product.images || [] };
+                    let defaultVariant = { regularPrice: product.regularPrice || 0, salePrice: product.salePrice, stock: product.stock || 0, images: product.images || [] };
+                    if (product.variants && product.variants.length > 0) {
+                      defaultVariant = product.variants.reduce((prev, curr) => {
+                        const prevPrice = prev.salePrice ? prev.salePrice : prev.regularPrice;
+                        const currPrice = curr.salePrice ? curr.salePrice : curr.regularPrice;
+                        return (currPrice < prevPrice) ? curr : prev;
+                      });
+                    }
                     const pImage = (defaultVariant.images && defaultVariant.images.length > 0) ? defaultVariant.images[0] : '';
                 %>
                   <a href="/product/<%= product._id %>" class="product-card">
@@ -156,6 +163,13 @@
                           style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); background: rgba(0,0,0,0.7); color: white; padding: 8px 16px; font-weight: 600; font-size: 14px; text-transform: uppercase; letter-spacing: 1px;">
                           Out of Stock</div>
                         <% } %>
+                        <button class="wishlist-toggle-btn <%= typeof wishlistProductIds !== 'undefined' && wishlistProductIds.includes(product._id.toString()) ? 'active' : '' %>" 
+                                onclick="toggleWishlist(event, '<%= product._id %>')" 
+                                data-product-id="<%= product._id %>">
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path>
+                            </svg>
+                        </button>
                     </div>
                     <div class="product-info">
                       <div class="product-header">
@@ -220,13 +234,27 @@
                             Recommended for You</h3>
                           <div class="product-grid">
                             <% suggestions.forEach(product=> { 
-                                const defaultVariant = (product.variants && product.variants.length > 0) ? product.variants[0] : { regularPrice: product.regularPrice || 0, salePrice: product.salePrice, stock: product.stock || 0, images: product.images || [] };
+                                let defaultVariant = { regularPrice: product.regularPrice || 0, salePrice: product.salePrice, stock: product.stock || 0, images: product.images || [] };
+                                if (product.variants && product.variants.length > 0) {
+                                  defaultVariant = product.variants.reduce((prev, curr) => {
+                                    const prevPrice = prev.salePrice ? prev.salePrice : prev.regularPrice;
+                                    const currPrice = curr.salePrice ? curr.salePrice : curr.regularPrice;
+                                    return (currPrice < prevPrice) ? curr : prev;
+                                  });
+                                }
                                 const pImage = (defaultVariant.images && defaultVariant.images.length > 0) ? defaultVariant.images[0] : '';
                             %>
                               <a href="/product/<%= product._id %>" class="product-card"
                                 style="text-decoration: none; color: inherit;">
-                                <div class="product-image-container">
+                                <div class="product-image-container" style="position: relative;">
                                   <img src="<%= pImage %>" alt="<%= product.name %>" class="product-image">
+                                  <button class="wishlist-toggle-btn <%= typeof wishlistProductIds !== 'undefined' && wishlistProductIds.includes(product._id.toString()) ? 'active' : '' %>" 
+                                          onclick="toggleWishlist(event, '<%= product._id %>')" 
+                                          data-product-id="<%= product._id %>">
+                                      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                          <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path>
+                                      </svg>
+                                  </button>
                                 </div>
                                 <div class="product-info">
                                   <div class="product-details">
@@ -366,6 +394,60 @@
             }
           });
         </script>
+      <script>
+        async function toggleWishlist(event, productId) {
+            event.preventDefault(); // Prevent navigating to product page
+            event.stopPropagation();
+
+            try {
+                const response = await fetch('/wishlist/toggle', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ productId })
+                });
+
+                if (response.status === 401) {
+                    // Not logged in
+                    window.location.href = '/login';
+                    return;
+                }
+
+                const data = await response.json();
+                if (data.success) {
+                    // Update all buttons for this product
+                    const buttons = document.querySelectorAll(`.wishlist-toggle-btn[data-product-id="${productId}"]`);
+                    buttons.forEach(btn => {
+                        if (data.inWishlist) {
+                            btn.classList.add('active');
+                        } else {
+                            btn.classList.remove('active');
+                        }
+                    });
+                    
+                    if (window.showToast) {
+                        window.showToast(data.message);
+                    }
+
+                    // Update navbar badge
+                    const badge = document.querySelector('.wishlist-badge');
+                    if (badge) {
+                        let currentCount = parseInt(badge.textContent) || 0;
+                        if (data.inWishlist) {
+                            currentCount += 1;
+                        } else {
+                            currentCount = Math.max(0, currentCount - 1);
+                        }
+                        badge.textContent = currentCount;
+                        badge.style.display = currentCount > 0 ? 'flex' : 'none';
+                    }
+                } else {
+                    console.error('Failed to toggle wishlist:', data.message);
+                }
+            } catch (error) {
+                console.error('Error toggling wishlist:', error);
+            }
+        }
+      </script>
 </body>
 
 </html>

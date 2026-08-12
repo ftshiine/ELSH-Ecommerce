@@ -17,14 +17,16 @@
   box-shadow: 0 4px 24px rgba(0,0,0,0.06);
 }
 
-.auth-card h1 {
+.auth-card h1 {
+
   font-size: 32px;
   font-weight: 400;
   color: #2c2c2c;
   margin-bottom: 8px;
 }
 
-.auth-subtitle {
+.auth-subtitle {
+
   font-size: 13px;
   color: #888;
   margin-bottom: 32px;
@@ -37,7 +39,8 @@
   padding: 10px 14px;
   border-radius: 8px;
   font-size: 13px;
-  margin-bottom: 20px;
+  margin-bottom: 20px;
+
 }
 
 /* ── FORM ── */
@@ -52,7 +55,8 @@
 }
 
 .form-group label {
-  display: block;
+  display: block;
+
   font-size: 10px;
   font-weight: 600;
   letter-spacing: 1.2px;
@@ -68,7 +72,8 @@
   font-size: 14px;
   background: #fafaf7;
   color: #333;
-  outline: none;
+  outline: none;
+
   transition: border 0.2s;
 }
 
@@ -143,7 +148,8 @@
   flex-shrink: 0;
 }
 
-.form-checkbox label {
+.form-checkbox label {
+
   font-size: 12px;
   color: #888;
   line-height: 1.6;
@@ -165,7 +171,8 @@
   background-color: #4a5240;
   color: #ffffff;
   border: none;
-  border-radius: 8px;
+  border-radius: 8px;
+
   font-size: 12px;
   font-weight: 600;
   letter-spacing: 1.5px;
@@ -199,7 +206,8 @@
 .auth-divider span {
   position: relative;
   background: #ffffff;
-  padding: 0 12px;
+  padding: 0 12px;
+
   font-size: 10px;
   letter-spacing: 1.5px;
   color: #aaa;
@@ -215,7 +223,8 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 10px;
+  gap: 10px;
+
   font-size: 13px;
   font-weight: 500;
   color: #333;
@@ -236,7 +245,8 @@
 
 /* ── SWITCH ── */
 .auth-switch {
-  text-align: center;
+  text-align: center;
+
   font-size: 13px;
   color: #888;
 }
@@ -276,7 +286,8 @@
   margin-bottom: 32px;
 }
 
-.login-brand h2 {
+.login-brand h2 {
+
   font-size: 22px;
   font-weight: 400;
   color: #2c2c2c;
@@ -284,7 +295,8 @@
   margin-bottom: 4px;
 }
 
-.login-brand h3 {
+.login-brand h3 {
+
   font-size: 28px;
   font-weight: 400;
   font-style: italic;
@@ -304,7 +316,8 @@
   margin-bottom: 0;
 }
 
-.forgot-link {
+.forgot-link {
+
   font-size: 12px;
   color: #4a5240;
   text-decoration: none;

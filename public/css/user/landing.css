@@ -24,7 +24,8 @@ body {
   padding-left: 40px;
 }
 
-.hero-content h1 {
+.hero-content h1 {
+
   font-size: 60px;
   font-weight: 400;
   color: #2c2c2c;
@@ -32,7 +33,8 @@ body {
   margin-bottom: 20px;
 }
 
-.hero-content p {
+.hero-content p {
+
   font-size: 16px;
   color: #888;
   line-height: 1.8;
@@ -46,7 +48,8 @@ body {
   align-items: center;
 }
 
-.btn-primary {
+.btn-primary {
+
   font-size: 12px;
   font-weight: 600;
   letter-spacing: 1.5px;
@@ -62,7 +65,8 @@ body {
   background-color: #3a4230;
 }
 
-.btn-secondary {
+.btn-secondary {
+
   font-size: 12px;
   font-weight: 500;
   letter-spacing: 1.5px;
@@ -118,14 +122,16 @@ body {
   opacity: 0.7;
 }
 
-.feature-card h3 {
+.feature-card h3 {
+
   font-size: 22px;
   font-weight: 400;
   color: #2c2c2c;
   margin-bottom: 12px;
 }
 
-.feature-card p {
+.feature-card p {
+
   font-size: 13px;
   color: #888;
   line-height: 1.8;
@@ -138,7 +144,8 @@ body {
   background-color: #eeeee6;
 }
 
-.ritual-journey h2 {
+.ritual-journey h2 {
+
   font-size: 36px;
   font-weight: 400;
   color: #2c2c2c;
@@ -163,7 +170,8 @@ body {
   height: 44px;
   border-radius: 50%;
   background-color: #4a5240;
-  color: #ffffff;
+  color: #ffffff;
+
   font-size: 16px;
   font-weight: 600;
   display: flex;
@@ -172,7 +180,8 @@ body {
   margin: 0 auto 16px;
 }
 
-.journey-step h4 {
+.journey-step h4 {
+
   font-size: 11px;
   font-weight: 600;
   letter-spacing: 1.5px;
@@ -180,7 +189,8 @@ body {
   margin-bottom: 8px;
 }
 
-.journey-step p {
+.journey-step p {
+
   font-size: 12px;
   color: #888;
   line-height: 1.7;
@@ -212,7 +222,8 @@ body {
   max-width: 560px;
 }
 
-.heritage-label {
+.heritage-label {
+
   font-size: 11px;
   font-weight: 600;
   letter-spacing: 2px;
@@ -221,21 +232,24 @@ body {
   margin-bottom: 16px;
 }
 
-.heritage-content h2 {
+.heritage-content h2 {
+
   font-size: 36px;
   font-weight: 400;
   color: #2c2c2c;
   margin-bottom: 20px;
 }
 
-.heritage-content p {
+.heritage-content p {
+
   font-size: 14px;
   color: #888;
   line-height: 1.8;
   margin-bottom: 16px;
 }
 
-.heritage-link {
+.heritage-link {
+
   font-size: 11px;
   font-weight: 600;
   letter-spacing: 1.5px;
@@ -263,14 +277,16 @@ body {
   margin-bottom: 40px;
 }
 
-.essentials-header h2 {
+.essentials-header h2 {
+
   font-size: 32px;
   font-weight: 400;
   color: #2c2c2c;
   margin-bottom: 8px;
 }
 
-.essentials-header p {
+.essentials-header p {
+
   font-size: 13px;
   color: #888;
 }
@@ -336,14 +352,16 @@ body {
   transform: scale(1.03);
 }
 
-.product-card h4 {
+.product-card h4 {
+
   font-size: 18px;
   font-weight: 400;
   color: #2c2c2c;
   padding: 16px 16px 8px;
 }
 
-.product-card p {
+.product-card p {
+
   font-size: 12px;
   color: #888;
   padding: 0 16px;
@@ -355,7 +373,8 @@ body {
   margin: 16px;
   padding: 8px 14px;
   border: 1px solid #ddd;
-  border-radius: 6px;
+  border-radius: 6px;
+
   font-size: 10px;
   font-weight: 600;
   letter-spacing: 1px;
@@ -375,14 +394,16 @@ body {
   text-align: center;
 }
 
-.community h2 {
+.community h2 {
+
   font-size: 36px;
   font-weight: 400;
   color: #2c2c2c;
   margin-bottom: 8px;
 }
 
-.community-subtitle {
+.community-subtitle {
+
   font-size: 13px;
   color: #888;
   margin-bottom: 48px;
@@ -409,7 +430,8 @@ body {
   margin-bottom: 16px;
 }
 
-.testimonial-card p {
+.testimonial-card p {
+
   font-size: 13px;
   color: #555;
   line-height: 1.8;
@@ -431,14 +453,16 @@ body {
 }
 
 .author-name {
-  display: block;
+  display: block;
+
   font-size: 13px;
   font-weight: 600;
   color: #2c2c2c;
 }
 
 .author-title {
-  display: block;
+  display: block;
+
   font-size: 10px;
   letter-spacing: 1px;
   color: #aaa;

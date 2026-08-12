@@ -2,6 +2,8 @@ import Product from '../../models/Product.js';
 import Category from '../../models/Category.js';
 import Review from '../../models/Review.js';
 import Cart from '../../models/Cart.js';
+import Wishlist from '../../models/Wishlist.js';
+import Order from '../../models/Order.js';
 import mongoose from 'mongoose';
 
 export const loadShop = async (req, res) => {
@@ -32,11 +34,15 @@ export const loadShop = async (req, res) => {
             const min = parseFloat(req.query.minPrice) || 0;
             const max = parseFloat(req.query.maxPrice) || Number.MAX_SAFE_INTEGER;
 
-            query.$or = [
-                { salePrice: { $gte: min, $lte: max, $ne: null } },
-                { salePrice: null, regularPrice: { $gte: min, $lte: max } },
-                { salePrice: { $exists: false }, regularPrice: { $gte: min, $lte: max } }
-            ];
+            query.variants = {
+                $elemMatch: {
+                    $or: [
+                        { salePrice: { $gte: min, $lte: max, $ne: null } },
+                        { salePrice: null, regularPrice: { $gte: min, $lte: max } },
+                        { salePrice: { $exists: false }, regularPrice: { $gte: min, $lte: max } }
+                    ]
+                }
+            };
         }
 
         if (req.query.sort === 'featured') {
@@ -75,10 +81,18 @@ export const loadShop = async (req, res) => {
                 {
                     $addFields: {
                         effectivePrice: {
-                            $cond: {
-                                if: { $and: [{ $gt: ["$salePrice", 0] }, { $lt: ["$salePrice", "$regularPrice"] }] },
-                                then: "$salePrice",
-                                else: "$regularPrice"
+                            $min: {
+                                $map: {
+                                    input: "$variants",
+                                    as: "variant",
+                                    in: {
+                                        $cond: {
+                                            if: { $and: [{ $gt: ["$$variant.salePrice", 0] }, { $lt: ["$$variant.salePrice", "$$variant.regularPrice"] }] },
+                                            then: "$$variant.salePrice",
+                                            else: "$$variant.regularPrice"
+                                        }
+                                    }
+                                }
                             }
                         }
                     }
@@ -124,6 +138,14 @@ export const loadShop = async (req, res) => {
             }).limit(4).populate('category');
         }
 
+        let wishlistProductIds = [];
+        if (req.user && req.user._id) {
+            const wishlist = await Wishlist.findOne({ user: req.user._id });
+            if (wishlist) {
+                wishlistProductIds = wishlist.items.map(item => item.product.toString());
+            }
+        }
+
         res.render('user/shop/index', {
             title: 'Shop All',
             products,
@@ -132,7 +154,8 @@ export const loadShop = async (req, res) => {
             totalPages,
             currentQuery: req.query,
             breadcrumbs,
-            suggestions
+            suggestions,
+            wishlistProductIds
         });
 
     } catch (error) {
@@ -166,11 +189,28 @@ export const loadProductDetails = async (req, res) => {
         const currentUserId = req.session && req.session.user ? (req.session.user.id || req.session.user._id) : null;
 
         let inCartVariants = [];
+        let inWishlist = false;
+        let hasDeliveredOrder = false;
+        
         if (currentUserId) {
             const cart = await Cart.findOne({ user: currentUserId });
             if (cart) {
                 const cartItems = cart.items.filter(item => item.product.toString() === productId);
                 inCartVariants = cartItems.map(item => item.variantSize);
+            }
+            
+            const wishlist = await Wishlist.findOne({ user: currentUserId });
+            if (wishlist) {
+                inWishlist = wishlist.items.some(item => item.product.toString() === productId);
+            }
+            
+            const deliveredOrder = await Order.findOne({
+                user: currentUserId,
+                orderStatus: 'DELIVERED',
+                'items.product': productId
+            });
+            if (deliveredOrder) {
+                hasDeliveredOrder = true;
             }
         }
 
@@ -187,7 +227,9 @@ export const loadProductDetails = async (req, res) => {
             reviews,
             breadcrumbs,
             currentUserId,
-            inCartVariants
+            inCartVariants,
+            inWishlist,
+            hasDeliveredOrder
         });
 
     } catch (error) {
@@ -210,6 +252,16 @@ export const submitReview = async (req, res) => {
 
         if (!comment || comment.trim() === '') {
             return res.status(400).json({ success: false, message: 'Please provide a comment' });
+        }
+
+        const hasDeliveredOrder = await Order.findOne({
+            user: userId,
+            orderStatus: 'DELIVERED',
+            'items.product': productId
+        });
+        
+        if (!hasDeliveredOrder) {
+            return res.status(403).json({ success: false, message: 'You can only review products you have purchased and received.' });
         }
 
         const existingReview = await Review.findOne({ product: productId, user: userId });

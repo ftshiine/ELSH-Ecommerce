@@ -1,12 +1,16 @@
 import Cart from '../../models/Cart.js';
 import Product from '../../models/Product.js';
+import Wishlist from '../../models/Wishlist.js';
 
 
 export const loadCart = async (req, res) => {
     try {
         const userId = req.session.user.id || req.session.user._id;
 
-        let cart = await Cart.findOne({ user: userId }).populate('items.product');
+        let cart = await Cart.findOne({ user: userId }).populate({
+            path: 'items.product',
+            populate: { path: 'category' }
+        });
 
         if (!cart) {
             cart = { items: [], cartTotal: 0 };
@@ -80,7 +84,12 @@ export const addToCart = async (req, res) => {
     try {
         const productId = req.params.productId;
         const userId = req.session.user.id || req.session.user._id;
-        const quantity = parseInt(req.body.quantity) || 1;
+        let quantity = parseInt(req.body.quantity);
+        if (isNaN(quantity) || quantity < 1) quantity = 1;
+
+        if (quantity > 5) {
+            return res.status(400).json({ success: false, message: 'Maximum 5 items allowed per product.' });
+        }
 
         const product = await Product.findById(productId);
 
@@ -147,11 +156,26 @@ export const addToCart = async (req, res) => {
 
         await cart.save();
 
-
+        // Also remove from wishlist if it's there
+        try {
+            const wishlist = await Wishlist.findOne({ user: userId });
+            if (wishlist) {
+                const initialLength = wishlist.items.length;
+                wishlist.items = wishlist.items.filter(item => item.product.toString() !== productId);
+                if (wishlist.items.length !== initialLength) {
+                    await wishlist.save();
+                }
+            }
+        } catch (wishlistErr) {
+            console.error('Error removing from wishlist after adding to cart:', wishlistErr);
+        }
 
         res.status(200).json({ success: true, message: 'Product added to cart successfully.' });
     } catch (error) {
         console.error('Error adding to cart:', error);
+        if (error.code === 11000) {
+            return res.status(400).json({ success: false, message: 'Too many requests. Please try again.' });
+        }
         res.status(500).json({ success: false, message: 'Internal Server Error' });
     }
 };
