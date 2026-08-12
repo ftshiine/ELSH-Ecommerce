@@ -7,9 +7,9 @@ export const getOrders = async (req, res) => {
   try {
     const statusTab = req.query.tab || 'all';
     const searchQuery = req.query.search || '';
-    
+
     let query = { user: req.session.user.id };
-    
+
     if (statusTab === 'in-progress') {
       query.orderStatus = { $in: ['PENDING', 'PROCESSING', 'SHIPPED'] };
     } else if (statusTab === 'delivered') {
@@ -17,14 +17,14 @@ export const getOrders = async (req, res) => {
     } else if (statusTab === 'cancelled') {
       query.orderStatus = 'CANCELLED';
     }
-    
+
     if (searchQuery) {
       query.$or = [
         { orderId: { $regex: searchQuery, $options: 'i' } },
         { 'items.productName': { $regex: searchQuery, $options: 'i' } }
       ];
     }
-    
+
     const orders = await Order.find(query).sort({ createdAt: -1 });
 
     res.render('user/order/list', {
@@ -45,9 +45,9 @@ export const getOrders = async (req, res) => {
 
 export const getOrderDetails = async (req, res) => {
   try {
-    const order = await Order.findOne({ 
-      _id: req.params.id, 
-      user: req.session.user.id 
+    const order = await Order.findOne({
+      _id: req.params.id,
+      user: req.session.user.id
     });
 
     if (!order) {
@@ -75,7 +75,7 @@ export const cancelOrder = async (req, res) => {
 
 
     const order = await Order.findOne({ _id: req.params.id, user: req.session.user.id });
-    
+
     if (!order) {
       return res.status(404).json({ success: false, message: 'Order not found' });
     }
@@ -88,24 +88,8 @@ export const cancelOrder = async (req, res) => {
     if (reason && reason.trim() !== '') {
       order.notes = order.notes ? order.notes + '\nCancel Reason: ' + reason : 'Cancel Reason: ' + reason;
     }
-    
-    // Process Refund to Wallet if PAID
-    if (['Razorpay', 'Wallet'].includes(order.paymentInfo.method) && order.paymentInfo.status === 'PAID') {
-      let wallet = await Wallet.findOne({ user: req.session.user.id });
-      if (!wallet) {
-        wallet = new Wallet({ user: req.session.user.id, balance: 0, totalRefunds: 0, transactions: [] });
-      }
-      wallet.balance += order.pricing.totalAmount;
-      wallet.totalRefunds += order.pricing.totalAmount;
-      wallet.transactions.push({
-        amount: order.pricing.totalAmount,
-        type: 'CREDIT',
-        description: `Refund for cancelled Order #${order.orderId}`
-      });
-      await wallet.save();
-      order.paymentInfo.status = 'REFUNDED';
-    }
-    
+
+
     // Restock items
     for (const item of order.items) {
       if (item.itemStatus !== 'CANCELLED') {
@@ -116,9 +100,9 @@ export const cancelOrder = async (req, res) => {
         );
       }
     }
-    
+
     await order.save();
-    
+
     res.json({ success: true, message: 'Order cancelled successfully' });
   } catch (error) {
     console.error('Error cancelling order:', error);
@@ -155,24 +139,6 @@ export const cancelOrderItem = async (req, res) => {
       item.cancellationReason = reason;
     }
 
-    // Process partial refund if PAID
-    if (['Razorpay', 'Wallet'].includes(order.paymentInfo.method) && order.paymentInfo.status === 'PAID') {
-      let wallet = await Wallet.findOne({ user: req.session.user.id });
-      if (!wallet) {
-        wallet = new Wallet({ user: req.session.user.id, balance: 0, totalRefunds: 0, transactions: [] });
-      }
-      
-      // We refund the specific item's total
-      const refundAmount = item.itemTotal;
-      wallet.balance += refundAmount;
-      wallet.totalRefunds += refundAmount;
-      wallet.transactions.push({
-        amount: refundAmount,
-        type: 'CREDIT',
-        description: `Refund for cancelled item in Order #${order.orderId}`
-      });
-      await wallet.save();
-    }
 
     // Restock the specific item
     await Product.updateOne(
@@ -185,8 +151,8 @@ export const cancelOrderItem = async (req, res) => {
     if (allCancelled) {
       order.orderStatus = 'CANCELLED';
       if (order.paymentInfo.status === 'PAID') {
-          // If all items are cancelled, we've refunded them all piece-meal, or if not piece-meal, we mark order REFUNDED
-          order.paymentInfo.status = 'REFUNDED';
+
+        order.paymentInfo.status = 'REFUNDED';
       }
     }
 
@@ -206,7 +172,7 @@ export const returnOrder = async (req, res) => {
     }
 
     const order = await Order.findOne({ _id: req.params.id, user: req.session.user.id });
-    
+
     if (!order) {
       return res.status(404).json({ success: false, message: 'Order not found' });
     }
@@ -217,9 +183,9 @@ export const returnOrder = async (req, res) => {
 
     order.orderStatus = 'RETURN_REQUESTED';
     order.notes = order.notes ? order.notes + '\nReturn Reason: ' + reason : 'Return Reason: ' + reason;
-    
+
     await order.save();
-    
+
     res.json({ success: true, message: 'Return request submitted successfully' });
   } catch (error) {
     console.error('Error returning order:', error);

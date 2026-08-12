@@ -80,7 +80,7 @@ export const getOrders = async (req, res, next) => {
     const pendingFulfillmentCount = await Order.countDocuments({ orderStatus: { $in: ['PENDING', 'PROCESSING'] } });
     const outForDeliveryCount = await Order.countDocuments({ orderStatus: 'SHIPPED' });
 
-    // Calculate Monthly Revenue (Orders created in current month with status != CANCELLED)
+    // Calculate Monthly Revenue 
     const startOfMonth = new Date();
     startOfMonth.setDate(1);
     startOfMonth.setHours(0, 0, 0, 0);
@@ -157,7 +157,7 @@ export const updateOrderStatus = async (req, res) => {
     const previousStatus = order.orderStatus;
     order.orderStatus = status;
 
-    // Restock if cancelled or returned by admin
+    // Restock if cancelled or returned 
     if ((status === 'CANCELLED' || status === 'RETURNED') &&
       (previousStatus !== 'CANCELLED' && previousStatus !== 'RETURNED')) {
       for (const item of order.items) {

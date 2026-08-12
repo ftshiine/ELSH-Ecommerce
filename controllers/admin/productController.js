@@ -172,7 +172,6 @@ export const editProduct = async (req, res) => {
                 finalImages = variantFiles.map(f => f.path);
             }
             
-            // if finalImages is empty but they passed existingImages inside variant, keep them
             if (finalImages.length === 0 && variant.images && variant.images.length > 0) {
                 finalImages = variant.images;
             }

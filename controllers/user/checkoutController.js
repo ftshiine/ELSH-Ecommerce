@@ -21,7 +21,7 @@ export const loadCheckout = async (req, res) => {
       }
       const variant = product.variants.find(v => v.size === directItem.variantSize) || product.variants[0];
       const price = variant.salePrice && variant.salePrice < variant.regularPrice ? variant.salePrice : variant.regularPrice;
-      
+
       cart = {
         items: [{
           product: product,
@@ -113,9 +113,9 @@ export const placeOrder = async (req, res) => {
 
     for (const item of cart.items) {
       const product = item.product;
-      
+
       if (!product) {
-        // Rollback on error
+
         for (const decItem of successfullyDecremented) {
           await Product.updateOne(
             { _id: decItem.productId, 'variants._id': decItem.variantId },
@@ -127,14 +127,14 @@ export const placeOrder = async (req, res) => {
 
       const variant = product.variants.find(v => v.size === item.variantSize) || product.variants[0];
 
-      // Atomic stock decrement
+
       const updateResult = await Product.updateOne(
         { _id: product._id, 'variants._id': variant._id, 'variants.stock': { $gte: item.quantity } },
         { $inc: { 'variants.$.stock': -item.quantity } }
       );
 
       if (updateResult.modifiedCount === 0) {
-        // Rollback previously decremented items
+
         for (const decItem of successfullyDecremented) {
           await Product.updateOne(
             { _id: decItem.productId, 'variants._id': decItem.variantId },
@@ -159,10 +159,10 @@ export const placeOrder = async (req, res) => {
       totalAmount += item.totalPrice;
     }
 
-    // Taxes & Shipping logic (using placeholders based on Figma)
+    // Taxes & Shipping logic 
     const subtotal = totalAmount;
-    const shippingFee = 0; // Complimentary
-    const estimatedTax = subtotal * 0.08; // 8% tax as per Figma ($325 -> $26)
+    const shippingFee = 0;
+    const estimatedTax = subtotal * 0.08;
     const finalTotal = subtotal + shippingFee + estimatedTax;
 
     const newOrder = new Order({
@@ -241,8 +241,8 @@ export const startDirectCheckout = async (req, res) => {
   try {
     const userId = req.session.user.id;
     const { productId, variantSize, quantity } = req.body;
-    
-    // Check and remove from persistent cart if it exists
+
+
     let cart = await Cart.findOne({ user: userId });
     if (cart) {
       const itemIndex = cart.items.findIndex(
@@ -250,15 +250,15 @@ export const startDirectCheckout = async (req, res) => {
       );
       if (itemIndex > -1) {
         cart.items.splice(itemIndex, 1);
-        // Recalculate cartTotal
+
         cart.cartTotal = cart.items.reduce((total, item) => total + item.totalPrice, 0);
         await cart.save();
       }
     }
 
-    // Save item in session
+
     req.session.directCheckoutItem = { productId, variantSize, quantity };
-    
+
     res.json({ success: true });
   } catch (error) {
     console.error('Error in startDirectCheckout:', error);
