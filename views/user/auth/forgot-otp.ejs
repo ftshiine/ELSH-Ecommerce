@@ -20,12 +20,6 @@
       <h1>Verification Code</h1>
       <p>We've sent a 6-digit verification code to your registered email. Please enter it below to proceed.</p>
 
-      <% if (error) { %>
-        <div class="otp-error">
-          <%= error %>
-        </div>
-        <% } %>
-
           <form action="/forgot-password/otp" method="POST" id="otpForm">
             <div class="otp-inputs">
               <input type="text" maxlength="1" class="otp-box" id="otp1" name="otp1" inputmode="numeric"
@@ -41,6 +35,10 @@
               <input type="text" maxlength="1" class="otp-box" id="otp6" name="otp6" inputmode="numeric"
                 pattern="[0-9]*" />
             </div>
+
+            <% if (error) { %>
+              <div class="otp-error"><%= error %></div>
+            <% } %>
 
             <button type="submit" class="btn-verify">VERIFY</button>
           </form>
@@ -111,22 +109,39 @@
       e.preventDefault();
       if (resendBtn.classList.contains('disabled')) return;
 
-      const response = await fetch('/forgot-password/otp/resend', { method: 'POST' });
-      if (response.ok) {
-        seconds = 59;
-        countdown.textContent = seconds;
-        timerText.style.display = 'block';
-        resendBtn.classList.add('disabled');
+      try {
+        const response = await fetch('/forgot-password/otp/resend', { method: 'POST' });
+        let result = {};
+        try { result = await response.json(); } catch(e) {}
+        
+        // Remove old message if any
+        const oldMsg = document.querySelector('.otp-error, .otp-success');
+        if (oldMsg) oldMsg.remove();
+        
+        // Display new message
+        const msgDiv = document.createElement('div');
+        msgDiv.className = response.ok ? 'otp-success' : 'otp-error';
+        msgDiv.textContent = result.message || (response.ok ? 'OTP resent successfully' : 'Failed to resend OTP');
+        document.querySelector('.otp-inputs').insertAdjacentElement('afterend', msgDiv);
 
-        const newTimer = setInterval(() => {
-          seconds--;
+        if (response.ok) {
+          seconds = 59;
           countdown.textContent = seconds;
-          if (seconds <= 0) {
-            clearInterval(newTimer);
-            timerText.style.display = 'none';
-            resendBtn.classList.remove('disabled');
-          }
-        }, 1000);
+          timerText.style.display = 'block';
+          resendBtn.classList.add('disabled');
+
+          const newTimer = setInterval(() => {
+            seconds--;
+            countdown.textContent = seconds;
+            if (seconds <= 0) {
+              clearInterval(newTimer);
+              timerText.style.display = 'none';
+              resendBtn.classList.remove('disabled');
+            }
+          }, 1000);
+        }
+      } catch (err) {
+        console.error(err);
       }
     });
   </script>

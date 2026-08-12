@@ -10,7 +10,11 @@ const loadProfile = async (req, res) => {
         if (!user) {
             return res.redirect('login');
         }
-        res.render('user/profile/index', { user });
+        const breadcrumbs = [
+            { name: 'Home', url: '/home' },
+            { name: 'My Profile', url: '/profile' }
+        ];
+        res.render('user/profile/index', { user, breadcrumbs });
     } catch (error) {
         console.error('Load profile error', error);
         res.redirect('/home');
@@ -23,7 +27,12 @@ const loadEditProfile = async (req, res) => {
         if (!user) {
             res.redirect('/login');
         }
-        res.render('user/profile/edit', { user });
+        const breadcrumbs = [
+            { name: 'Home', url: '/home' },
+            { name: 'My Profile', url: '/profile' },
+            { name: 'Edit Profile', url: '/profile/edit' }
+        ];
+        res.render('user/profile/edit', { user, breadcrumbs });
     } catch (error) {
         console.error('Load edit profile error', error);
         res.redirect('/profile');
@@ -57,7 +66,7 @@ const editProfile = async (req, res) => {
 
 
         if (req.file) {
-            updateData.profileImage = `/images/user/profiles/${req.file.filename}`;
+            updateData.profileImage = req.file.path;
         }
 
         const updatedUser = await updateUser(req.session.user.id, updateData);

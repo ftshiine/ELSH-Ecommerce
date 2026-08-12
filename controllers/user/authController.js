@@ -60,8 +60,10 @@ const verifyOTPHandler = async (req, res) => {
     if (!email) return res.redirect('/signup');
 
     const result = verifyOTP(email, otp);
+    const isAjax = req.headers['content-type'] === 'application/json';
 
     if (!result.success) {
+      if (isAjax) return res.json({ success: false, message: result.message });
       const now = Date.now();
       const otpSentAt = req.session.otpSentAt || now;
       const elapsed = Math.floor((now - otpSentAt) / 1000);
@@ -77,6 +79,11 @@ const verifyOTPHandler = async (req, res) => {
 
     req.session.pendingEmail = null;
     req.session.otpSentAt = null;
+
+    if (isAjax) {
+      return res.json({ success: true });
+    }
+
     res.redirect('/login');
 
   } catch (error) {
@@ -121,9 +128,7 @@ const login = async (req, res) => {
       return res.redirectWithState('/login', { error: 'Please correct the highlighted fields.', fieldErrors: validationRes.errors })
     }
 
-    if (!email || !password) {
-      return res.redirectWithState('/login', { error: 'All fields are required' });
-    }
+
 
     const user = await findUserByEmail(email);
 

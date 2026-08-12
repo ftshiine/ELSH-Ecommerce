@@ -2,17 +2,10 @@ import express from 'express';
 import methodOverride from 'method-override';
 import dotenv from 'dotenv';
 import connectDB from './config/db.js';
-import adminAuthRoutes from './routes/admin/authRoutes.js';
-import dashboardRoutes from './routes/admin/dashboardRoutes.js';
-import userRoutes from './routes/admin/userRoutes.js';
-import landingRoutes from './routes/user/landingRoutes.js';
-import userAuthRoutes from './routes/user/authRoutes.js';
-import homeRoutes from './routes/user/homeRoutes.js';
-import profileRoutes from './routes/user/profileRoutes.js';
-import addressRoutes from './routes/user/addressRoutes.js';
+import adminRoutes from './routes/adminRoutes.js';
+import userRoutes from './routes/userRoutes.js';
 import passport from './config/passport.js';
-import { preventCache } from './middleware/authMiddleware.js';
-import { formStateMiddleware } from './middleware/formMiddleware.js';
+import { notFoundHandler, globalErrorHandler } from './middleware/errorMiddleware.js';
 import sessionConfig from './config/session.js';
 
 dotenv.config();
@@ -40,33 +33,15 @@ app.set('views', './views');
  
 app.use(passport.initialize());
 
- 
-app.use(preventCache);
+// Use Central Routers
+app.use('/admin', adminRoutes);
+app.use('/', userRoutes);
 
+// 404 Handler
+app.use(notFoundHandler);
 
-app.use(formStateMiddleware);
-
-
-app.use((req, res, next) => {
-  res.locals.success = req.session.success || res.locals.success || null;
-  res.locals.error = req.session.error || res.locals.error || null;
-  delete req.session.success;
-  delete req.session.error;
-  next();
-});
-
-
-// Admin
-app.use('/admin', adminAuthRoutes);
-app.use('/admin', dashboardRoutes);
-app.use('/admin', userRoutes);
-
-// User
-app.use('/', landingRoutes);
-app.use('/', userAuthRoutes);
-app.use('/', homeRoutes);
-app.use('/', profileRoutes);
-app.use('/', addressRoutes);
+// Global Error Handler
+app.use(globalErrorHandler);
 
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {

@@ -1,0 +1,670 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>
+    <%= title %> - ELSH
+  </title>
+  <link rel="stylesheet" href="/css/user/shop.css"> <!-- Base styles -->
+  <link rel="stylesheet" href="/css/user/product-detail.css">
+</head>
+
+<body>
+
+  <%- include('../partials/home-navbar') %>
+    <%- include('../partials/breadcrumbs') %>
+
+      <div class="product-detail-container">
+        <!-- Top Section -->
+        <div class="product-top-section">
+
+          <!-- Left: Images Gallery -->
+          <% const variants=(product.variants && product.variants.length> 0) ? product.variants : [{ size: 'Default',
+            regularPrice: product.regularPrice || 0, salePrice: product.salePrice, stock: product.stock || 0, images:
+            product.images || [] }]; %>
+            <% const defaultVariant=variants[0]; %>
+              <% const pImage = (defaultVariant.images && defaultVariant.images.length > 0) ? defaultVariant.images[0].replace(/\\/g, '/') : ''; %>
+                <div class="product-gallery">
+                  <div class="main-image-container" id="mainImageContainer">
+                    <img src="<%= pImage %>" alt="<%= product.name %>" id="mainImage">
+                    <div class="zoom-overlay" id="zoomOverlay" style="background-image: url('<%= pImage %>');"></div>
+                  </div>
+                  <div class="thumbnail-list" id="thumbnailList">
+                    <% (defaultVariant.images || []).slice(0, 4).forEach((img, index)=> { %>
+                      <% const safeImg = img.replace(/\\/g, '/'); %>
+                      <img src="<%= safeImg %>" alt="<%= product.name %> thumbnail"
+                        class="thumbnail <%= index === 0 ? 'active' : '' %>"
+                        onclick="changeMainImage('<%= safeImg %>', this)">
+                      <% }) %>
+                  </div>
+                </div>
+
+                <!-- Right: Product Info -->
+                <div class="product-info-panel">
+                  <div class="breadcrumb-rating">
+                    <span class="breadcrumb-text">
+                      <%= product.category.name.toUpperCase() %>
+                    </span>
+                    <span class="rating-text">★ <%= product.averageRating> 0 ? product.averageRating : '0.0' %> (<%=
+                          product.reviewCount %> reviews)</span>
+                  </div>
+
+                  <h1 class="product-title">
+                    <%= product.name %>
+                  </h1>
+                  <div class="product-price" id="priceContainer">
+                    <% if (defaultVariant.salePrice && defaultVariant.salePrice < defaultVariant.regularPrice) { %>
+                      <% const discount=Math.round(((defaultVariant.regularPrice - defaultVariant.salePrice) /
+                        defaultVariant.regularPrice) * 100); %>
+                        <span class="original-price"
+                          style="text-decoration: line-through; color: #999; font-size: 0.9em; margin-right: 8px;">₹<%=
+                            defaultVariant.regularPrice.toFixed(2) %></span>
+                        <span class="current-price" style="font-weight: 600;">₹<%= defaultVariant.salePrice.toFixed(2)
+                            %></span>
+                        <span class="discount-badge"
+                          style="color: #2e7d32; font-size: 0.85em; font-weight: 600; margin-left: 8px;">
+                          <%= discount %>% off
+                        </span>
+                        <% } else { %>
+                          <span class="current-price">₹<%= defaultVariant.regularPrice.toFixed(2) %></span>
+                          <% } %>
+                  </div>
+
+                  <div class="ritual-description-section">
+                    <h3>RITUAL DESCRIPTION</h3>
+                    <p class="ritual-text">"<%= product.description %>"</p>
+                  </div>
+
+                  <div class="size-selector-section">
+                    <h3>SELECT SIZE</h3>
+                    <div class="size-options" id="sizeOptions">
+                      <% variants.forEach((variant, index)=> { %>
+                        <button class="size-btn <%= index === 0 ? 'active' : '' %>"
+                          onclick="selectVariant(<%= index %>, this)">
+                          <%= variant.size %>
+                        </button>
+                        <% }) %>
+                    </div>
+                  </div>
+
+                  <div class="stock-info" id="stockContainer" style="margin-bottom: 20px;">
+                    <% if (defaultVariant.stock===0) { %>
+                      <span style="color: #d32f2f; font-weight: 600; font-size: 14px;">Out of Stock</span>
+                      <% } else if (defaultVariant.stock < 10) { %>
+                        <span style="color: #f57c00; font-weight: 600; font-size: 14px;">Only <%= defaultVariant.stock
+                            %> left in stock!</span>
+                        <% } else { %>
+                          <span style="color: #2e7d32; font-weight: 600; font-size: 14px;">In Stock</span>
+                          <% } %>
+                  </div>
+
+                  <div class="action-row">
+
+                    <div id="cartActionContainer" style="flex: 1;">
+                      <% const isDefaultInCart = (typeof inCartVariants !== 'undefined') && inCartVariants.includes(defaultVariant.size); %>
+                      <% if (isDefaultInCart) { %>
+                        <button class="add-to-cart-btn" style="width: 100%;" onclick="window.location.href='/cart'">
+                          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
+                            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <circle cx="9" cy="21" r="1"></circle>
+                            <circle cx="20" cy="21" r="1"></circle>
+                            <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path>
+                          </svg>
+                          GO TO CART
+                        </button>
+                      <% } else { %>
+                        <button class="add-to-cart-btn" id="addToCartBtn" style="width: 100%;" onclick="addToCart('<%= product._id %>')" <%-
+                          defaultVariant.stock === 0 ? 'disabled style="background-color: #ccc; cursor: not-allowed;"'
+                          : '' %>>
+                          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
+                            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <circle cx="9" cy="21" r="1"></circle>
+                            <circle cx="20" cy="21" r="1"></circle>
+                            <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path>
+                          </svg>
+                          ADD TO CART
+                        </button>
+                      <% } %>
+                    </div>
+
+                          <button class="wishlist-btn">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
+                              fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                              stroke-linejoin="round">
+                              <path
+                                d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z">
+                              </path>
+                            </svg>
+                          </button>
+                  </div>
+
+                  <button class="buy-now-btn" id="buyNowBtn" <%=defaultVariant.stock===0
+                    ? 'disabled style="background-color: #ccc; cursor: not-allowed; color: #666;"' : '' %>>BUY
+                    NOW</button>
+
+                  <div class="accordions">
+                    <div class="accordion">
+                      <div class="accordion-header" onclick="toggleAccordion(this)">
+                        <span>THE SCIENCE</span>
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
+                          stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                          <polyline points="6 9 12 15 18 9"></polyline>
+                        </svg>
+                      </div>
+                      <div class="accordion-content">
+                        <p>Formulated with advanced bio-available compounds to ensure maximum efficacy and skin
+                          compatibility. Our proprietary delivery system guarantees deep cellular penetration.</p>
+                      </div>
+                    </div>
+                  </div>
+
+                </div>
+        </div>
+
+        <!-- Middle Section: Reviews -->
+        <div class="reviews-section">
+          <div class="reviews-header">
+            <div class="reviews-title-area">
+              <h2>Testimonials of Transformation</h2>
+              <div class="reviews-subtext">
+                <span class="stars"><%- '★' .repeat(Math.round(product.averageRating || 0)) %><%- '☆' .repeat(5 -
+                      Math.round(product.averageRating || 0)) %></span>
+                <span class="based-on">Based on <%= product.reviewCount %> review<%= product.reviewCount !==1 ? 's' : ''
+                      %></span>
+              </div>
+            </div>
+            <button class="write-review-btn" onclick="openReviewModal()">WRITE A REVIEW</button>
+          </div>
+
+          <div class="review-cards">
+            <% if (reviews && reviews.length> 0) { %>
+              <% reviews.forEach(review=> { %>
+                <div class="review-card" style="position: relative;">
+                  <div
+                    style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 12px;">
+                    <div class="review-stars" style="margin: 0;"><%- '★' .repeat(review.rating) %><%- '☆' .repeat(5 -
+                          review.rating) %></div>
+                    <% if (typeof currentUserId !=='undefined' && currentUserId && review.user &&
+                      review.user._id.toString()===currentUserId.toString()) { %>
+                      <button onclick="deleteReview('<%= product._id %>', '<%= review._id %>')"
+                        style="background: none; border: none; color: #d32f2f; cursor: pointer; padding: 0; margin-top: -2px; font-size: 14px;"
+                        title="Delete Review">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
+                          stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                          <polyline points="3 6 5 6 21 6"></polyline>
+                          <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2">
+                          </path>
+                        </svg>
+                      </button>
+                      <% } %>
+                  </div>
+                  <p class="review-text">"<%= review.comment %>"</p>
+                  <div class="reviewer-info" style="display: flex; align-items: center; width: 100%;">
+                    <div style="display: flex; align-items: center; gap: 12px;">
+                      <div class="reviewer-avatar">
+                        <% if (review.user && review.user.profileImage) { %>
+                          <img src="<%= review.user.profileImage %>" alt="avatar"
+                            style="width: 100%; height: 100%; border-radius: 50%; object-fit: cover;">
+                          <% } else { %>
+                            <%= review.user && review.user.fullName ? review.user.fullName.charAt(0).toUpperCase() : 'A'
+                              %>
+                              <% } %>
+                      </div>
+                      <div class="reviewer-details">
+                        <h4 style="margin: 0;">
+                          <%= review.user ? review.user.fullName : 'Anonymous' %>
+                        </h4>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <% }) %>
+                  <% } else { %>
+                    <div class="no-reviews"
+                      style="grid-column: span 3; text-align: center; padding: 40px; color: #666;">
+                      <p>No reviews yet. Be the first to share your experience!</p>
+                    </div>
+                    <% } %>
+          </div>
+        </div>
+
+        <!-- Bottom Section: Curated For You -->
+        <% if (relatedProducts && relatedProducts.length> 0) { %>
+          <div class="related-section">
+            <div class="related-header">
+              <h2>Curated For You</h2>
+              <div class="carousel-nav">
+                <button class="nav-btn"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16"
+                    viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                    stroke-linejoin="round">
+                    <polyline points="15 18 9 12 15 6"></polyline>
+                  </svg></button>
+                <button class="nav-btn"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16"
+                    viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                    stroke-linejoin="round">
+                    <polyline points="9 18 15 12 9 6"></polyline>
+                  </svg></button>
+              </div>
+            </div>
+
+            <div class="related-grid">
+              <% relatedProducts.forEach(relProd=> {
+                const rVariant = (relProd.variants && relProd.variants.length > 0) ? relProd.variants[0] : {
+                regularPrice: relProd.regularPrice || 0, salePrice: relProd.salePrice, stock: relProd.stock || 0,
+                images: relProd.images || [] };
+                const rImage = (rVariant.images && rVariant.images.length > 0) ? rVariant.images[0].replace(/\\/g, '/') : '';
+                %>
+                <div class="product-card" onclick="window.location.href='/product/<%= relProd._id %>'">
+                  <div class="product-image-container">
+                    <img src="<%= rImage %>" alt="<%= relProd.name %>">
+                  </div>
+                  <div class="product-info">
+                    <h3>
+                      <%= relProd.name %>
+                    </h3>
+                    <p class="product-category">
+                      <%= relProd.category.name %>
+                    </p>
+                    <p class="product-price">₹<%= rVariant.regularPrice.toFixed(2) %>
+                    </p>
+                  </div>
+                </div>
+                <% }) %>
+            </div>
+          </div>
+          <% } %>
+
+      </div>
+
+      <!-- Write Review Modal -->
+      <div id="reviewModal" class="modal"
+        style="display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.5); align-items: center; justify-content: center;">
+        <div class="modal-content"
+          style="background-color: #fff; margin: auto; padding: 30px; border-radius: 8px; width: 90%; max-width: 500px; box-shadow: 0 4px 20px rgba(0,0,0,0.15);">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+            <h2 style="font-family: 'Playfair Display', serif; margin: 0;">Write a Review</h2>
+            <span class="close" onclick="closeReviewModal()" style="font-size: 24px; cursor: pointer;">&times;</span>
+          </div>
+          <form id="reviewForm" onsubmit="submitReviewForm(event)">
+            <div style="margin-bottom: 20px;">
+              <label style="display: block; margin-bottom: 8px; font-weight: 600;">Rating</label>
+              <div class="star-rating" style="display: flex; gap: 5px; cursor: pointer;">
+                <span class="star" data-value="1" style="font-size: 24px; color: #ccc;">★</span>
+                <span class="star" data-value="2" style="font-size: 24px; color: #ccc;">★</span>
+                <span class="star" data-value="3" style="font-size: 24px; color: #ccc;">★</span>
+                <span class="star" data-value="4" style="font-size: 24px; color: #ccc;">★</span>
+                <span class="star" data-value="5" style="font-size: 24px; color: #ccc;">★</span>
+              </div>
+              <input type="hidden" id="ratingInput" name="rating" required>
+            </div>
+            <div style="margin-bottom: 20px;">
+              <label for="reviewComment" style="display: block; margin-bottom: 8px; font-weight: 600;">Your
+                Experience</label>
+              <textarea id="reviewComment" name="comment" rows="4"
+                style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 4px; resize: vertical;"
+                required placeholder="Tell us what you loved..."></textarea>
+            </div>
+            <button type="submit"
+              style="width: 100%; padding: 12px; background-color: #222; color: #fff; border: none; border-radius: 4px; font-weight: 600; cursor: pointer;">Submit
+              Review</button>
+          </form>
+        </div>
+      </div>
+
+      <%- include('../partials/footer') %>
+
+        <script>
+          const productVariants = <%- JSON.stringify(variants).replace(/\\\\/g, '/') %>;
+          const userInCartVariants = <%- typeof inCartVariants !== 'undefined' ? JSON.stringify(inCartVariants) : '[]' %>;
+          let currentVariantIndex = 0;
+
+          function selectVariant(index, btnElement) {
+            currentVariantIndex = index;
+            document.querySelectorAll('.size-btn').forEach(b => b.classList.remove('active'));
+            if (btnElement) btnElement.classList.add('active');
+
+            const variant = productVariants[index];
+
+            // Update Price
+            const priceContainer = document.getElementById('priceContainer');
+            if (variant.salePrice && variant.salePrice < variant.regularPrice) {
+              const discount = Math.round(((variant.regularPrice - variant.salePrice) / variant.regularPrice) * 100);
+              priceContainer.innerHTML = `
+                <span class="original-price" style="text-decoration: line-through; color: #999; font-size: 0.9em; margin-right: 8px;">₹${variant.regularPrice.toFixed(2)}</span>
+                <span class="current-price" style="font-weight: 600;">₹${variant.salePrice.toFixed(2)}</span>
+                <span class="discount-badge" style="color: #2e7d32; font-size: 0.85em; font-weight: 600; margin-left: 8px;">${discount}% off</span>
+            `;
+            } else {
+              priceContainer.innerHTML = `<span class="current-price">₹${variant.regularPrice.toFixed(2)}</span>`;
+            }
+
+            // Update Stock and buttons
+            const stockContainer = document.getElementById('stockContainer');
+            const cartActionContainer = document.getElementById('cartActionContainer');
+            const buyNowBtn = document.getElementById('buyNowBtn');
+            
+            const isInCart = userInCartVariants.includes(variant.size);
+
+            if (isInCart) {
+                cartActionContainer.innerHTML = `
+                    <button class="add-to-cart-btn" style="width: 100%;" onclick="window.location.href='/cart'">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
+                        stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <circle cx="9" cy="21" r="1"></circle>
+                        <circle cx="20" cy="21" r="1"></circle>
+                        <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path>
+                        </svg>
+                        GO TO CART
+                    </button>
+                `;
+                
+                if (variant.stock === 0) {
+                    stockContainer.innerHTML = `<span style="color: #d32f2f; font-weight: 600; font-size: 14px;">Out of Stock</span>`;
+                    if (buyNowBtn) {
+                        buyNowBtn.disabled = true;
+                        buyNowBtn.style.backgroundColor = '#ccc';
+                        buyNowBtn.style.cursor = 'not-allowed';
+                        buyNowBtn.style.color = '#fff';
+                    }
+                } else {
+                    stockContainer.innerHTML = variant.stock < 10 
+                        ? `<span style="color: #f57c00; font-weight: 600; font-size: 14px;">Only ${variant.stock} left in stock!</span>`
+                        : `<span style="color: #2e7d32; font-weight: 600; font-size: 14px;">In Stock</span>`;
+                    if (buyNowBtn) {
+                        buyNowBtn.disabled = false;
+                        buyNowBtn.style.backgroundColor = '';
+                        buyNowBtn.style.cursor = 'pointer';
+                        buyNowBtn.style.color = '';
+                    }
+                }
+            } else {
+                const stockDisabled = variant.stock === 0 ? 'disabled style="background-color: #ccc; cursor: not-allowed;"' : '';
+                cartActionContainer.innerHTML = `
+                    <button class="add-to-cart-btn" id="addToCartBtn" style="width: 100%;" onclick="addToCart('<%= product._id %>')" ${stockDisabled}>
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
+                        stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <circle cx="9" cy="21" r="1"></circle>
+                        <circle cx="20" cy="21" r="1"></circle>
+                        <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path>
+                        </svg>
+                        ADD TO CART
+                    </button>
+                `;
+                
+                if (variant.stock === 0) {
+                    stockContainer.innerHTML = `<span style="color: #d32f2f; font-weight: 600; font-size: 14px;">Out of Stock</span>`;
+                    if (buyNowBtn) {
+                        buyNowBtn.disabled = true;
+                        buyNowBtn.style.backgroundColor = '#ccc';
+                        buyNowBtn.style.cursor = 'not-allowed';
+                        buyNowBtn.style.color = '#fff';
+                    }
+                } else {
+                    stockContainer.innerHTML = variant.stock < 10 
+                        ? `<span style="color: #f57c00; font-weight: 600; font-size: 14px;">Only ${variant.stock} left in stock!</span>`
+                        : `<span style="color: #2e7d32; font-weight: 600; font-size: 14px;">In Stock</span>`;
+                    if (buyNowBtn) {
+                        buyNowBtn.disabled = false;
+                        buyNowBtn.style.backgroundColor = '';
+                        buyNowBtn.style.cursor = 'pointer';
+                        buyNowBtn.style.color = '';
+                    }
+                }
+            }
+
+            // Update Images
+            if (variant.images && variant.images.length > 0) {
+              document.getElementById('mainImage').src = variant.images[0];
+              document.getElementById('zoomOverlay').style.backgroundImage = `url('${variant.images[0]}')`;
+            
+            let thumbnailsHtml = '';
+            variant.images.slice(0, 4).forEach((img, idx) => {
+                thumbnailsHtml += `<img src="${img}" alt="thumbnail" class="thumbnail ${idx === 0 ? 'active' : ''}" onclick="changeMainImage('${img}', this)">`;
+            });
+            document.getElementById('thumbnailList').innerHTML = thumbnailsHtml;
+        }
+    }
+
+    function changeMainImage(src, element) {
+      document.getElementById('mainImage').src = src;
+      document.getElementById('zoomOverlay').style.backgroundImage = `url('${src}')`;
+      document.querySelectorAll('.thumbnail').forEach(t => t.classList.remove('active'));
+      if(element) element.classList.add('active');
+    }
+
+    // Zoom Logic (Click to Zoom)
+    const mainImageContainer = document.getElementById('mainImageContainer');
+    const zoomOverlay = document.getElementById('zoomOverlay');
+
+    mainImageContainer.addEventListener('click', function(e) {
+      mainImageContainer.classList.toggle('zoomed');
+      
+      // If we just zoomed in, immediately calculate the position so it doesn't jump
+      if (mainImageContainer.classList.contains('zoomed')) {
+        updateZoomPosition(e);
+      }
+    });
+
+    mainImageContainer.addEventListener('mousemove', function(e) {
+      if (mainImageContainer.classList.contains('zoomed')) {
+        updateZoomPosition(e);
+      }
+    });
+
+    mainImageContainer.addEventListener('mouseleave', function() {
+      // Auto-unzoom when the mouse leaves the image container
+      mainImageContainer.classList.remove('zoomed');
+    });
+
+    function updateZoomPosition(e) {
+      const rect = mainImageContainer.getBoundingClientRect();
+      const x = e.clientX - rect.left;
+      const y = e.clientY - rect.top;
+
+      // Calculate percentages
+      const xPercent = (x / rect.width) * 100;
+      const yPercent = (y / rect.height) * 100;
+
+      zoomOverlay.style.backgroundPosition = `${ xPercent }% ${ yPercent }% `;
+    }
+
+
+    function toggleAccordion(header) {
+      const accordion = header.parentElement;
+      accordion.classList.toggle('active');
+    }
+
+    // Review Modal Logic
+    const reviewModal = document.getElementById('reviewModal');
+    let selectedRating = 0;
+
+    function openReviewModal() {
+      reviewModal.style.display = 'flex';
+    }
+
+    function closeReviewModal() {
+      reviewModal.style.display = 'none';
+    }
+
+    // Star rating interaction
+    const stars = document.querySelectorAll('.star-rating .star');
+    stars.forEach(star => {
+      star.addEventListener('click', function() {
+        selectedRating = parseInt(this.getAttribute('data-value'));
+        document.getElementById('ratingInput').value = selectedRating;
+        updateStars();
+      });
+      star.addEventListener('mouseover', function() {
+        updateStars(parseInt(this.getAttribute('data-value')));
+      });
+      star.addEventListener('mouseout', function() {
+        updateStars();
+      });
+    });
+
+    function updateStars(hoverValue = 0) {
+      const activeValue = hoverValue || selectedRating;
+      stars.forEach(star => {
+        const val = parseInt(star.getAttribute('data-value'));
+        star.style.color = val <= activeValue ? '#222' : '#ccc';
+      });
+    }
+
+    async function submitReviewForm(event) {
+      event.preventDefault();
+      const rating = document.getElementById('ratingInput').value;
+      const comment = document.getElementById('reviewComment').value;
+
+      if (!rating) {
+        showCustomModal({
+          title: 'Rating Required',
+          message: 'Please select a star rating.',
+          iconType: 'error'
+        });
+        return;
+      }
+
+      try {
+        const response = await fetch('/product/<%= product._id %>/review', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ rating, comment })
+        });
+        
+        const data = await response.json();
+        
+        if (data.success) {
+          showCustomModal({
+            title: 'Thank You!',
+            message: 'Your review has been submitted successfully.',
+            iconType: 'success',
+            confirmText: 'Awesome',
+            onConfirm: () => window.location.reload()
+          });
+        } else {
+          showCustomModal({
+            title: 'Error!',
+            message: data.message || 'Error submitting review.',
+            iconType: 'error'
+          });
+        }
+      } catch (error) {
+        console.error('Error:', error);
+        showCustomModal({
+          title: 'Oops...',
+          message: 'An unexpected error occurred.',
+          iconType: 'error'
+        });
+      }
+    }
+
+    async function deleteReview(productId, reviewId) {
+      showCustomModal({
+        title: 'Are you sure?',
+        message: 'You won\'t be able to revert this! Your review will be permanently deleted.',
+        iconType: 'warning',
+        confirmText: 'Yes, delete it!',
+        showCancel: true,
+        onConfirm: async () => {
+          try {
+            const response = await fetch(`/product/${productId}/review/${reviewId}`, {
+              method: 'DELETE',
+              headers: { 'Content-Type': 'application/json' }
+            });
+            
+            const data = await response.json();
+            
+            if (data.success) {
+              showCustomModal({
+                title: 'Deleted!',
+                message: 'Your review has been deleted.',
+                iconType: 'success',
+                confirmText: 'OK',
+                onConfirm: () => window.location.reload()
+              });
+            } else {
+              showCustomModal({
+                title: 'Error!',
+                message: data.message || 'Error deleting review.',
+                iconType: 'error'
+              });
+            }
+          } catch (error) {
+            console.error('Error:', error);
+            showCustomModal({
+              title: 'Oops...',
+              message: 'An unexpected error occurred.',
+              iconType: 'error'
+            });
+          }
+        }
+      });
+    }
+
+    // Close modal if clicking outside
+    window.onclick = function(event) {
+      if (event.target == reviewModal) {
+        closeReviewModal();
+      }
+    }
+
+    // Size selection handles the active state within selectVariant already
+
+    async function addToCart(productId) {
+      const qtyInput = document.getElementById('qtyInput');
+      const quantity = qtyInput ? parseInt(qtyInput.value) : 1;
+
+      try {
+        const response = await fetch(`/cart/add/${productId}`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({ quantity, variantSize: productVariants[currentVariantIndex].size })
+        });
+        
+        const data = await response.json();
+        
+        if (data.success) {
+          if (typeof showCustomModal !== 'undefined') {
+            showCustomModal({
+              title: 'Added!',
+              message: 'Product added to cart successfully',
+              iconType: 'success',
+              confirmText: 'View Cart',
+              showCancel: true,
+              cancelText: 'Continue Shopping',
+              onConfirm: () => window.location.href = '/cart'
+            });
+          } else {
+            alert('Product added to cart successfully');
+            window.location.href = '/cart';
+          }
+        } else {
+          if (typeof showCustomModal !== 'undefined') {
+            showCustomModal({
+              title: 'Oops...',
+              message: data.message || 'Error adding to cart',
+              iconType: 'error'
+            });
+          } else {
+            alert(data.message || 'Error adding to cart');
+          }
+        }
+      } catch (error) {
+        console.error('Error:', error);
+        if (typeof showCustomModal !== 'undefined') {
+            showCustomModal({
+              title: 'Oops...',
+              message: 'An unexpected error occurred.',
+              iconType: 'error'
+            });
+        }
+      }
+    }
+        </script>
+</body>
+
+</html>

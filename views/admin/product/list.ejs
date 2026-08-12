@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Admin | Product Management</title>
+  <link rel="stylesheet" href="/css/admin/product-list.css" />
+</head>
+<body>
+
+  <div class="admin-layout">
+    <%- include('../partials/sidebar') %>
+    <div class="main-content">
+      <%- include('../partials/topbar') %>
+
+      <div class="page-content">
+        <div class="page-header">
+          <div>
+            <h1>Products</h1>
+            <p>Manage your skincare inventory and pricing.</p>
+          </div>
+          <a href="/admin/products/add" class="btn-add">
+            <span>+</span> Add New Product
+          </a>
+        </div>
+
+        <div class="controls-bar">
+          <div class="search-filter">
+            <form action="/admin/products" method="GET">
+              <input type="text" name="search" class="search-input" placeholder="Search products..." value="<%= searchQuery %>">
+              <button type="submit" class="btn-clear" style="background: #556B44; color: white; border-color: #556B44;">Search</button>
+              <% if (searchQuery) { %>
+                <a href="/admin/products" class="btn-clear">Clear</a>
+              <% } %>
+            </form>
+          </div>
+        </div>
+
+        <div class="table-container">
+          <table>
+            <thead>
+              <tr>
+                <th>Product</th>
+                <th>Price</th>
+                <th>Stock</th>
+                <th>Status</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              <% if (products.length === 0) { %>
+                <tr>
+                  <td colspan="5" style="text-align: center; padding: 40px; color: #888;">No products found.</td>
+                </tr>
+              <% } else { %>
+                <% products.forEach(product => { 
+                  const defaultVariant = (product.variants && product.variants.length > 0) ? product.variants[0] : { regularPrice: product.regularPrice || 0, salePrice: product.salePrice, stock: product.stock || 0, images: product.images || [] };
+                  const pImage = (defaultVariant.images && defaultVariant.images.length > 0) ? defaultVariant.images[0] : '/images/placeholder.jpg';
+                %>
+                  <tr>
+                    <td>
+                      <div class="product-info">
+                        <img src="<%= pImage %>" alt="<%= product.name %>" class="product-img">
+                        <div>
+                          <div class="product-name"><%= product.name %></div>
+                          <div class="product-category"><%= product.category ? product.category.name : 'Uncategorized' %></div>
+                        </div>
+                      </div>
+                    </td>
+                    <td>
+                      <% if (defaultVariant.salePrice) { %>
+                        <strong>₹<%= defaultVariant.salePrice %></strong>
+                        <br><span style="text-decoration: line-through; color: #888; font-size: 12px;">₹<%= defaultVariant.regularPrice %></span>
+                      <% } else { %>
+                        <strong>₹<%= defaultVariant.regularPrice %></strong>
+                      <% } %>
+                    </td>
+                    <td>
+                      <% if (defaultVariant.stock === 0) { %>
+                        <span class="badge inactive">Out of Stock</span>
+                      <% } else if (defaultVariant.stock < 10) { %>
+                        <span class="badge low-stock"><%= defaultVariant.stock %> Low</span>
+                      <% } else { %>
+                        <%= defaultVariant.stock %>
+                      <% } %>
+                    </td>
+                    <td>
+                      <span class="badge <%= product.isListed ? 'active' : 'inactive' %>">
+                        <%= product.isListed ? 'Published' : 'Unlisted' %>
+                      </span>
+                    </td>
+                    <td>
+                      <div class="card-actions" style="gap: 16px;">
+                        <a href="/admin/products/<%= product._id %>/edit" class="action-btn text-btn" title="Edit">
+                          Edit
+                        </a>
+                        <button class="action-btn text-btn <%= product.isListed ? 'listed' : 'unlisted' %>" 
+                                data-id="<%= product._id %>" 
+                                data-status="<%= product.isListed %>" 
+                                onclick="toggleStatus(this.dataset.id, this.dataset.status === 'true')" 
+                                title="<%= product.isListed ? 'Unlist' : 'List' %>">
+                          <%= product.isListed ? 'Unlist' : 'List' %>
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                <% }); %>
+              <% } %>
+            </tbody>
+          </table>
+        </div>
+
+        <!-- Pagination -->
+        <% if (totalPages > 1) { %>
+          <div class="pagination">
+            <span>Showing page <%= currentPage %> of <%= totalPages %></span>
+            <div class="page-numbers">
+              <% if (currentPage > 1) { %>
+                <a href="?page=<%= currentPage - 1 %><%= searchQuery ? '&search=' + searchQuery : '' %>" class="page-link">&lt;</a>
+              <% } %>
+              
+              <% for(let i = 1; i <= totalPages; i++) { %>
+                <a href="?page=<%= i %><%= searchQuery ? '&search=' + searchQuery : '' %>" class="page-link <%= i === currentPage ? 'active' : '' %>"><%= i %></a>
+              <% } %>
+
+              <% if (currentPage < totalPages) { %>
+                <a href="?page=<%= currentPage + 1 %><%= searchQuery ? '&search=' + searchQuery : '' %>" class="page-link">&gt;</a>
+              <% } %>
+            </div>
+          </div>
+        <% } %>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- Custom Modal -->
+  <div class="modal-overlay" id="confirmModal">
+    <div class="modal-box">
+      <div class="modal-icon">
+        <img src="/images/icons/admin/triangle-alert.svg" alt="Alert" id="confirmModalIcon" />
+      </div>
+      <h2 class="modal-title" id="confirmModalTitle">Title</h2>
+      <p class="modal-message" id="confirmModalMessage">Message</p>
+      <div class="modal-actions">
+        <button type="button" class="modal-btn modal-btn-cancel" id="cancelConfirm">Cancel</button>
+        <button type="button" class="modal-btn modal-btn-confirm" id="confirmActionBtn">Confirm</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const confirmModal = document.getElementById('confirmModal');
+    const confirmModalTitle = document.getElementById('confirmModalTitle');
+    const confirmModalMessage = document.getElementById('confirmModalMessage');
+    const confirmActionBtn = document.getElementById('confirmActionBtn');
+    const cancelConfirm = document.getElementById('cancelConfirm');
+
+    let pendingProductId = null;
+
+    function toggleStatus(id, currentStatus) {
+      pendingProductId = id;
+      
+      if (currentStatus) {
+        confirmModalTitle.textContent = 'Unlist Product?';
+        confirmModalMessage.innerHTML = 'Are you sure you want to unlist this product?<br><br>It will be hidden from the storefront.';
+        confirmActionBtn.textContent = 'Unlist Product';
+        confirmActionBtn.classList.remove('modal-btn-positive');
+      } else {
+        confirmModalTitle.textContent = 'Publish Product?';
+        confirmModalMessage.innerHTML = 'Are you sure you want to publish this product?<br><br>It will be visible on the storefront again.';
+        confirmActionBtn.textContent = 'Publish Product';
+        confirmActionBtn.classList.add('modal-btn-positive');
+      }
+
+      confirmActionBtn.disabled = false;
+      confirmModal.classList.add('active');
+      if (cancelConfirm) cancelConfirm.focus();
+    }
+
+    const closeModal = () => {
+      confirmModal.classList.remove('active');
+      pendingProductId = null;
+    };
+
+    if (cancelConfirm) cancelConfirm.addEventListener('click', closeModal);
+
+    if (confirmActionBtn) {
+      confirmActionBtn.addEventListener('click', async () => {
+        if (pendingProductId) {
+          confirmActionBtn.disabled = true;
+          confirmActionBtn.textContent = 'Processing...';
+
+          try {
+            const response = await fetch(`/admin/products/${pendingProductId}/status?_method=PATCH`, {
+              method: 'POST', 
+              headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' }
+            });
+            
+            const data = await response.json();
+            if (data.success) {
+              window.location.reload(); 
+            } else {
+              Swal.fire('Error!', data.message || 'Something went wrong', 'error');
+              closeModal();
+            }
+          } catch (error) {
+            Swal.fire('Error!', 'Failed to update status', 'error');
+            closeModal();
+          }
+        }
+      });
+    }
+
+    if (confirmModal) {
+      confirmModal.addEventListener('click', (e) => {
+        if (e.target === confirmModal) closeModal();
+      });
+    }
+
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && confirmModal.classList.contains('active')) closeModal();
+    });
+  </script>
+</body>
+</html>

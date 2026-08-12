@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Admin | Category Management</title>
+  <link rel="stylesheet" href="/css/admin/category-list.css" />
+</head>
+<body>
+
+  <div class="admin-layout">
+    <%- include('../partials/sidebar') %>
+    <div class="main-content">
+      <%- include('../partials/topbar') %>
+
+      <div class="page-content">
+        <div class="page-header">
+          <div>
+            <h1>Categories</h1>
+            <p>Products / Category Management</p>
+          </div>
+          <a href="/admin/categories/add" class="btn-add">
+            <span>+</span> Add New Category
+          </a>
+        </div>
+
+        <div class="controls-bar">
+          <div class="search-filter">
+            <form action="/admin/categories" method="GET">
+              <input type="text" name="search" class="search-input" placeholder="Search categories..." value="<%= searchQuery %>">
+              <button type="submit" class="btn-clear" style="background: #556B44; color: white; border-color: #556B44;">Search</button>
+              <% if (searchQuery) { %>
+                <a href="/admin/categories" class="btn-clear">Clear</a>
+              <% } %>
+            </form>
+          </div>
+          <div class="stats-card" style="display: flex; gap: 32px; align-items: center;">
+            <div class="stat-item" style="text-align: right;">
+              <span>Active Categories</span>
+              <strong><%= activeCategories %></strong>
+            </div>
+            <div style="width: 1px; height: 40px; background-color: #d8cdbf;"></div>
+            <div class="stat-item" style="text-align: right;">
+              <span>Inactive Categories</span>
+              <strong><%= inactiveCategories %></strong>
+            </div>
+          </div>
+        </div>
+
+        <div class="category-grid">
+          <% categories.forEach(category => { %>
+            <div class="category-card" id="category-<%= category._id %>">
+              <div class="card-img-wrap">
+                <img src="<%= category.image %>" alt="<%= category.name %>">
+                <span class="badge <%= category.isListed ? 'active' : 'inactive' %>">
+                  <%= category.isListed ? 'ACTIVE' : 'INACTIVE' %>
+                </span>
+              </div>
+              <div class="card-content">
+                <h3><%= category.name %></h3>
+                <p><%= category.description %></p>
+                <div class="card-footer">
+                  <div class="product-count">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 7h-3V4c0-1.1-.9-2-2-2H9c-1.1 0-2 .9-2 2v3H4c-1.1 0-2 .9-2 2v11c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V9c0-1.1-.9-2-2-2zm-5 0H9V4h6v3z"/></svg>
+                    <%= category.productCount || 0 %> Products
+                  </div>
+                  <div class="card-actions" style="gap: 16px;">
+                    <a href="/admin/categories/<%= category._id %>/edit" class="action-btn text-btn" title="Edit">
+                      Edit
+                    </a>
+                    <button class="action-btn text-btn <%= category.isListed ? 'listed' : 'unlisted' %>" 
+                            data-id="<%= category._id %>" 
+                            data-status="<%= category.isListed %>" 
+                            onclick="openToggleModal(this.dataset.id, this.dataset.status === 'true')" 
+                            title="<%= category.isListed ? 'Unlist' : 'List' %>">
+                      <%= category.isListed ? 'Unlist' : 'List' %>
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          <% }); %>
+
+          <!-- Add New Placeholder Card -->
+          <a href="/admin/categories/add" class="category-card new-category-card">
+            <div class="plus-circle">+</div>
+            <h3>New Category</h3>
+            <p>Create a new organizational group for your skincare products.</p>
+          </a>
+        </div>
+
+        <!-- Pagination -->
+        <% if (totalPages > 1) { %>
+          <div class="pagination">
+            <span>Showing page <%= currentPage %> of <%= totalPages %></span>
+            <div class="page-numbers">
+              <% if (currentPage > 1) { %>
+                <a href="?page=<%= currentPage - 1 %><%= searchQuery ? '&search=' + searchQuery : '' %>" class="page-link">&lt;</a>
+              <% } %>
+              
+              <% for(let i = 1; i <= totalPages; i++) { %>
+                <a href="?page=<%= i %><%= searchQuery ? '&search=' + searchQuery : '' %>" class="page-link <%= i === currentPage ? 'active' : '' %>"><%= i %></a>
+              <% } %>
+
+              <% if (currentPage < totalPages) { %>
+                <a href="?page=<%= currentPage + 1 %><%= searchQuery ? '&search=' + searchQuery : '' %>" class="page-link">&gt;</a>
+              <% } %>
+            </div>
+          </div>
+        <% } %>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- Custom Modal -->
+  <div class="modal-overlay" id="confirmModal">
+    <div class="modal-box">
+      <div class="modal-icon">
+        <img src="/images/icons/admin/triangle-alert.svg" alt="Alert" id="confirmModalIcon" />
+      </div>
+      <h2 class="modal-title" id="confirmModalTitle">Title</h2>
+      <p class="modal-message" id="confirmModalMessage">Message</p>
+      <div class="modal-actions">
+        <button type="button" class="modal-btn modal-btn-cancel" id="cancelConfirm">Cancel</button>
+        <button type="button" class="modal-btn modal-btn-confirm" id="confirmActionBtn">Confirm</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const confirmModal = document.getElementById('confirmModal');
+    const confirmModalTitle = document.getElementById('confirmModalTitle');
+    const confirmModalMessage = document.getElementById('confirmModalMessage');
+    const confirmActionBtn = document.getElementById('confirmActionBtn');
+    const cancelConfirm = document.getElementById('cancelConfirm');
+
+    let pendingCategoryId = null;
+
+    function openToggleModal(id, currentStatus) {
+      pendingCategoryId = id;
+      
+      if (currentStatus) {
+        confirmModalTitle.textContent = 'Unlist Category?';
+        confirmModalMessage.innerHTML = 'Are you sure you want to unlist this category?<br><br>It will be hidden from the storefront.';
+        confirmActionBtn.textContent = 'Unlist Category';
+        confirmActionBtn.classList.remove('modal-btn-positive');
+      } else {
+        confirmModalTitle.textContent = 'List Category?';
+        confirmModalMessage.innerHTML = 'Are you sure you want to list this category?<br><br>It will be visible on the storefront again.';
+        confirmActionBtn.textContent = 'List Category';
+        confirmActionBtn.classList.add('modal-btn-positive');
+      }
+
+      confirmActionBtn.disabled = false;
+      confirmModal.classList.add('active');
+      if (cancelConfirm) cancelConfirm.focus();
+    }
+
+    const closeModal = () => {
+      confirmModal.classList.remove('active');
+      pendingCategoryId = null;
+    };
+
+    if (cancelConfirm) cancelConfirm.addEventListener('click', closeModal);
+
+    if (confirmActionBtn) {
+      confirmActionBtn.addEventListener('click', async () => {
+        if (pendingCategoryId) {
+          confirmActionBtn.disabled = true;
+          confirmActionBtn.textContent = 'Processing...';
+
+          try {
+            const response = await fetch(`/admin/categories/${pendingCategoryId}/listing?_method=PATCH`, {
+              method: 'POST', 
+              headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' }
+            });
+            
+            const data = await response.json();
+            if (data.success) {
+              window.location.reload(); 
+            } else {
+              Swal.fire('Error!', data.message || 'Something went wrong', 'error');
+              closeModal();
+            }
+          } catch (error) {
+            Swal.fire('Error!', 'Failed to update listing status', 'error');
+            closeModal();
+          }
+        }
+      });
+    }
+
+    if (confirmModal) {
+      confirmModal.addEventListener('click', (e) => {
+        if (e.target === confirmModal) closeModal();
+      });
+    }
+
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && confirmModal.classList.contains('active')) closeModal();
+    });
+  </script>
+</body>
+</html>

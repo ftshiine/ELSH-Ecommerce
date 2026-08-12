@@ -25,7 +25,6 @@
           </div>
           <div class="header-actions">
             <button class="btn-export">Export Report</button>
-            <button class="btn-add">Add New Product</button>
           </div>
         </div>
 
@@ -33,38 +32,33 @@
         <div class="stats-grid">
           <div class="stat-card">
             <span class="stat-label">TOTAL REVENUE</span>
-            <span class="stat-value">$124,500</span>
-            <span class="stat-change positive">↑ 12%</span>
+            <span class="stat-value" style="font-size: 18px; color: #999; margin-top: 8px;">Coming Soon</span>
           </div>
           <div class="stat-card">
             <span class="stat-label">TOTAL ORDERS</span>
-            <span class="stat-value">1,240</span>
-            <span class="stat-change positive">↑ 8%</span>
+            <span class="stat-value" style="font-size: 18px; color: #999; margin-top: 8px;">Coming Soon</span>
           </div>
           <div class="stat-card">
             <span class="stat-label">TOTAL PRODUCTS</span>
-            <span class="stat-value">48</span>
-            <span class="stat-change neutral">Low & Core</span>
+            <span class="stat-value"><%= totalProducts || 0 %></span>
+            <span class="stat-change neutral">Live Data</span>
           </div>
           <div class="stat-card">
             <span class="stat-label">TOTAL CUSTOMERS</span>
-            <span class="stat-value">8,920</span>
-            <span class="stat-change positive">+ 243 new</span>
+            <span class="stat-value"><%= typeof totalCustomers !== 'undefined' ? totalCustomers : 0 %></span>
+            <span class="stat-change neutral">Live Data</span>
           </div>
           <div class="stat-card">
             <span class="stat-label">ACTIVE COUPONS</span>
-            <span class="stat-value">12</span>
-            <span class="stat-change neutral">Global, Summer</span>
+            <span class="stat-value" style="font-size: 18px; color: #999; margin-top: 8px;">Coming Soon</span>
           </div>
           <div class="stat-card">
             <span class="stat-label">PENDING ORDERS</span>
-            <span class="stat-value">34</span>
-            <span class="stat-change negative">Require Action</span>
+            <span class="stat-value" style="font-size: 18px; color: #999; margin-top: 8px;">Coming Soon</span>
           </div>
           <div class="stat-card">
             <span class="stat-label">MONTHLY SALES</span>
-            <span class="stat-value">$42.8k</span>
-            <span class="stat-change positive">On Target</span>
+            <span class="stat-value" style="font-size: 18px; color: #999; margin-top: 8px;">Coming Soon</span>
           </div>
         </div>
 
@@ -85,29 +79,10 @@
               <h2>Top Categories</h2>
               <span>⋮</span>
             </div>
-            <div class="category-item">
-              <span>Face Cleansers</span>
-              <div class="progress-bar">
-                <div class="progress" style="width: 45%"></div>
-              </div>
-              <span>45%</span>
-            </div>
-            <div class="category-item">
-              <span>Serums</span>
-              <div class="progress-bar">
-                <div class="progress" style="width: 32%"></div>
-              </div>
-              <span>32%</span>
-            </div>
-            <div class="category-item">
-              <span>Moisturizers</span>
-              <div class="progress-bar">
-                <div class="progress" style="width: 23%"></div>
-              </div>
-              <span>23%</span>
-            </div>
-            <div class="bestseller-note">
-              "Hydrating Gentle Cleanser" is your current best-seller this month.
+            <div class="coming-soon-placeholder" style="padding: 30px 20px; text-align: center; color: #666; background: #fafafa; border-radius: 8px; margin-top: 15px; border: 1px dashed #ddd;">
+              <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#999" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="margin-bottom: 10px;"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path><polyline points="7.5 4.21 12 6.81 16.5 4.21"></polyline><polyline points="7.5 19.79 7.5 14.6 3 12"></polyline><polyline points="21 12 16.5 14.6 16.5 19.79"></polyline><polyline points="3.27 6.96 12 12.01 20.73 6.96"></polyline><line x1="12" y1="22.08" x2="12" y2="12"></line></svg>
+              <h3 style="margin-bottom: 5px; color: #333; font-weight: 500; font-size: 16px;">Coming Soon</h3>
+              <p style="font-size: 13px;">Analytics module is under development.</p>
             </div>
           </div>
         </div>
@@ -119,66 +94,22 @@
               <h2>Recent Orders</h2>
               <a href="/admin/orders">View All Orders</a>
             </div>
-            <table class="orders-table">
-              <thead>
-                <tr>
-                  <th>ORDER</th>
-                  <th>CUSTOMER</th>
-                  <th>PRODUCT</th>
-                  <th>STATUS</th>
-                  <th>TOTAL</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr>
-                  <td>#LM-9021</td>
-                  <td>Elena S.</td>
-                  <td>ELSH Serum</td>
-                  <td><span class="badge shipped">Shipped</span></td>
-                  <td>$124.00</td>
-                </tr>
-                <tr>
-                  <td>#LM-9020</td>
-                  <td>Marcus K.</td>
-                  <td>Face Cleanser Duo</td>
-                  <td><span class="badge processing">Processing</span></td>
-                  <td>$89.50</td>
-                </tr>
-                <tr>
-                  <td>#LM-9019</td>
-                  <td>Chloe B.</td>
-                  <td>Night Recovery Cream</td>
-                  <td><span class="badge pending">Pending</span></td>
-                  <td>$210.00</td>
-                </tr>
-                <tr>
-                  <td>#LM-9018</td>
-                  <td>Julian D.</td>
-                  <td>Rose Water Toner</td>
-                  <td><span class="badge shipped">Shipped</span></td>
-                  <td>$45.00</td>
-                </tr>
-              </tbody>
-            </table>
+            <div class="coming-soon-placeholder" style="padding: 40px; text-align: center; color: #666; background: #fafafa; border-radius: 8px; margin-top: 15px; border: 1px dashed #ddd;">
+              <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#999" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="margin-bottom: 10px;"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
+              <h3 style="margin-bottom: 5px; color: #333; font-weight: 500;">Coming Soon</h3>
+              <p style="font-size: 14px;">The order management system is currently under development.</p>
+            </div>
           </div>
 
           <div class="lowstock-card">
             <div class="card-header">
               <h2>⚠ Low Stock</h2>
             </div>
-            <div class="stock-item">
-              <span>Lip Balms</span>
-              <span class="stock-warning">Only 4 left</span>
+            <div class="coming-soon-placeholder" style="padding: 20px; text-align: center; color: #666; background: #fafafa; border-radius: 8px; margin-top: 15px; border: 1px dashed #ddd;">
+              <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#999" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="margin-bottom: 10px;"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>
+              <h3 style="margin-bottom: 5px; color: #333; font-weight: 500; font-size: 16px;">Coming Soon</h3>
+              <p style="font-size: 13px;">Inventory tracking is under development.</p>
             </div>
-            <div class="stock-item">
-              <span>Nose Strips</span>
-              <span class="stock-warning">Only 10 left</span>
-            </div>
-            <div class="stock-item">
-              <span>Travel Mist</span>
-              <span class="stock-warning">8 left</span>
-            </div>
-            <button class="btn-inventory">Inventory Report</button>
           </div>
         </div>
 

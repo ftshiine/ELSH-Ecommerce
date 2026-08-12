@@ -1,0 +1,371 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ELSH | <%= title %>
+  </title>
+  <link rel="stylesheet" href="/css/user/shop.css" />
+</head>
+
+<body>
+
+  <%- include('../partials/home-navbar') %>
+    <%- include('../partials/breadcrumbs') %>
+
+      <div class="shop-container">
+        <div class="shop-header">
+          <div class="shop-title-section">
+            <h1>Shop All</h1>
+            <p>Curated essentials for the intentional ritual. Scientifically<br />proven, ethically crafted, and
+              aesthetically pure.</p>
+            <div class="search-box" style="margin-top: 24px; width: 300px; position: relative;">
+              <span class="search-icon">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                  stroke-linecap="round" stroke-linejoin="round">
+                  <circle cx="11" cy="11" r="8"></circle>
+                  <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                </svg>
+              </span>
+              <input type="text" id="searchInput" placeholder="Search products..."
+                value="<%= currentQuery.search || '' %>" onkeypress="if(event.key === 'Enter') applyFilters()"
+                oninput="toggleClearSearch()">
+              <span class="clear-search-icon" id="clearSearchBtn"
+                <%- currentQuery.search ? 'style="display: flex; position: absolute; right: 12px; top: 50%; transform: translateY(-50%); cursor: pointer; color: #999; align-items: center; justify-content: center;"' : 'style="display: none; position: absolute; right: 12px; top: 50%; transform: translateY(-50%); cursor: pointer; color: #999; align-items: center; justify-content: center;"' %>
+                onclick="clearSearch()">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                  stroke-linecap="round" stroke-linejoin="round">
+                  <line x1="18" y1="6" x2="6" y2="18"></line>
+                  <line x1="6" y1="6" x2="18" y2="18"></line>
+                </svg>
+              </span>
+            </div>
+          </div>
+          <div class="shop-sort-section">
+            <label>SORT BY</label>
+            <div class="custom-dropdown" id="sortDropdown">
+              <div class="dropdown-selected" onclick="toggleSortDropdown(event)">
+                <span id="selectedSortText">
+                  <% if (currentQuery.sort==='price-asc' ) { %> Price: Low to High
+                    <% } else if (currentQuery.sort==='price-desc' ) { %> Price: High to Low
+                      <% } else if (currentQuery.sort==='name-asc' ) { %> Name: A to Z
+                        <% } else if (currentQuery.sort==='name-desc' ) { %> Name: Z to A
+                          <% } else if (currentQuery.sort==='featured' ) { %> Featured
+                          <% } else { %> Select filters <% } %>
+                </span>
+                <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none"
+                  stroke="#222" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <polyline points="6 9 12 15 18 9"></polyline>
+                </svg>
+              </div>
+              <div class="dropdown-options" id="sortDropdownOptions">
+                <div class="dropdown-option <%= !currentQuery.sort ? 'active' : '' %>"
+                  onclick="selectSort('')">Select filters</div>
+                <div
+                  class="dropdown-option <%= currentQuery.sort === 'featured' ? 'active' : '' %>"
+                  onclick="selectSort('featured')">Featured</div>
+                <div class="dropdown-option <%= currentQuery.sort === 'price-asc' ? 'active' : '' %>"
+                  onclick="selectSort('price-asc')">Price: Low to High</div>
+                <div class="dropdown-option <%= currentQuery.sort === 'price-desc' ? 'active' : '' %>"
+                  onclick="selectSort('price-desc')">Price: High to Low</div>
+                <div class="dropdown-option <%= currentQuery.sort === 'name-asc' ? 'active' : '' %>"
+                  onclick="selectSort('name-asc')">Name: A to Z</div>
+                <div class="dropdown-option <%= currentQuery.sort === 'name-desc' ? 'active' : '' %>"
+                  onclick="selectSort('name-desc')">Name: Z to A</div>
+              </div>
+            </div>
+            <input type="hidden" id="sortSelect" value="<%= currentQuery.sort || '' %>">
+          </div>
+        </div>
+
+        <div class="shop-layout">
+          <!-- Sidebar Filters -->
+          <aside class="shop-sidebar">
+
+            <div class="filter-group">
+              <h3>CATEGORY</h3>
+              <div class="filter-options">
+                <% categories.forEach(cat=> { %>
+                  <label class="custom-checkbox">
+                    <input type="checkbox" name="category" value="<%= cat._id %>" <%=currentQuery.category &&
+                      (Array.isArray(currentQuery.category) ? currentQuery.category.includes(cat._id.toString()) :
+                      currentQuery.category===cat._id.toString()) ? 'checked' : '' %> onchange="applyFilters()">
+                    <span class="checkmark"></span>
+                    <span class="label-text">
+                      <%= cat.name.toUpperCase() %>
+                    </span>
+                  </label>
+                  <% }) %>
+              </div>
+            </div>
+
+            <div class="filter-group">
+              <h3>PRICE RANGE</h3>
+              <div class="price-slider-container">
+                <div class="current-price-display"
+                  style="text-align: center; margin-bottom: 8px; font-size: 14px; font-weight: 500; color: #556B44;">
+                  Up to ₹<span id="priceValueDisplay">
+                    <%= currentQuery.maxPrice || 5000 %>
+                  </span>
+                </div>
+                <input type="range" id="priceRange" min="0" max="5000" value="<%= currentQuery.maxPrice || 5000 %>"
+                  onchange="applyFilters()"
+                  oninput="document.getElementById('priceValueDisplay').innerText = this.value">
+                <div class="price-labels">
+                  <span>₹0</span>
+                  <span>₹5000+</span>
+                </div>
+              </div>
+            </div>
+
+            <div class="filter-group">
+              <h3>SKIN TYPE</h3>
+              <div class="tag-group">
+                <% const skinTypes=['DRY', 'OILY' , 'SENSITIVE' , 'NORMAL' , 'COMBINATION' , 'ALL SKIN TYPES' ]; %>
+                  <% skinTypes.forEach(type=> { %>
+                    <label class="tag-label">
+                      <input type="checkbox" name="skinType" value="<%= type.toLowerCase() %>" <%=currentQuery.skinType
+                        && (Array.isArray(currentQuery.skinType) ? currentQuery.skinType.includes(type.toLowerCase()) :
+                        currentQuery.skinType===type.toLowerCase()) ? 'checked' : '' %> onchange="applyFilters()"
+                      style="display:none;">
+                      <span
+                        class="tag <%= currentQuery.skinType && (Array.isArray(currentQuery.skinType) ? currentQuery.skinType.includes(type.toLowerCase()) : currentQuery.skinType === type.toLowerCase()) ? 'active' : '' %>">
+                        <%= type %>
+                      </span>
+                    </label>
+                    <% }) %>
+              </div>
+            </div>
+          </aside>
+
+          <!-- Main Product Grid -->
+          <main class="shop-main">
+            <% if (products.length> 0) { %>
+              <div class="product-grid">
+                <% products.forEach(product=> { 
+                    const defaultVariant = (product.variants && product.variants.length > 0) ? product.variants[0] : { regularPrice: product.regularPrice || 0, salePrice: product.salePrice, stock: product.stock || 0, images: product.images || [] };
+                    const pImage = (defaultVariant.images && defaultVariant.images.length > 0) ? defaultVariant.images[0] : '';
+                %>
+                  <a href="/product/<%= product._id %>" class="product-card">
+                    <div class="product-image-container" style="position: relative;">
+                      <img src="<%= pImage %>" alt="<%= product.name %>" class="product-image"
+                        <%- defaultVariant.stock === 0 ? 'style="opacity: 0.5;"' : '' %>>
+                      <% if (defaultVariant.stock===0) { %>
+                        <div
+                          style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); background: rgba(0,0,0,0.7); color: white; padding: 8px 16px; font-weight: 600; font-size: 14px; text-transform: uppercase; letter-spacing: 1px;">
+                          Out of Stock</div>
+                        <% } %>
+                    </div>
+                    <div class="product-info">
+                      <div class="product-header">
+                        <h2 class="product-name">
+                          <%= product.name %>
+                        </h2>
+                        <div class="product-price-container">
+                          <% if (defaultVariant.salePrice && defaultVariant.salePrice < defaultVariant.regularPrice) { %>
+                            <% const discount=Math.round(((defaultVariant.regularPrice - defaultVariant.salePrice) /
+                              defaultVariant.regularPrice) * 100); %>
+                              <span class="regular-price"
+                                style="text-decoration: line-through; color: #999; font-size: 0.9em; margin-right: 6px;">₹
+                                <%= defaultVariant.regularPrice %>
+                              </span>
+                              <span class="product-price" style="font-weight: 600;">₹<%= defaultVariant.salePrice %></span>
+                              <span class="discount-badge"
+                                style="color: #2e7d32; font-size: 0.85em; font-weight: 600; margin-left: 6px;">
+                                <%= discount %>% off
+                              </span>
+                              <% } else { %>
+                                <span class="product-price">₹<%= defaultVariant.regularPrice %></span>
+                                <% } %>
+                        </div>
+                      </div>
+                      <div class="product-rating">
+                        <span class="stars">★★★★★</span>
+                        <span class="reviews">(42)</span>
+                      </div>
+                    </div>
+                  </a>
+                  <% }) %>
+              </div>
+
+              <!-- Pagination -->
+              <% if (totalPages> 1) { %>
+                <div class="pagination">
+                  <button class="page-btn nav-btn" <%=currentPage===1 ? 'disabled' : '' %> <%- 'onclick="changePage(' + (currentPage - 1) + ')"' %>>&lt;</button>
+                  <div class="page-numbers">
+                    <% for (let i=1; i <=totalPages; i++) { %>
+                      <button class="page-btn <%= currentPage === i ? 'active' : '' %>" <%- 'onclick="changePage(' + i + ')"' %>>
+                        <%= i.toString().padStart(2, '0' ) %>
+                      </button>
+                      <% } %>
+                  </div>
+                  <button class="page-btn nav-btn" <%=currentPage===totalPages ? 'disabled' : '' %> <%- 'onclick="changePage(' + (currentPage + 1) + ')"' %>>&gt;
+                  </button>
+                </div>
+                <% } %>
+                  <% } else { %>
+                    <div class="no-products">
+                      <p>No products found matching your criteria.</p>
+                      <button class="btn-clear" onclick="window.location.href='/shop'">Clear Filters</button>
+                    </div>
+                    <% } %>
+
+                      <% if (typeof suggestions !=='undefined' && suggestions.length>
+                        0) { %>
+                        <div class="suggestions-section"
+                          style="margin-top: 60px; padding-top: 40px; border-top: 1px solid #EBEBEB;">
+                          <h3
+                            style="font-family: 'Playfair Display', serif; font-size: 24px; color: #222; margin-bottom: 24px;">
+                            Recommended for You</h3>
+                          <div class="product-grid">
+                            <% suggestions.forEach(product=> { 
+                                const defaultVariant = (product.variants && product.variants.length > 0) ? product.variants[0] : { regularPrice: product.regularPrice || 0, salePrice: product.salePrice, stock: product.stock || 0, images: product.images || [] };
+                                const pImage = (defaultVariant.images && defaultVariant.images.length > 0) ? defaultVariant.images[0] : '';
+                            %>
+                              <a href="/product/<%= product._id %>" class="product-card"
+                                style="text-decoration: none; color: inherit;">
+                                <div class="product-image-container">
+                                  <img src="<%= pImage %>" alt="<%= product.name %>" class="product-image">
+                                </div>
+                                <div class="product-info">
+                                  <div class="product-details">
+                                    <h3 class="product-name">
+                                      <%= product.name %>
+                                    </h3>
+                                    <p class="product-category">
+                                      <%= product.category ? product.category.name : '' %>
+                                    </p>
+                                    <div class="price-container">
+                                      <% if (defaultVariant.salePrice && defaultVariant.salePrice < defaultVariant.regularPrice) { %>
+                                        <% const discount=Math.round(((defaultVariant.regularPrice - defaultVariant.salePrice) /
+                                          defaultVariant.regularPrice) * 100); %>
+                                          <span class="product-price"
+                                            style="text-decoration: line-through; color: #999; font-size: 0.9em; margin-right: 6px;">₹
+                                            <%= defaultVariant.regularPrice %></span>
+                                          <span class="product-price" style="font-weight: 600;">₹<%= defaultVariant.salePrice
+                                              %></span>
+                                          <span class="discount-badge"
+                                            style="color: #2e7d32; font-size: 0.85em; font-weight: 600; margin-left: 6px;">
+                                            <%= discount %>% off
+                                          </span>
+                                          <% } else { %>
+                                            <span class="product-price">₹<%= defaultVariant.regularPrice %></span>
+                                            <% } %>
+                                    </div>
+                                  </div>
+                                  <div class="product-rating">
+                                    <span class="stars">★★★★★</span>
+                                    <span class="reviews">(42)</span>
+                                  </div>
+                                </div>
+                              </a>
+                              <% }) %>
+                          </div>
+                        </div>
+                        <% } %>
+          </main>
+        </div>
+      </div>
+
+      <%- include('../partials/footer') %>
+
+        <script>
+          function toggleClearSearch() {
+            const input = document.getElementById('searchInput');
+            const btn = document.getElementById('clearSearchBtn');
+            if (input.value.trim() !== '') {
+              btn.style.display = 'flex';
+            } else {
+              btn.style.display = 'none';
+            }
+          }
+
+          function clearSearch() {
+            document.getElementById('searchInput').value = '';
+            document.getElementById('clearSearchBtn').style.display = 'none';
+            applyFilters();
+          }
+
+          async function fetchAndUpdate(urlStr) {
+            try {
+              const res = await fetch(urlStr);
+              const text = await res.text();
+
+              // Parse the new HTML
+              const parser = new DOMParser();
+              const doc = parser.parseFromString(text, 'text/html');
+
+              // Extract the new main section
+              const newMain = doc.querySelector('.shop-main');
+
+              // Replace current main section
+              if (newMain) {
+                document.querySelector('.shop-main').innerHTML = newMain.innerHTML;
+              }
+
+              // Update the browser URL without reloading
+              window.history.pushState({}, '', urlStr);
+            } catch (err) {
+              console.error('Error fetching filtered products:', err);
+            }
+          }
+
+          function applyFilters() {
+            const search = document.getElementById('searchInput').value;
+            const sort = document.getElementById('sortSelect').value;
+            const maxPrice = document.getElementById('priceRange').value;
+
+            const categories = Array.from(document.querySelectorAll('input[name="category"]:checked')).map(cb => cb.value);
+            const skinTypes = Array.from(document.querySelectorAll('input[name="skinType"]:checked')).map(cb => cb.value);
+
+            const params = new URLSearchParams();
+
+            if (search) params.append('search', search);
+            if (sort) params.append('sort', sort);
+            if (maxPrice < 5000) params.append('maxPrice', maxPrice);
+
+            categories.forEach(c => params.append('category', c));
+            skinTypes.forEach(s => params.append('skinType', s));
+
+            fetchAndUpdate(`/shop?${params.toString()}`);
+          }
+
+          function changePage(page) {
+            const url = new URL(window.location.href);
+            url.searchParams.set('page', page);
+            fetchAndUpdate(url.toString());
+          }
+
+          function toggleSortDropdown(e) {
+            e.stopPropagation();
+            document.getElementById('sortDropdownOptions').classList.toggle('show');
+          }
+
+          function selectSort(value) {
+            document.getElementById('sortSelect').value = value;
+
+            // Update the UI text manually before fetching
+            const selectedOption = document.querySelector(`div[onclick="selectSort('${value}')"]`);
+            if (selectedOption) {
+              document.getElementById('selectedSortText').innerText = selectedOption.innerText;
+
+              // Update active class
+              document.querySelectorAll('.dropdown-option').forEach(el => el.classList.remove('active'));
+              selectedOption.classList.add('active');
+            }
+
+            applyFilters();
+          }
+
+          // Close dropdown if clicking outside
+          document.addEventListener('click', function (event) {
+            const dropdown = document.getElementById('sortDropdownOptions');
+            if (dropdown && dropdown.classList.contains('show')) {
+              dropdown.classList.remove('show');
+            }
+          });
+        </script>
+</body>
+
+</html>

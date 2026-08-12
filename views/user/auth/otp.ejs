@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>ELSH | Verify Email</title>
   <link rel="stylesheet" href="/css/user/otp.css" />
+  <link rel="stylesheet" href="/css/admin/modal.css" />
 </head>
 <body>
 
@@ -18,10 +19,6 @@
       <h1>Verification Code</h1>
       <p>We've sent a 6-digit verification code to your registered email. Please enter it below to proceed.</p>
 
-      <% if (error) { %>
-        <div class="otp-error"><%= error %></div>
-      <% } %>
-
       <form action="/otp" method="POST" id="otpForm">
         <div class="otp-inputs">
           <input type="text" maxlength="1" class="otp-box" id="otp1" name="otp1" inputmode="numeric" pattern="[0-9]*" />
@@ -31,6 +28,10 @@
           <input type="text" maxlength="1" class="otp-box" id="otp5" name="otp5" inputmode="numeric" pattern="[0-9]*" />
           <input type="text" maxlength="1" class="otp-box" id="otp6" name="otp6" inputmode="numeric" pattern="[0-9]*" />
         </div>
+
+        <% if (error) { %>
+          <div class="otp-error"><%= error %></div>
+        <% } %>
 
         <button type="submit" class="btn-verify">VERIFY</button>
       </form>
@@ -49,7 +50,79 @@
     </div>
   </div>
 
+  <!-- Global Custom Modal -->
+  <div class="modal-overlay" id="customModal">
+    <div class="modal-box">
+      <div class="modal-icon">
+        <img src="/images/icons/admin/triangle-alert.svg" alt="Alert" id="modalIcon" />
+      </div>
+      <h2 class="modal-title" id="modalTitle">Title</h2>
+      <p class="modal-message" id="modalMessage">Message</p>
+      <div class="modal-actions" id="modalActions">
+        <button type="button" class="modal-btn modal-btn-cancel" id="modalCancel">Cancel</button>
+        <button type="button" class="modal-btn modal-btn-confirm" id="modalConfirm">Confirm</button>
+      </div>
+    </div>
+  </div>
+
   <script>
+    // Modal functions
+    const customModal = document.getElementById('customModal');
+    const modalIcon = document.getElementById('modalIcon');
+    const modalTitle = document.getElementById('modalTitle');
+    const modalMessage = document.getElementById('modalMessage');
+    const modalConfirm = document.getElementById('modalConfirm');
+    const modalCancel = document.getElementById('modalCancel');
+
+    function closeCustomModal() {
+      if (customModal) customModal.classList.remove('active');
+    }
+
+    function showCustomModal({ title, message, iconType, confirmText, showCancel, onConfirm }) {
+      if (!customModal) return;
+      
+      modalTitle.textContent = title;
+      modalMessage.innerHTML = message;
+      
+      modalConfirm.disabled = false;
+      
+      if (iconType === 'success') {
+        modalIcon.src = '/images/icons/admin/check-circle.svg';
+        modalConfirm.style.background = '#222';
+        modalConfirm.style.color = '#fff';
+      } else if (iconType === 'warning') {
+        modalIcon.src = '/images/icons/admin/triangle-alert.svg';
+        modalConfirm.style.background = '#d32f2f';
+        modalConfirm.style.color = '#fff';
+      } else {
+        modalIcon.src = '/images/icons/admin/triangle-alert.svg';
+        modalConfirm.style.background = '#d32f2f';
+        modalConfirm.style.color = '#fff';
+      }
+
+      modalConfirm.textContent = confirmText || 'OK';
+      
+      if (showCancel) {
+        modalCancel.style.display = 'inline-block';
+      } else {
+        modalCancel.style.display = 'none';
+      }
+
+      customModal.classList.add('active');
+
+      modalCancel.onclick = closeCustomModal;
+      
+      modalConfirm.onclick = () => {
+        if (onConfirm) {
+          modalConfirm.disabled = true;
+          modalConfirm.textContent = 'Please wait...';
+          onConfirm();
+        } else {
+          closeCustomModal();
+        }
+      };
+    }
+
     const boxes = document.querySelectorAll('.otp-box');
 
     boxes.forEach((box, index) => {
@@ -101,22 +174,80 @@
       e.preventDefault();
       if (resendBtn.classList.contains('disabled')) return;
 
-      const response = await fetch('/otp/resend', { method: 'POST' });
-      if (response.ok) {
-        seconds = 59;
-        countdown.textContent = seconds;
-        timerText.style.display = 'block';
-        resendBtn.classList.add('disabled');
+      try {
+        const response = await fetch('/otp/resend', { method: 'POST' });
+        let result = {};
+        try { result = await response.json(); } catch(e) {}
+        
+        // Remove old message if any
+        const oldMsg = document.querySelector('.otp-error, .otp-success');
+        if (oldMsg) oldMsg.remove();
+        
+        // Display new message
+        const msgDiv = document.createElement('div');
+        msgDiv.className = response.ok ? 'otp-success' : 'otp-error';
+        msgDiv.textContent = result.message || (response.ok ? 'OTP resent successfully' : 'Failed to resend OTP');
+        document.querySelector('.otp-inputs').insertAdjacentElement('afterend', msgDiv);
 
-        const newTimer = setInterval(() => {
-          seconds--;
+        if (response.ok) {
+          seconds = 59;
           countdown.textContent = seconds;
-          if (seconds <= 0) {
-            clearInterval(newTimer);
-            timerText.style.display = 'none';
-            resendBtn.classList.remove('disabled');
-          }
-        }, 1000);
+          timerText.style.display = 'block';
+          resendBtn.classList.add('disabled');
+
+          const newTimer = setInterval(() => {
+            seconds--;
+            countdown.textContent = seconds;
+            if (seconds <= 0) {
+              clearInterval(newTimer);
+              timerText.style.display = 'none';
+              resendBtn.classList.remove('disabled');
+            }
+          }, 1000);
+        }
+      } catch (err) {
+        console.error(err);
+      }
+    });
+
+    // AJAX Form Submission
+    const otpForm = document.getElementById('otpForm');
+    otpForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const formData = new FormData(otpForm);
+      const data = Object.fromEntries(formData.entries());
+
+      try {
+        const res = await fetch('/otp', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(data)
+        });
+        const result = await res.json();
+        
+        if (result.success) {
+          showCustomModal({
+            title: 'Welcome to ELSH',
+            message: 'Your account has been successfully created. You can now log in to begin your ritual.',
+            iconType: 'success',
+            confirmText: 'Log In',
+            onConfirm: () => {
+              window.location.href = '/login';
+            }
+          });
+        } else {
+          // Remove old error if any
+          const oldError = document.querySelector('.otp-error');
+          if (oldError) oldError.remove();
+          
+          // Display new error
+          const errDiv = document.createElement('div');
+          errDiv.className = 'otp-error';
+          errDiv.textContent = result.message || 'Verification failed';
+          document.querySelector('.otp-inputs').insertAdjacentElement('afterend', errDiv);
+        }
+      } catch (err) {
+        console.error(err);
       }
     });
   </script>

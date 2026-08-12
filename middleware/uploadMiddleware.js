@@ -1,20 +1,17 @@
 import multer from 'multer';
 import path from 'path';
+import { CloudinaryStorage } from 'multer-storage-cloudinary';
+import cloudinary from '../config/cloudinary.js';
 
-
-//Multer Storage
-const storage = multer.diskStorage({
-  destination: (req, file, cb) => {
-    cb(null, 'public/images/user/profiles/');
-  },
-  filename: (req, file, cb) => {
-    const uniqueName = `${Date.now()}-${Math.round(Math.random() * 1e9)}${path.extname(file.originalname)}`;
-    cb(null, uniqueName);
+//Cloudinary storage 
+const storage = new CloudinaryStorage({
+  cloudinary: cloudinary,
+  params: {
+    folder: 'ELSH/users/profiles',
+    allowed_formats: ['jpg', 'jpeg', 'png', 'webp'],
   },
 });
 
-
-//select only image
 const fileFilter = (req, file, cb) => {
   const allowedTypes = /jpeg|jpg|png|webp/;
   const isValid = allowedTypes.test(path.extname(file.originalname).toLowerCase());
@@ -25,7 +22,6 @@ const fileFilter = (req, file, cb) => {
   }
 };
 
-//upload
 const upload = multer({ storage, fileFilter, limits: { fileSize: 5 * 1024 * 1024 } });
 
 export const handleProfileUpload = (req, res, next) => {
@@ -41,3 +37,24 @@ export const handleProfileUpload = (req, res, next) => {
     next();
   });
 };
+
+
+
+const categoryStorage = new CloudinaryStorage({
+  cloudinary: cloudinary,
+  params: {
+    folder: 'ELSH/categories',
+    allowed_formats: ['jpg', 'jpeg', 'png', 'webp'],
+  },
+});
+
+const productStorage = new CloudinaryStorage({
+  cloudinary: cloudinary,
+  params: {
+    folder: 'ELSH/products',
+    allowed_formats: ['jpg', 'jpeg', 'png', 'webp'],
+  },
+});
+
+export const uploadCategory = multer({ storage: categoryStorage });
+export const uploadProducts = multer({ storage: productStorage });

@@ -1,0 +1,368 @@
+/* cart.css */
+
+.cart-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 20px;
+    font-family: 'Inter', sans-serif;
+    color: #222;
+}
+
+.cart-header-title h1 {
+    font-family: 'Playfair Display', serif;
+    font-size: 48px;
+    font-weight: 400;
+    margin-bottom: 40px;
+    border-bottom: 1px dotted #ccc;
+    padding-bottom: 20px;
+}
+
+.cart-main-content {
+    display: flex;
+    gap: 40px;
+    margin-bottom: 80px;
+}
+
+.cart-items-section {
+    flex: 2;
+}
+
+.cart-table-header {
+    display: flex;
+    font-size: 11px;
+    letter-spacing: 2px;
+    color: #888;
+    margin-bottom: 20px;
+    padding-bottom: 10px;
+}
+
+.header-product { flex: 2; }
+.header-quantity { flex: 1; text-align: center; }
+.header-total { flex: 1; text-align: right; }
+
+.cart-item {
+    display: flex;
+    align-items: center;
+    padding: 30px 0;
+    border-top: 1px solid #eee;
+    border-bottom: 1px solid #eee;
+    margin-top: -1px; /* collapse borders */
+}
+
+.item-product-info {
+    flex: 2;
+    display: flex;
+    gap: 20px;
+}
+
+.item-image-container {
+    width: 100px;
+    height: 100px;
+    background: #f8f8f8;
+}
+
+.item-image-container img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.item-details h3 {
+    font-family: 'Playfair Display', serif;
+    font-size: 20px;
+    font-weight: 400;
+    margin: 0 0 8px 0;
+}
+
+.item-meta {
+    font-size: 12px;
+    color: #666;
+    margin: 0 0 12px 0;
+}
+
+.item-unit-price {
+    font-size: 14px;
+    font-weight: 500;
+    margin: 0;
+}
+
+.item-quantity-control {
+    flex: 1;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.item-quantity-control input {
+    width: 40px;
+    text-align: center;
+    border: 1px solid #eee;
+    border-left: none;
+    border-right: none;
+    height: 36px;
+    font-size: 14px;
+    box-sizing: border-box;
+}
+
+.qty-btn {
+    width: 36px;
+    height: 36px;
+    background: #fff;
+    border: 1px solid #eee;
+    cursor: pointer;
+    font-size: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.qty-btn:hover {
+    background: #f9f9f9;
+}
+
+.item-total-price {
+    flex: 1;
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    gap: 20px;
+    font-weight: 500;
+}
+
+.remove-btn {
+    background: none;
+    border: none;
+    color: #999;
+    cursor: pointer;
+    font-size: 16px;
+}
+
+.remove-btn:hover {
+    color: #222;
+}
+
+.continue-shopping {
+    margin-top: 30px;
+}
+
+.continue-shopping a {
+    color: #888;
+    text-decoration: none;
+    font-size: 12px;
+    letter-spacing: 1px;
+}
+
+.continue-shopping a:hover {
+    color: #222;
+}
+
+.cart-summary-section {
+    flex: 1;
+}
+
+.summary-box {
+    background: #F9F9F9;
+    padding: 30px;
+}
+
+.summary-box h2 {
+    font-family: 'Playfair Display', serif;
+    font-size: 24px;
+    font-weight: 400;
+    margin: 0 0 30px 0;
+}
+
+.summary-row {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 20px;
+    font-size: 12px;
+    letter-spacing: 1px;
+    align-items: center;
+}
+
+.promo-section {
+    border-top: 1px solid #eee;
+    border-bottom: 1px solid #eee;
+    padding: 20px 0;
+    margin: 20px 0;
+}
+
+.promo-header {
+    display: flex;
+    justify-content: space-between;
+    font-size: 12px;
+    letter-spacing: 1px;
+    cursor: pointer;
+}
+
+.promo-input-container {
+    display: none; /* hidden by default */
+    margin-top: 15px;
+    display: flex;
+    gap: 10px;
+}
+
+.promo-input-container input {
+    flex: 1;
+    padding: 8px 0;
+    border: none;
+    border-bottom: 1px solid #ccc;
+    background: transparent;
+    font-size: 12px;
+}
+
+.promo-input-container input:focus {
+    outline: none;
+    border-bottom: 1px solid #222;
+}
+
+.promo-input-container button {
+    background: none;
+    border: none;
+    font-size: 12px;
+    letter-spacing: 1px;
+    cursor: pointer;
+    font-weight: 600;
+}
+
+.summary-total-row {
+    display: flex;
+    justify-content: space-between;
+    font-family: 'Playfair Display', serif;
+    font-size: 24px;
+    margin-bottom: 30px;
+}
+
+.checkout-btn {
+    width: 100%;
+    background: #222;
+    color: #fff;
+    border: none;
+    padding: 16px;
+    font-size: 12px;
+    letter-spacing: 2px;
+    cursor: pointer;
+    margin-bottom: 15px;
+}
+
+.checkout-btn:disabled {
+    background: #ccc;
+    cursor: not-allowed;
+}
+
+.checkout-btn:hover:not(:disabled) {
+    background: #000;
+}
+
+.checkout-note {
+    font-size: 10px;
+    color: #888;
+    text-align: center;
+    line-height: 1.4;
+    margin-bottom: 20px;
+}
+
+.secure-icons {
+    display: flex;
+    justify-content: center;
+    gap: 15px;
+    font-size: 20px;
+    color: #666;
+}
+
+
+/* Complete the Set */
+.complete-the-set-section {
+    margin-top: 80px;
+    border-top: 1px dotted #ccc;
+    padding-top: 40px;
+}
+
+.cts-header {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    margin-bottom: 40px;
+}
+
+.cts-header h2 {
+    font-family: 'Playfair Display', serif;
+    font-size: 36px;
+    font-weight: 400;
+    margin: 0;
+    flex: 1;
+}
+
+.cts-header p {
+    flex: 2;
+    color: #666;
+    font-size: 14px;
+    line-height: 1.6;
+    margin: 0;
+}
+
+.carousel-nav {
+    display: flex;
+    gap: 10px;
+}
+
+.carousel-nav button {
+    background: none;
+    border: 1px solid #eee;
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+}
+
+.cts-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 30px;
+}
+
+.product-card {
+    cursor: pointer;
+}
+
+.product-image-container {
+    background: #f8f8f8;
+    aspect-ratio: 1;
+    margin-bottom: 15px;
+}
+
+.product-image-container img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.product-category {
+    font-size: 10px;
+    letter-spacing: 2px;
+    color: #888;
+    margin: 0;
+}
+
+.product-price {
+    font-size: 14px;
+    color: #666;
+    margin: 0;
+}
+
+@media (max-width: 768px) {
+    .cart-main-content {
+        flex-direction: column;
+    }
+    .cts-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+    .cts-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 20px;
+    }
+}

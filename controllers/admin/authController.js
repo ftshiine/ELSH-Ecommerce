@@ -17,8 +17,7 @@ const login = async (req, res) => {
     }
 
     if (!validationRes.isValid) {
-      const firstError = Object.values(validationRes.errors)[0];
-      return res.redirectWithState('/admin/login', { error: firstError });
+      return res.redirectWithState('/admin/login', { fieldErrors: validationRes.errors });
     }
 
     const admin = await findAdminByEmail(email);

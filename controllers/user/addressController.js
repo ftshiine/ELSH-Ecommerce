@@ -7,11 +7,18 @@ export const loadAddresses = async (req, res) => {
     const limit = 4;
     const { addresses, totalAddresses, totalPages } = await getAddressesByUser(req.session.user.id, page, limit);
 
+    const breadcrumbs = [
+      { name: 'Home', url: '/home' },
+      { name: 'My Profile', url: '/profile' },
+      { name: 'Ritual Sites', url: '/profile/addresses' }
+    ];
+
     res.render('user/profile/addresses/index', {
       addresses,
       currentPage: page,
       totalPages,
-      totalAddresses
+      totalAddresses,
+      breadcrumbs
     });
   } catch (error) {
     console.error('Load addresses error:', error);
@@ -20,7 +27,13 @@ export const loadAddresses = async (req, res) => {
 };
 
 export const loadAddAddress = (req, res) => {
-  res.render('user/profile/addresses/form', { address: null });
+  const breadcrumbs = [
+    { name: 'Home', url: '/home' },
+    { name: 'My Profile', url: '/profile' },
+    { name: 'Ritual Sites', url: '/profile/addresses' },
+    { name: 'Add New', url: '/profile/addresses/add' }
+  ];
+  res.render('user/profile/addresses/form', { address: null, breadcrumbs });
 };
 
 export const addAddress = async (req, res) => {
@@ -56,7 +69,13 @@ export const loadEditAddress = async (req, res) => {
     const address = await getAddressById(req.params.id, req.session.user.id);
     if (!address) return res.redirect('/profile/addresses');
 
-    res.render('user/profile/addresses/form', { address });
+    const breadcrumbs = [
+      { name: 'Home', url: '/home' },
+      { name: 'My Profile', url: '/profile' },
+      { name: 'Ritual Sites', url: '/profile/addresses' },
+      { name: 'Edit', url: `/profile/addresses/edit/${address._id}` }
+    ];
+    res.render('user/profile/addresses/form', { address, breadcrumbs });
   } catch (error) {
     console.error('Load edit address error:', error);
     res.redirect('/profile/addresses');

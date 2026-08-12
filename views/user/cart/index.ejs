@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title><%= title %> - ELSH</title>
+  <link rel="stylesheet" href="/css/user/shop.css"> <!-- Base styles -->
+  <link rel="stylesheet" href="/css/user/cart.css">
+</head>
+<body>
+
+  <%- include('../partials/home-navbar') %>
+  <%- include('../partials/breadcrumbs') %>
+
+  <div class="cart-container">
+    <div class="cart-header-title">
+      <h1>Your Ritual</h1>
+    </div>
+
+    <div class="cart-main-content">
+      <div class="cart-items-section">
+        <div class="cart-table-header">
+          <div class="header-product">PRODUCT</div>
+          <div class="header-quantity">QUANTITY</div>
+          <div class="header-total">TOTAL</div>
+        </div>
+
+        <div class="cart-items-list">
+          <% if (cart && cart.items.length > 0) { %>
+            <% cart.items.forEach(item => { 
+                const variant = (item.product.variants && item.product.variants.length > 0) ? (item.product.variants.find(v => v.size === item.variantSize) || item.product.variants[0]) : { size: item.variantSize || 'Default', stock: item.product.stock || 0, images: item.product.images || [] };
+                const cImage = (variant.images && variant.images.length > 0) ? variant.images[0] : '';
+            %>
+              <div class="cart-item" data-product-id="<%= item.product._id %>" data-variant-size="<%= item.variantSize || 'Default' %>">
+                <div class="item-product-info">
+                  <div class="item-image-container" style="position: relative;">
+                    <img src="<%= cImage %>" alt="<%= item.product.name %>" <%- variant.stock === 0 ? 'style="opacity: 0.5;"' : '' %>>
+                    <% if (variant.stock === 0) { %>
+                      <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); background: rgba(0,0,0,0.7); color: white; padding: 4px 8px; font-weight: 600; font-size: 10px; text-transform: uppercase; letter-spacing: 1px; width: max-content; text-align: center;">Out of Stock</div>
+                    <% } %>
+                  </div>
+                  <div class="item-details">
+                    <h3><%= item.product.name %></h3>
+                    <p class="item-meta"><%= item.variantSize || 'Default' %> | <%= item.product.category ? item.product.category.name : 'N/A' %></p>
+                    <p class="item-unit-price">₹<%= item.price.toFixed(2) %></p>
+                  </div>
+                </div>
+                
+                <div class="item-quantity-control">
+                  <button class="qty-btn" onclick="updateCartQuantity('<%= item.product._id %>', 'decrement', '<%= item.variantSize %>')" <%- variant.stock === 0 ? 'disabled style="background:#f5f5f5; cursor:not-allowed;"' : '' %>>−</button>
+                  <input type="text" value="<%= item.quantity %>" readonly class="qty-input" id="qty-<%= item.product._id %>-<%= (item.variantSize || 'Default').replace(/\s+/g, '') %>" <%- variant.stock === 0 ? 'style="background:#f5f5f5; color:#999;"' : '' %>>
+                  <button class="qty-btn" onclick="updateCartQuantity('<%= item.product._id %>', 'increment', '<%= item.variantSize %>')" <%= variant.stock === 0 ? 'disabled style="background:#f5f5f5; cursor:not-allowed;"' : '' %>>+</button>
+                </div>
+                
+                <div class="item-total-price">
+                  <span id="total-<%= item.product._id %>-<%= (item.variantSize || 'Default').replace(/\s+/g, '') %>">₹<%= item.totalPrice.toFixed(2) %></span>
+                  <button class="remove-btn" onclick="removeFromCart('<%= item.product._id %>', '<%= item.variantSize %>')">✕</button>
+                </div>
+              </div>
+            <% }) %>
+          <% } else { %>
+            <div class="empty-cart-message">
+              <p>Your cart is empty.</p>
+            </div>
+          <% } %>
+        </div>
+
+        <div class="continue-shopping">
+          <a href="/shop">← CONTINUE SHOPPING</a>
+        </div>
+      </div>
+
+      <div class="cart-summary-section">
+        <div class="summary-box">
+          <h2>Summary</h2>
+          
+          <div class="summary-row">
+            <span>SUBTOTAL</span>
+            <span id="cart-subtotal">₹<%= cart ? cart.cartTotal.toFixed(2) : '0.00' %></span>
+          </div>
+          
+          <div class="summary-row">
+            <span>SHIPPING</span>
+            <span style="font-size: 11px; text-align: right; line-height: 1.2;">Calculated at<br>next step</span>
+          </div>
+          
+          <div class="summary-row">
+            <span>TAX</span>
+            <span>₹0.00</span>
+          </div>
+
+          <div class="promo-section">
+            <div class="promo-header" onclick="togglePromo()">
+              <span>PROMOTIONAL CODE</span>
+              <span id="promo-icon">▼</span>
+            </div>
+            <div class="promo-input-container" id="promo-container">
+              <input type="text" placeholder="Enter code">
+              <button>APPLY</button>
+            </div>
+          </div>
+
+          <div class="summary-total-row">
+            <span>Total</span>
+            <span id="cart-final-total">₹<%= cart ? cart.cartTotal.toFixed(2) : '0.00' %></span>
+          </div>
+
+          <% const hasOutOfStock = cart && cart.items.some(item => {
+              const variant = (item.product.variants && item.product.variants.length > 0) ? (item.product.variants.find(v => v.size === item.variantSize) || item.product.variants[0]) : { stock: item.product.stock || 0 };
+              return variant.stock === 0;
+          }); %>
+          <button class="checkout-btn" <%= !cart || cart.items.length === 0 || hasOutOfStock ? 'disabled title="Remove out of stock items to checkout"' : '' %> onclick="window.location.href='/checkout'">
+            PROCEED TO CHECKOUT
+          </button>
+          <% if (hasOutOfStock) { %>
+            <div style="color: #d32f2f; font-size: 11px; margin-top: -10px; margin-bottom: 15px; text-align: center;">Remove out of stock items to proceed.</div>
+          <% } %>
+          
+          <div class="checkout-note">
+            Shipping & taxes will be calculated during the final checkout step.
+          </div>
+          
+          <div class="secure-icons">
+            <span>💳</span>
+            <span>🔒</span>
+            <span>✓</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Complete the Set Section -->
+    <% if (relatedProducts && relatedProducts.length > 0) { %>
+      <div class="complete-the-set-section">
+        <div class="cts-header">
+          <h2>Complete the Set</h2>
+          <p>Elevate your daily ritual with these intentional additions to your collection, designed for synergistic efficacy.</p>
+          <div class="carousel-nav">
+            <button class="nav-btn">❮</button>
+            <button class="nav-btn">❯</button>
+          </div>
+        </div>
+        
+        <div class="cts-grid">
+          <% relatedProducts.forEach(relProd => { 
+              const rVariant = (relProd.variants && relProd.variants.length > 0) ? relProd.variants[0] : { regularPrice: relProd.regularPrice || 0, salePrice: relProd.salePrice, stock: relProd.stock || 0, images: relProd.images || [] };
+              const rImage = (rVariant.images && rVariant.images.length > 0) ? rVariant.images[0] : '';
+          %>
+            <div class="product-card" onclick="window.location.href='/product/<%= relProd._id %>'">
+              <div class="product-image-container">
+                <img src="<%= rImage %>" alt="<%= relProd.name %>">
+              </div>
+              <div class="product-info">
+                <p class="product-category"><%= relProd.category && relProd.category.name ? relProd.category.name.toUpperCase() : '' %></p>
+                <h3 style="font-family: 'Playfair Display', serif; font-size: 18px; margin: 4px 0;"><%= relProd.name %></h3>
+                <p class="product-price">₹<%= rVariant.regularPrice.toFixed(2) %></p>
+              </div>
+            </div>
+          <% }) %>
+        </div>
+      </div>
+    <% } %>
+  </div>
+
+  <%- include('../partials/footer') %>
+
+  <script>
+    function togglePromo() {
+      const container = document.getElementById('promo-container');
+      const icon = document.getElementById('promo-icon');
+      if (container.style.display === 'flex') {
+        container.style.display = 'none';
+        icon.textContent = '▼';
+      } else {
+        container.style.display = 'flex';
+        icon.textContent = '▲';
+      }
+    }
+
+    async function updateCartQuantity(productId, action, variantSize) {
+      try {
+        const response = await fetch(`/cart/update/${productId}`, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ action, variantSize })
+        });
+        
+        const data = await response.json();
+        
+        if (data.success) {
+          // Update UI without reload
+          const qtyInputId = `qty-${productId}-${(variantSize || 'Default').replace(/\\s+/g, '')}`;
+          const totalSpanId = `total-${productId}-${(variantSize || 'Default').replace(/\\s+/g, '')}`;
+
+          const qtyInput = document.getElementById(qtyInputId);
+          if (data.newQuantity !== undefined) {
+            qtyInput.value = data.newQuantity;
+          } else {
+            let currentQty = parseInt(qtyInput.value);
+            qtyInput.value = action === 'increment' ? currentQty + 1 : currentQty - 1;
+          }
+          
+          document.getElementById(totalSpanId).textContent = `₹${data.itemTotalPrice.toFixed(2)}`;
+          document.getElementById('cart-subtotal').textContent = `₹${data.cartTotal.toFixed(2)}`;
+          document.getElementById('cart-final-total').textContent = `₹${data.cartTotal.toFixed(2)}`;
+        } else {
+          if (typeof showCustomModal !== 'undefined') {
+            showCustomModal({
+              title: 'Oops...',
+              message: data.message || 'Error updating quantity',
+              iconType: 'error'
+            });
+          } else {
+            alert(data.message || 'Error updating quantity');
+          }
+        }
+      } catch (error) {
+        console.error('Error:', error);
+      }
+    }
+
+    async function removeFromCart(productId, variantSize) {
+      if (typeof showCustomModal !== 'undefined') {
+        showCustomModal({
+          title: 'Remove Item?',
+          message: 'Are you sure you want to remove this item from your cart?',
+          iconType: 'warning',
+          confirmText: 'Remove',
+          showCancel: true,
+          cancelText: 'Cancel',
+          onConfirm: async () => {
+            try {
+              const response = await fetch(`/cart/remove/${productId}`, {
+                method: 'DELETE',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ variantSize })
+              });
+              
+              const data = await response.json();
+              
+              if (data.success) {
+                if (data.itemCount === 0) {
+                  window.location.reload();
+                } else {
+                  // Remove item from DOM
+                  const itemRow = document.querySelector(`.cart-item[data-product-id="${productId}"][data-variant-size="${variantSize || 'Default'}"]`);
+                  if (itemRow) itemRow.remove();
+                  
+                  // Update totals
+                  document.getElementById('cart-subtotal').textContent = `₹${data.cartTotal.toFixed(2)}`;
+                  document.getElementById('cart-final-total').textContent = `₹${data.cartTotal.toFixed(2)}`;
+                  closeCustomModal();
+                }
+              } else {
+                showCustomModal({
+                  title: 'Error',
+                  message: data.message,
+                  iconType: 'error'
+                });
+              }
+            } catch (error) {
+              console.error('Error:', error);
+              closeCustomModal();
+            }
+          }
+        });
+      } else {
+        if (confirm("Are you sure you want to remove this item from your cart?")) {
+            try {
+              const response = await fetch(`/cart/remove/${productId}`, {
+                method: 'DELETE',
+                headers: { 'Content-Type': 'application/json' }
+              });
+              
+              const data = await response.json();
+              
+              if (data.success) {
+                if (data.itemCount === 0) {
+                  window.location.reload();
+                } else {
+                  const itemRow = document.querySelector(`.cart-item[data-product-id="${productId}"]`);
+                  if (itemRow) itemRow.remove();
+                  document.getElementById('cart-subtotal').textContent = `₹${data.cartTotal.toFixed(2)}`;
+                  document.getElementById('cart-final-total').textContent = `₹${data.cartTotal.toFixed(2)}`;
+                }
+              } else {
+                alert(data.message);
+              }
+            } catch (error) {
+              console.error('Error:', error);
+            }
+        }
+      }
+    }
+  </script>
+  
+  <% if (typeof stockAdjustedMessages !== 'undefined' && stockAdjustedMessages.length > 0) { %>
+    <script>
+      document.addEventListener('DOMContentLoaded', () => {
+        const messages = <%- JSON.stringify(stockAdjustedMessages) %>;
+        if (typeof showCustomModal !== 'undefined') {
+          showCustomModal({
+            title: 'Stock Update',
+            message: messages.join('<br><br>'),
+            iconType: 'warning',
+            confirmText: 'Okay',
+            showCancel: false
+          });
+        } else {
+          alert(messages.join('\n\n'));
+        }
+      });
+    </script>
+  <% } %>
+</body>
+</html>

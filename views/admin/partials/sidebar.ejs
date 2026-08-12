@@ -2,6 +2,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="/css/admin/layout.css" />
   <link rel="stylesheet" href="/css/admin/modal.css" />
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
   <% locals._adminLayoutCssLoaded = true; %>
 <% } %>
 <div class="sidebar">
@@ -47,7 +48,7 @@
       <img src="/images/icons/admin/brands.svg" alt="Brands" />
       Brands
     </a>
-    <a href="/admin/category" class="nav-item <%= activePage === 'category' ? 'active' : '' %>">
+    <a href="/admin/categories" class="nav-item <%= typeof activePage !== 'undefined' && activePage === 'category' ? 'active' : '' %>">
       <img src="/images/icons/admin/category.svg" alt="Category" />
       Category
     </a>

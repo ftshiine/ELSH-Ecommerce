@@ -25,7 +25,7 @@
         <div class="form-group">
           <label>Email Address</label>
           <div class="input-wrapper <%= locals.fieldErrors?.email ? 'has-error' : '' %>">
-            <input type="email" name="email" placeholder="name@example.com" value="<%= locals.formData?.email || '' %>" required />
+            <input type="email" name="email" placeholder="name@example.com" value="<%= locals.formData?.email || '' %>" />
           </div>
           <% if (locals.fieldErrors?.email) { %>
             <div class="field-error"><%= locals.fieldErrors.email %></div>
@@ -38,7 +38,7 @@
             <a href="/forgot-password" class="forgot-link">Forgot Password?</a>
           </div>
           <div class="input-wrapper <%= locals.fieldErrors?.password ? 'has-error' : '' %>">
-            <input type="password" name="password" id="password" placeholder="••••••••" required />
+            <input type="password" name="password" id="password" placeholder="••••••••" />
             <span class="toggle-eye" onclick="togglePass('password')">👁</span>
           </div>
           <% if (locals.fieldErrors?.password) { %>
@@ -77,14 +77,6 @@
     // Optional: clear form when leaving the page
     window.addEventListener('pagehide', function() {
       document.querySelectorAll('form').forEach(form => form.reset());
-    });
-  </script>
-  <script src="/js/validation.js"></script>
-  <script>
-    document.addEventListener('DOMContentLoaded', () => {
-      if (window.ELSHValidator) {
-        window.ELSHValidator.attachToForm('loginForm', ['email', 'password']);
-      }
     });
   </script>
 

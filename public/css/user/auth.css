@@ -127,11 +127,14 @@
 }
 
 /* ── CHECKBOX ── */
+.form-checkbox-group {
+  margin-bottom: 24px;
+}
+
 .form-checkbox {
   display: flex;
   align-items: flex-start;
   gap: 10px;
-  margin-bottom: 24px;
 }
 
 .form-checkbox input {
