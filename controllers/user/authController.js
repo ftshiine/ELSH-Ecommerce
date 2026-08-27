@@ -4,7 +4,8 @@ import { validate } from '../../utils/validation.js';
 import bcrypt from 'bcrypt';
 
 const loadSignup = (req, res) => {
-  res.render('user/auth/signup', { error: null });
+  const refCode = req.query.ref || '';
+  res.render('user/auth/signup', { error: null, refCode });
 };
 
 
@@ -26,7 +27,18 @@ const signup = async (req, res) => {
       return res.redirectWithState('/signup', { error: 'Please correct the highlighted fields.', fieldErrors: { email: 'Email already registered' } });
     }
 
-    await createUser({ fullName, email, phone, password });
+    let referredBy = null;
+    if (req.body.referralCode && req.body.referralCode.trim() !== '') {
+      const referrer = await import('../../models/User.js').then(m => m.default.findOne({ referralCode: req.body.referralCode.trim() }));
+      if (referrer) {
+        referredBy = referrer._id;
+      }
+    }
+
+    // Generate unique referral code for the new user
+    const newReferralCode = fullName.substring(0, 3).toUpperCase() + Math.random().toString(36).substring(2, 7).toUpperCase();
+
+    await createUser({ fullName, email, phone, password, referralCode: newReferralCode, referredBy });
     await sendOTP(email);
 
     req.session.pendingEmail = email;

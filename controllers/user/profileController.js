@@ -1,6 +1,8 @@
 import { getUserById, updateUser, removeProfileImage } from "../../services/user/profileService.js";
 import { sendOTP, verifyOTP } from "../../services/user/otpService.js";
 import User from "../../models/User.js";
+import Coupon from "../../models/Coupon.js";
+import Order from "../../models/Order.js";
 import { validate } from "../../utils/validation.js";
 
 const loadProfile = async (req, res) => {
@@ -9,6 +11,11 @@ const loadProfile = async (req, res) => {
         const user = await getUserById(req.session.user.id);
         if (!user) {
             return res.redirect('login');
+        }
+
+        if (!user.referralCode) {
+            user.referralCode = user.fullName.substring(0, 3).toUpperCase() + Math.random().toString(36).substring(2, 7).toUpperCase();
+            await user.save();
         }
         const breadcrumbs = [
             { name: 'Home', url: '/home' },
@@ -225,6 +232,64 @@ const cancelEmailChange = (req, res) => {
     res.redirect('/profile/edit');
 };
 
+const loadUserCoupons = async (req, res) => {
+    try {
+        const userId = req.session.user.id;
+        const user = await getUserById(userId);
+        
+        if (!user) {
+            return res.redirect('/login');
+        }
+
+        const now = new Date();
+
+        // 1. Fetch available coupons
+        const activeCoupons = await Coupon.find({
+            isActive: true,
+            startDate: { $lte: now },
+            $or: [
+                { endDate: null },
+                { endDate: { $gt: now } }
+            ]
+        }).sort({ createdAt: -1 });
+
+        // 2. Fetch expired/inactive coupons
+        const expiredCoupons = await Coupon.find({
+            $or: [
+                { isActive: false },
+                { endDate: { $lte: now } }
+            ]
+        }).sort({ endDate: -1 });
+
+        // 3. Calculate total savings
+        const orders = await Order.find({ user: userId, 'pricing.discount': { $gt: 0 } });
+        const totalSavings = orders.reduce((sum, order) => sum + order.pricing.discount, 0);
+
+        const breadcrumbs = [
+            { name: 'Home', url: '/home' },
+            { name: 'My Profile', url: '/profile' },
+            { name: 'My Coupons', url: '/profile/coupons' }
+        ];
+
+        const returnTo = req.query.returnTo || null;
+        const checkoutType = req.query.checkoutType || 'cart';
+
+        res.render('user/profile/coupons', {
+            user,
+            breadcrumbs,
+            activeCoupons,
+            expiredCoupons,
+            totalSavings,
+            returnTo,
+            checkoutType
+        });
+
+    } catch (error) {
+        console.error('Error loading user coupons:', error);
+        res.redirect('/profile');
+    }
+}
+
 export { 
     loadProfile, 
     loadEditProfile, 
@@ -238,5 +303,6 @@ export {
     submitNewEmail,
     loadVerifyNewEmail,
     verifyNewEmail,
-    cancelEmailChange 
+    cancelEmailChange,
+    loadUserCoupons
 };

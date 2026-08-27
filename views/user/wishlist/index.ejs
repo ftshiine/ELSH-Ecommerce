@@ -30,10 +30,15 @@
                         defaultVariant.images[0] : '';
                         const price = (defaultVariant.salePrice && defaultVariant.salePrice <
                             defaultVariant.regularPrice) ? defaultVariant.salePrice : defaultVariant.regularPrice; %>
-                            <div class="wishlist-card" id="wishlist-item-<%= product._id %>">
+                            <div class="wishlist-card <%= !product.isListed ? 'unavailable' : '' %>" id="wishlist-item-<%= product._id %>">
                                 <div class="card-image-wrapper">
                                     <a href="/product/<%= product._id %>">
                                         <img src="<%= pImage %>" alt="<%= product.name %>" class="product-image">
+                                        <% if (!product.isListed) { %>
+                                            <div class="unavailable-overlay">
+                                                <span>Currently Unavailable</span>
+                                            </div>
+                                        <% } %>
                                     </a>
                                     <button class="remove-btn" onclick="removeFromWishlist('<%= product._id %>')"
                                         aria-label="Remove from wishlist">
@@ -55,9 +60,13 @@
                                     <div class="card-bottom">
                                         <span class="product-price">₹<%= price %></span>
                                         <% const variantSize = defaultVariant.size || 'Default'; %>
-                                        <button class="btn-add-cart"
-                                            onclick="addToCart('<%= product._id %>', '<%= variantSize %>')">Add
-                                            to Cart</button>
+                                        <% if (product.isListed) { %>
+                                            <button class="btn-add-cart"
+                                                onclick="addToCart('<%= product._id %>', '<%= variantSize %>')">Add
+                                                to Cart</button>
+                                        <% } else { %>
+                                            <button class="btn-add-cart" disabled style="opacity: 0.5; cursor: not-allowed;">Unavailable</button>
+                                        <% } %>
                                     </div>
                                 </div>
                             </div>

@@ -50,7 +50,12 @@
                       }
                     %>
                     <p class="item-meta"><%= displaySize %> | <%= item.product.category ? item.product.category.name : 'N/A' %></p>
-                    <p class="item-unit-price">₹<%= item.price.toFixed(2) %></p>
+                    <p class="item-unit-price">
+                      <% if (variant.regularPrice > item.price) { %>
+                        <span style="text-decoration: line-through; color: #999; font-size: 0.85em; margin-right: 4px;">₹<%= variant.regularPrice.toFixed(2) %></span>
+                      <% } %>
+                      ₹<%= item.price.toFixed(2) %>
+                    </p>
                   </div>
                 </div>
                 
@@ -103,14 +108,36 @@
               <span id="promo-icon">▼</span>
             </div>
             <div class="promo-input-container" id="promo-container">
-              <input type="text" placeholder="Enter code">
-              <button>APPLY</button>
+              <% if (cart && cart.appliedCoupon) { %>
+                <div style="display: flex; justify-content: space-between; width: 100%; align-items: center; background: #eef5ee; padding: 8px 12px; border-radius: 4px; border: 1px dashed #556B55;">
+                  <div>
+                    <strong style="color: #556B55; font-size: 13px;"><%= cart.appliedCoupon.code %></strong>
+                    <span style="font-size: 11px; color: #666; margin-left: 8px;">Applied</span>
+                  </div>
+                  <button onclick="removeCoupon()" style="background: none; border: none; color: #d32f2f; font-size: 12px; cursor: pointer;">Remove</button>
+                </div>
+              <% } else { %>
+                <input type="text" id="couponInput" placeholder="Enter code">
+                <button onclick="applyCoupon()">APPLY</button>
+              <% } %>
             </div>
           </div>
 
-          <div class="summary-total-row">
-            <span>Total</span>
-            <span id="cart-final-total">₹<%= cart ? cart.cartTotal.toFixed(2) : '0.00' %></span>
+          <div class="summary-totals" id="summaryTotals">
+            <div class="summary-total-row" style="margin-bottom: 8px; font-weight: normal; font-size: 14px;">
+              <span>Subtotal</span>
+              <span id="cart-subtotal">₹<%= cart ? cart.cartTotal.toFixed(2) : '0.00' %></span>
+            </div>
+            <% if (cart && cart.appliedCoupon && cart.discountAmount > 0) { %>
+              <div class="summary-total-row" style="margin-bottom: 8px; font-weight: normal; font-size: 14px; color: #219653;">
+                <span>Discount (<%= cart.appliedCoupon.code %>)</span>
+                <span id="cart-discount">-₹<%= cart.discountAmount.toFixed(2) %></span>
+              </div>
+            <% } %>
+            <div class="summary-total-row">
+              <span>Total</span>
+              <span id="cart-final-total">₹<%= cart ? (cart.cartTotal - (cart.discountAmount || 0)).toFixed(2) : '0.00' %></span>
+            </div>
           </div>
 
           <% const hasOutOfStock = cart && cart.items.some(item => {
@@ -185,6 +212,48 @@
       }
     }
 
+    async function applyCoupon() {
+      const code = document.getElementById('couponInput').value;
+      if (!code) {
+        Swal.fire('Oops...', 'Please enter a coupon code.', 'error');
+        return;
+      }
+      try {
+        const response = await fetch('/cart/apply-coupon', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ code })
+        });
+        const data = await response.json();
+        if (data.success) {
+          Swal.fire('Success!', data.message, 'success').then(() => {
+            window.location.reload();
+          });
+        } else {
+          Swal.fire('Oops...', data.message, 'error');
+        }
+      } catch (err) {
+        Swal.fire('Error', 'Something went wrong', 'error');
+      }
+    }
+
+    async function removeCoupon() {
+      try {
+        const response = await fetch('/cart/remove-coupon', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' }
+        });
+        const data = await response.json();
+        if (data.success) {
+          Swal.fire('Removed', data.message, 'success').then(() => {
+            window.location.reload();
+          });
+        }
+      } catch (err) {
+        console.error(err);
+      }
+    }
+
     async function updateCartQuantity(productId, action, variantSize) {
       try {
         const response = await fetch(`/cart/update/${productId}`, {
@@ -247,18 +316,8 @@
               const data = await response.json();
               
               if (data.success) {
-                if (data.itemCount === 0) {
-                  window.location.reload();
-                } else {
-                  // Remove item from DOM
-                  const itemRow = document.querySelector(`.cart-item[data-product-id="${productId}"][data-variant-size="${variantSize || 'Default'}"]`);
-                  if (itemRow) itemRow.remove();
-                  
-                  // Update totals
-                  document.getElementById('cart-subtotal').textContent = `₹${data.cartTotal.toFixed(2)}`;
-                  document.getElementById('cart-final-total').textContent = `₹${data.cartTotal.toFixed(2)}`;
-                  closeCustomModal();
-                }
+                // Reload for simplicity when removing item if coupon is applied to recalculate discount
+                window.location.reload(); 
               } else {
                 showCustomModal({
                   title: 'Error',
@@ -303,9 +362,13 @@
   </script>
   
   <% if (typeof stockAdjustedMessages !== 'undefined' && stockAdjustedMessages.length > 0) { %>
+    <script id="stock-messages-data" type="application/json">
+      <%- JSON.stringify(stockAdjustedMessages) %>
+    </script>
     <script>
       document.addEventListener('DOMContentLoaded', () => {
-        const messages = <%- JSON.stringify(stockAdjustedMessages) %>;
+        const messagesData = document.getElementById('stock-messages-data').textContent;
+        const messages = JSON.parse(messagesData);
         if (typeof showCustomModal !== 'undefined') {
           showCustomModal({
             title: 'Stock Update',

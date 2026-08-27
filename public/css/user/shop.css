@@ -261,6 +261,7 @@ body {
 
 .price-slider-container input[type=range] {
   -webkit-appearance: none;
+  appearance: none;
   width: 100%;
   height: 2px;
   background: #EAEAEA;

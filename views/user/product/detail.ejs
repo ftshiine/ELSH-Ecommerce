@@ -56,21 +56,26 @@
                     <%= product.name %>
                   </h1>
                   <div class="product-price" id="priceContainer">
-                    <% if (defaultVariant.salePrice && defaultVariant.salePrice < defaultVariant.regularPrice) { %>
-                      <% const discount=Math.round(((defaultVariant.regularPrice - defaultVariant.salePrice) /
-                        defaultVariant.regularPrice) * 100); %>
-                        <span class="original-price"
-                          style="text-decoration: line-through; color: #999; font-size: 0.9em; margin-right: 8px;">₹<%=
-                            defaultVariant.regularPrice.toFixed(2) %></span>
-                        <span class="current-price" style="font-weight: 600;">₹<%= defaultVariant.salePrice.toFixed(2)
-                            %></span>
-                        <span class="discount-badge"
-                          style="color: #2e7d32; font-size: 0.85em; font-weight: 600; margin-left: 8px;">
-                          <%= discount %>% off
+                    <% 
+                      const effectivePrice = Math.ceil(Math.min(
+                        defaultVariant.regularPrice, 
+                        (defaultVariant.salePrice > 0 ? defaultVariant.salePrice : defaultVariant.regularPrice),
+                        (defaultVariant.offerPrice > 0 ? defaultVariant.offerPrice : defaultVariant.regularPrice)
+                      ));
+                      const regPrice = Math.ceil(defaultVariant.regularPrice);
+                      const hasDiscount = effectivePrice < regPrice;
+                      const isOffer = effectivePrice === Math.ceil(defaultVariant.offerPrice) && defaultVariant.offerPrice > 0 && (!defaultVariant.salePrice || defaultVariant.offerPrice <= defaultVariant.salePrice);
+                    %>
+                    <% if (hasDiscount) { %>
+                      <% const discount=Math.round(((regPrice - effectivePrice) / regPrice) * 100); %>
+                        <span class="original-price" style="text-decoration: line-through; color: #999; font-size: 0.9em; margin-right: 8px;">₹<%= regPrice %></span>
+                        <span class="current-price" style="font-weight: 600;">₹<%= effectivePrice %></span>
+                        <span class="discount-badge" style="color: #2e7d32; font-size: 0.85em; font-weight: 600; margin-left: 8px;">
+                          <%= discount %>% OFF <%= isOffer ? '(OFFER)' : '' %>
                         </span>
-                        <% } else { %>
-                          <span class="current-price">₹<%= defaultVariant.regularPrice.toFixed(2) %></span>
-                          <% } %>
+                    <% } else { %>
+                        <span class="current-price">₹<%= regPrice %></span>
+                    <% } %>
                   </div>
 
                   <div class="ritual-description-section">
@@ -83,7 +88,7 @@
                     <div class="size-options" id="sizeOptions">
                       <% variants.forEach((variant, index)=> { %>
                         <button class="size-btn <%= index === 0 ? 'active' : '' %>"
-                          onclick="selectVariant(<%= index %>, this)">
+                          onclick="selectVariant('<%= index %>', this)">
                           <%= variant.size %>
                         </button>
                         <% }) %>
@@ -323,9 +328,11 @@
 
       <%- include('../partials/footer') %>
 
+        <script id="product-variants-data" type="application/json"><%- JSON.stringify(variants).replace(/\\\\/g, '/') %></script>
+        <script id="user-cart-variants-data" type="application/json"><%- typeof inCartVariants !== 'undefined' ? JSON.stringify(inCartVariants) : '[]' %></script>
         <script>
-          const productVariants = <%- JSON.stringify(variants).replace(/\\\\/g, '/') %>;
-          const userInCartVariants = <%- typeof inCartVariants !== 'undefined' ? JSON.stringify(inCartVariants) : '[]' %>;
+          const productVariants = JSON.parse(document.getElementById('product-variants-data').textContent);
+          const userInCartVariants = JSON.parse(document.getElementById('user-cart-variants-data').textContent);
           let currentVariantIndex = 0;
 
           async function buyNow(productId) {
@@ -385,15 +392,24 @@
 
             // Update Price
             const priceContainer = document.getElementById('priceContainer');
-            if (variant.salePrice && variant.salePrice < variant.regularPrice) {
-              const discount = Math.round(((variant.regularPrice - variant.salePrice) / variant.regularPrice) * 100);
+            const regPrice = Math.ceil(variant.regularPrice || 0);
+            const salePrice = Math.ceil(variant.salePrice || regPrice);
+            const offerPrice = Math.ceil(variant.offerPrice || regPrice);
+            
+            const effPrice = Math.ceil(Math.min(regPrice, (salePrice > 0 ? salePrice : regPrice), (offerPrice > 0 ? offerPrice : regPrice)));
+            const hasDisc = effPrice < regPrice;
+            const isOff = effPrice === offerPrice && offerPrice > 0 && (!variant.salePrice || offerPrice <= variant.salePrice);
+
+            if (hasDisc) {
+              const discount = Math.round(((regPrice - effPrice) / regPrice) * 100);
+              const offerTag = isOff ? '(OFFER)' : '';
               priceContainer.innerHTML = `
-                <span class="original-price" style="text-decoration: line-through; color: #999; font-size: 0.9em; margin-right: 8px;">₹${variant.regularPrice.toFixed(2)}</span>
-                <span class="current-price" style="font-weight: 600;">₹${variant.salePrice.toFixed(2)}</span>
-                <span class="discount-badge" style="color: #2e7d32; font-size: 0.85em; font-weight: 600; margin-left: 8px;">${discount}% off</span>
-            `;
+                <span class="original-price" style="text-decoration: line-through; color: #999; font-size: 0.9em; margin-right: 8px;">₹${regPrice}</span>
+                <span class="current-price" style="font-weight: 600;">₹${effPrice}</span>
+                <span class="discount-badge" style="color: #2e7d32; font-size: 0.85em; font-weight: 600; margin-left: 8px;">${discount}% OFF ${offerTag}</span>
+              `;
             } else {
-              priceContainer.innerHTML = `<span class="current-price">₹${variant.regularPrice.toFixed(2)}</span>`;
+              priceContainer.innerHTML = `<span class="current-price">₹${regPrice}</span>`;
             }
 
             // Update Stock and buttons

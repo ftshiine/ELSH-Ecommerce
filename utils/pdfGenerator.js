@@ -93,6 +93,17 @@ export const generateInvoicePDF = (order, res) => {
   doc.text(order.pricing.shippingFee > 0 ? `INR ${order.pricing.shippingFee.toFixed(2)}` : 'FREE', 470, y);
   y += 20;
 
+  // Calculate actual additive tax applied to this specific order
+  const subTotalAfterDiscount = order.pricing.subtotal - order.pricing.discount;
+  const expectedTotalWithoutTax = subTotalAfterDiscount + order.pricing.shippingFee;
+  const appliedTax = order.pricing.totalAmount - expectedTotalWithoutTax;
+  
+  if (appliedTax > 0.01) {
+    doc.text('Tax:', 370, y);
+    doc.text(`INR ${appliedTax.toFixed(2)}`, 470, y);
+    y += 20;
+  }
+
   doc.font('Helvetica-Bold');
   doc.text('Total:', 370, y);
   doc.text(`INR ${order.pricing.totalAmount.toFixed(2)}`, 470, y);

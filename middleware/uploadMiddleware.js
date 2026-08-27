@@ -56,5 +56,14 @@ const productStorage = new CloudinaryStorage({
   },
 });
 
+const offerStorage = new CloudinaryStorage({
+  cloudinary: cloudinary,
+  params: {
+    folder: 'ELSH/offers',
+    allowed_formats: ['jpg', 'jpeg', 'png', 'webp'],
+  },
+});
+
 export const uploadCategory = multer({ storage: categoryStorage });
 export const uploadProducts = multer({ storage: productStorage });
+export const uploadOffers = multer({ storage: offerStorage });

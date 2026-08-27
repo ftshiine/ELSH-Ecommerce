@@ -10,6 +10,9 @@ import categoryRoutes from './admin/categoryRoutes.js';
 import productRoutes from './admin/productRoutes.js';
 import orderRoutes from './admin/orderRoutes.js';
 import inventoryRoutes from './admin/inventoryRoutes.js';
+import couponRoutes from './admin/couponRoutes.js';
+import offerRoutes from './admin/offerRoutes.js';
+import salesReportRoutes from './admin/salesReportRoutes.js';
 
 const router = express.Router();
 
@@ -26,5 +29,8 @@ router.use('/', categoryRoutes);
 router.use('/', productRoutes);
 router.use('/', orderRoutes);
 router.use('/', inventoryRoutes);
+router.use('/', couponRoutes);
+router.use('/', offerRoutes);
+router.use('/', salesReportRoutes);
 
 export default router;

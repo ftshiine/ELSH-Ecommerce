@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin | Sales Report</title>
+  
+  <%- include('../partials/sidebar') %>
+  <link rel="stylesheet" href="/css/admin/sales-report.css">
+</head>
+<body>
+
+<div class="admin-layout">
+  <%- include('../partials/sidebar') %>
+  <div class="main-content">
+    <%- include('../partials/topbar') %>
+    
+    <div class="page-content">
+      <div class="sales-report-wrapper">
+    
+    <!-- Header -->
+    <div class="report-header">
+      <div class="report-header-left">
+        <h1>Sales Report</h1>
+        <p>Detailed overview of revenue, product performance, and customer growth for the current period.</p>
+      </div>
+      
+      <div class="report-header-right">
+        <div class="custom-dropdown-wrapper filter-dropdown" style="z-index: 10;">
+          <div class="custom-dropdown" id="dateDropdown">
+            <div class="dropdown-selected" onclick="toggleDropdown(event, 'dateOptions')">
+              <span id="selectedDateText">
+                <%= range === 'all' ? 'All Time' : range === 'weekly' ? 'Past 7 Days' : range === 'last30' ? 'Past 30 Days' : range === 'yearly' ? 'Yearly' : 'Custom Range' %>
+              </span>
+              <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none"
+                stroke="#888" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="6 9 12 15 18 9"></polyline>
+              </svg>
+            </div>
+            <div class="dropdown-options" id="dateOptions" style="display: none;">
+              <div class="dropdown-option <%= range === 'all' ? 'active' : '' %>" onclick="selectDate('all', 'All Time')">All Time</div>
+              <div class="dropdown-option <%= range === 'weekly' ? 'active' : '' %>" onclick="selectDate('weekly', 'Past 7 Days')">Past 7 Days</div>
+              <div class="dropdown-option <%= range === 'last30' ? 'active' : '' %>" onclick="selectDate('last30', 'Past 30 Days')">Past 30 Days</div>
+              <div class="dropdown-option <%= range === 'yearly' ? 'active' : '' %>" onclick="selectDate('yearly', 'Yearly')">Yearly</div>
+              <div class="dropdown-option <%= range === 'custom' ? 'active' : '' %>" onclick="selectDate('custom', 'Custom Range')">Custom Range</div>
+            </div>
+          </div>
+        </div>
+
+
+        
+        <!-- Export Button -->
+        <div class="export-dropdown">
+          <button class="btn-export" onclick="toggleExportMenu()">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
+            Export Report
+          </button>
+          <div class="export-menu" id="exportMenu">
+            <a href="/admin/sales-report/export/pdf?range=<%= range %>&startDate=<%= startDate %>&endDate=<%= endDate %>" class="export-item">Download PDF</a>
+            <a href="/admin/sales-report/export/excel?range=<%= range %>&startDate=<%= startDate %>&endDate=<%= endDate %>" class="export-item">Download Excel</a>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Summary Cards -->
+    <div class="summary-cards">
+      <div class="summary-card">
+        <div class="summary-card-header">
+          <div class="summary-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#4a5240" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="5" width="20" height="14" rx="2"></rect><line x1="2" y1="10" x2="22" y2="10"></line></svg>
+          </div>
+        </div>
+        <div class="summary-label">TOTAL REVENUE</div>
+        <div class="summary-value">Rs. <%= summary.totalRevenue.toFixed(2) %></div>
+      </div>
+      
+      <div class="summary-card">
+        <div class="summary-card-header">
+          <div class="summary-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#4a5240" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="21" r="1"></circle><circle cx="20" cy="21" r="1"></circle><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path></svg>
+          </div>
+        </div>
+        <div class="summary-label">AVERAGE ORDER VALUE</div>
+        <div class="summary-value">Rs. <%= summary.averageOrderValue.toFixed(2) %></div>
+      </div>
+      
+      <div class="summary-card">
+        <div class="summary-card-header">
+          <div class="summary-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#4a5240" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="1" x2="12" y2="23"></line><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path></svg>
+          </div>
+        </div>
+        <div class="summary-label">TOTAL DISCOUNTS</div>
+        <div class="summary-value">Rs. <%= summary.totalDiscounts.toFixed(2) %></div>
+      </div>
+      
+      <div class="summary-card">
+        <div class="summary-card-header">
+          <div class="summary-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#4a5240" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="1" y="3" width="15" height="13"></rect><polygon points="16 8 20 8 23 11 23 16 16 16 16 8"></polygon><circle cx="5.5" cy="18.5" r="2.5"></circle><circle cx="18.5" cy="18.5" r="2.5"></circle></svg>
+          </div>
+        </div>
+        <div class="summary-label">TOTAL ORDERS</div>
+        <div class="summary-value"><%= summary.totalOrdersCount %></div>
+      </div>
+    </div>
+    
+    <!-- Transactions Table -->
+    <div class="transactions-section">
+      <div class="transactions-header">
+        <h3>Recent Transactions</h3>
+        <div class="custom-dropdown-wrapper filter-dropdown">
+          <div class="custom-dropdown" id="statusDropdown">
+            <div class="dropdown-selected" onclick="toggleDropdown(event, 'statusOptions')">
+              <span id="selectedStatusText">Status: All</span>
+              <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none"
+                stroke="#888" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="6 9 12 15 18 9"></polyline>
+              </svg>
+            </div>
+            <div class="dropdown-options" id="statusOptions" style="display: none;">
+              <div class="dropdown-option active" onclick="selectStatus('All', 'Status: All')">Status: All</div>
+              <div class="dropdown-option" onclick="selectStatus('COMPLETED', 'Completed')">Completed</div>
+              <div class="dropdown-option" onclick="selectStatus('PROCESSING', 'Processing')">Processing</div>
+              <div class="dropdown-option" onclick="selectStatus('SHIPPED', 'Shipped')">Shipped</div>
+            </div>
+          </div>
+          <input type="hidden" id="statusFilter" value="All">
+        </div>
+      </div>
+      
+      <table class="transactions-table">
+        <thead>
+          <tr>
+            <th>ORDER ID</th>
+            <th>CUSTOMER</th>
+            <th>DATE</th>
+            <th>AMOUNT</th>
+            <th>DISCOUNT</th>
+            <th>STATUS</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% if (orders && orders.length > 0) { %>
+            <% orders.forEach(order => { %>
+              <tr class="order-row" data-status="<%= order.orderStatus %>">
+                <td style="font-weight: 500;">#<%= order.orderId %></td>
+                <td>
+                  <div class="customer-cell">
+                    <div class="customer-avatar">
+                      <%= order.user ? order.user.fullName.substring(0, 2).toUpperCase() : 'NA' %>
+                    </div>
+                    <span><%= order.user ? order.user.fullName : 'N/A' %></span>
+                  </div>
+                </td>
+                <td><%= new Date(order.createdAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) %></td>
+                <td style="font-weight: 600;">Rs. <%= order.pricing.totalAmount %></td>
+                <td>Rs. <%= (order.pricing.discountAmount || 0) + (order.pricing.couponDiscount || 0) %></td>
+                <td>
+                  <% 
+                    let statusClass = 'status-processing';
+                    if (order.orderStatus === 'DELIVERED') statusClass = 'status-completed';
+                    if (order.orderStatus === 'SHIPPED') statusClass = 'status-shipped';
+                  %>
+                  <span class="status-badge <%= statusClass %>"><%= order.orderStatus %></span>
+                </td>
+              </tr>
+            <% }); %>
+          <% } else { %>
+            <tr>
+              <td colspan="6" style="text-align: center; padding: 40px; color: #888;">No transactions found for the selected date range.</td>
+            </tr>
+          <% } %>
+        </tbody>
+      </table>
+      
+      <% if (totalPages > 1) { %>
+      <div class="pagination-controls">
+        <div class="pagination-info">
+          Showing <%= ((currentPage - 1) * 10) + 1 %>-<%= Math.min(currentPage * 10, totalCount) %> of <%= totalCount %> transactions
+        </div>
+        <div class="pagination-pages">
+          <% if (currentPage > 1) { %>
+            <a href="/admin/sales-report?page=<%= currentPage - 1 %>&range=<%= range %>&startDate=<%= startDate %>&endDate=<%= endDate %>" class="page-btn">&lt;</a>
+          <% } %>
+          
+          <% for(let i = 1; i <= totalPages; i++) { %>
+            <a href="/admin/sales-report?page=<%= i %>&range=<%= range %>&startDate=<%= startDate %>&endDate=<%= endDate %>" class="page-btn <%= currentPage === i ? 'active' : '' %>"><%= i %></a>
+          <% } %>
+          
+          <% if (currentPage < totalPages) { %>
+            <a href="/admin/sales-report?page=<%= currentPage + 1 %>&range=<%= range %>&startDate=<%= startDate %>&endDate=<%= endDate %>" class="page-btn">&gt;</a>
+          <% } %>
+        </div>
+      </div>
+      <% } %>
+      
+    </div>
+    </div>
+
+      </div>
+    </div>
+  </div>
+</div>
+<!-- Custom Date Modal -->
+<div class="custom-date-modal" id="customDateModal">
+  <div class="modal-content">
+    <h3>Select Custom Date Range</h3>
+    <form action="/admin/sales-report" method="GET">
+      <input type="hidden" name="range" value="custom">
+      <div class="form-group">
+        <label>Start Date</label>
+        <input type="date" name="startDate" required max="<%= new Date().toISOString().split('T')[0] %>">
+      </div>
+      <div class="form-group">
+        <label>End Date</label>
+        <input type="date" name="endDate" required max="<%= new Date().toISOString().split('T')[0] %>">
+      </div>
+      <div class="modal-actions">
+        <button type="button" class="btn-secondary" onclick="closeCustomDateModal()">Cancel</button>
+        <button type="submit" class="btn-primary">Apply Filter</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<script>
+  function toggleExportMenu() {
+    document.getElementById('exportMenu').classList.toggle('active');
+  }
+
+  function toggleDropdown(e, optionsId) {
+    e.stopPropagation();
+    document.querySelectorAll('.dropdown-options').forEach(opt => {
+      if (opt.id !== optionsId) opt.style.display = 'none';
+    });
+
+    const options = document.getElementById(optionsId);
+    if (options.style.display === 'none' || options.style.display === '') {
+      options.style.display = 'block';
+    } else {
+      options.style.display = 'none';
+    }
+  }
+
+  function selectDate(value, text) {
+    if (value === 'custom') {
+      openCustomDateModal();
+      document.getElementById('dateOptions').style.display = 'none';
+    } else {
+      window.location.href = '/admin/sales-report?range=' + value;
+    }
+  }
+
+  function selectStatus(value, text) {
+    document.getElementById('statusFilter').value = value;
+    document.getElementById('selectedStatusText').textContent = text;
+    
+    const optionsList = document.querySelectorAll('#statusOptions .dropdown-option');
+    optionsList.forEach(opt => opt.classList.remove('active'));
+    event.target.classList.add('active');
+
+    document.getElementById('statusOptions').style.display = 'none';
+    filterStatus();
+  }
+
+  // Close custom dropdowns when clicking outside
+  document.addEventListener('click', function(event) {
+    if (!event.target.closest('.custom-dropdown-wrapper')) {
+      document.querySelectorAll('.dropdown-options').forEach(opt => {
+        opt.style.display = 'none';
+      });
+    }
+    
+    // existing export menu closing logic
+    const exportDropdown = document.querySelector('.export-dropdown');
+    if (!exportDropdown.contains(event.target)) {
+      document.getElementById('exportMenu').classList.remove('active');
+    }
+  });
+
+  function openCustomDateModal() {
+    document.getElementById('customDateModal').classList.add('active');
+  }
+
+  function closeCustomDateModal() {
+    document.getElementById('customDateModal').classList.remove('active');
+  }
+
+  function filterStatus() {
+    const filter = document.getElementById('statusFilter').value;
+    const rows = document.querySelectorAll('.order-row');
+    
+    rows.forEach(row => {
+      const status = row.getAttribute('data-status');
+      if (filter === 'All' || 
+         (filter === 'COMPLETED' && status === 'DELIVERED') ||
+         (filter === 'PROCESSING' && (status === 'PENDING' || status === 'PROCESSING')) ||
+         (filter === 'SHIPPED' && (status === 'SHIPPED' || status === 'OUT FOR DELIVERY'))) {
+        row.style.display = '';
+      } else {
+        row.style.display = 'none';
+      }
+    });
+  }
+</script>
+
+</body>
+</html>

@@ -1,0 +1,702 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Admin | Create Campaign</title>
+  <link rel="stylesheet" href="/css/admin/layout.css" />
+  <link rel="stylesheet" href="/css/admin/modal.css" />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Playfair+Display:wght@600&display=swap"
+    rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+  <% locals._adminLayoutCssLoaded = true; %>
+  <style>
+    /* Content Elements */
+    .content-header {
+      margin-bottom: 24px;
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+    }
+
+    .content-header h1 {
+      font-family: 'Playfair Display', serif;
+      font-size: 24px;
+      color: #2C3E2D;
+      margin-bottom: 8px;
+    }
+
+    .content-header p {
+      font-size: 14px;
+      color: #666;
+      max-width: 600px;
+      line-height: 1.5;
+    }
+
+    /* Form Styles */
+    label {
+      display: block;
+      font-size: 12px;
+      font-weight: 500;
+      color: #666;
+      margin-bottom: 8px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    input[type="text"],
+    input[type="number"],
+    input[type="date"],
+    select,
+    textarea {
+      width: 100%;
+      padding: 12px;
+      border: 1px solid #ddd;
+      border-radius: 8px;
+      font-family: 'Inter', sans-serif;
+      background: #fff;
+    }
+
+    .card {
+      background: white;
+      padding: 24px;
+      border-radius: 12px;
+      border: 1px solid #eaeaea;
+      margin-bottom: 24px;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.02);
+    }
+
+    .card h2 {
+      font-size: 16px;
+      font-weight: 600;
+      color: #333;
+      margin-bottom: 16px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    /* Button Styles */
+    .btn-primary {
+      padding: 12px 24px;
+      border-radius: 8px;
+      background: #556B55;
+      color: white;
+      border: none;
+      font-weight: 500;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+
+    .btn-primary:hover {
+      background: #455745;
+    }
+
+    .btn-outline {
+      padding: 12px 24px;
+      border-radius: 8px;
+      background: white;
+      color: #333;
+      border: 1px solid #ddd;
+      font-weight: 500;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+
+    .btn-outline:hover {
+      background: #f4f4f4;
+    }
+
+    .toggle-group {
+      display: flex;
+      gap: 12px;
+      margin-bottom: 16px;
+    }
+
+    .toggle-btn {
+      flex: 1;
+      cursor: pointer;
+    }
+
+    .toggle-btn input {
+      display: none;
+    }
+
+    .toggle-btn div {
+      border: 1px solid #ddd;
+      padding: 12px;
+      border-radius: 8px;
+      text-align: center;
+      color: #666;
+      font-size: 13px;
+      font-weight: 500;
+      transition: 0.2s;
+    }
+
+    .toggle-btn input:checked+div {
+      border: 2px solid #556B55;
+      background: #f8faf8;
+      color: #333;
+    }
+
+    .selected-items-list {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      margin-top: 16px;
+    }
+
+    .item-preview {
+      display: flex;
+      align-items: center;
+      padding: 12px;
+      background: #f9f9f9;
+      border-radius: 8px;
+      border: 1px solid #eee;
+    }
+
+    .item-preview img {
+      width: 40px;
+      height: 40px;
+      border-radius: 6px;
+      object-fit: cover;
+      margin-right: 12px;
+      border: 1px solid #ddd;
+    }
+
+    .item-details {
+      flex: 1;
+    }
+
+    .item-details h4 {
+      margin: 0 0 4px 0;
+      font-size: 13px;
+      color: #333;
+    }
+
+    .item-details p {
+      margin: 0;
+      font-size: 12px;
+      color: #888;
+    }
+
+    .upload-area {
+      border: 2px dashed #ddd;
+      border-radius: 8px;
+      padding: 32px 16px;
+      text-align: center;
+      cursor: pointer;
+      background: #fafafa;
+      transition: background 0.2s;
+    }
+
+    .upload-area:hover {
+      background: #f0f0f0;
+    }
+
+    /* Custom Dropdown Styles */
+    .custom-dropdown {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      width: 100%;
+      padding: 12px;
+      border: 1px solid #ddd;
+      border-radius: 8px;
+      background: #fff;
+      cursor: pointer;
+      font-family: 'Inter', sans-serif;
+      font-size: 14px;
+      color: #333;
+    }
+
+    .custom-dropdown:hover {
+      border-color: #556B55;
+    }
+
+    .dropdown-panel {
+      display: none;
+      position: absolute;
+      top: 100%;
+      left: 0;
+      right: 0;
+      background: #fff;
+      border: 1px solid #ddd;
+      border-radius: 8px;
+      margin-top: 4px;
+      max-height: 250px;
+      overflow-y: auto;
+      z-index: 100;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    }
+
+    .dropdown-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px 14px;
+      cursor: pointer;
+      transition: background 0.2s;
+      border-bottom: 1px solid #f4f4f4;
+      text-transform: none;
+      font-size: 14px;
+      color: #333;
+      font-weight: 400;
+      margin-bottom: 0;
+    }
+
+    .dropdown-item:last-child {
+      border-bottom: none;
+    }
+
+    .dropdown-item:hover {
+      background: #f9f9f9;
+    }
+
+    .dropdown-item input[type="checkbox"] {
+      width: 16px;
+      height: 16px;
+      margin: 0;
+      cursor: pointer;
+      accent-color: #556B55;
+      flex-shrink: 0;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="admin-layout">
+    <%- include('../partials/sidebar') %>
+      <div class="main-content">
+        <%- include('../partials/topbar') %>
+          <div class="page-content">
+            <div class="content-header">
+              <div>
+                <h1>Edit Campaign</h1>
+                <p>Design a visually stunning promotional offer to boost engagement and highlight curated selections.
+                </p>
+              </div>
+            </div>
+
+            <div id="errorBlock" style="display: none; background: #fce8e6; color: #d32f2f; padding: 16px; border-radius: 8px; margin-bottom: 24px; font-weight: 500; font-size: 14px; border-left: 4px solid #d32f2f;">
+            </div>
+
+            <form id="createOfferForm" data-id="<%= offer._id %>" style="display: grid; grid-template-columns: 2fr 1fr; gap: 24px;">
+
+              <div class="left-column" style="display: flex; flex-direction: column; gap: 24px;">
+                <div class="card">
+                  <h2>
+                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none"
+                      stroke="#556B55" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                      <path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"></path>
+                      <line x1="7" y1="7" x2="7.01" y2="7"></line>
+                    </svg>
+                    Campaign Essence
+                  </h2>
+                  <div style="margin-bottom: 16px;">
+                    <label>Campaign Name</label>
+                    <input type="text" name="name" placeholder="e.g. Summer Dew Glow Kit" value="<%= offer.name %>" oninput="updateLiveStats()">
+                  </div>
+                  <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+                    <div>
+                      <label>Start Date</label>
+                      <input type="text" id="startDate" name="startDate" placeholder="YYYY-MM-DD" value="<%= offer.startDate.toISOString().split('T')[0] %>" style="width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 8px; background: #fff;" readonly>
+                    </div>
+                    <div>
+                      <label>End Date</label>
+                      <input type="text" id="endDate" name="endDate" placeholder="YYYY-MM-DD" value="<%= offer.endDate.toISOString().split('T')[0] %>" style="width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 8px; background: #fff;" readonly>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="card">
+                  <h2>
+                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none"
+                      stroke="#556B55" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                      <polygon
+                        points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2">
+                      </polygon>
+                    </svg>
+                    Curated Selection
+                  </h2>
+
+                  <label>Offer Target Type</label>
+                  <div class="toggle-group" style="max-width: 600px;">
+                    <label class="toggle-btn">
+                      <input type="radio" name="targetType" value="product" <%= offer.targetType === 'product' ? 'checked' : '' %> onchange="toggleTargetType()">
+                      <div>Specific Products</div>
+                    </label>
+                    <label class="toggle-btn">
+                      <input type="radio" name="targetType" value="category" <%= offer.targetType === 'category' ? 'checked' : '' %> onchange="toggleTargetType()">
+                      <div>Entire Categories</div>
+                    </label>
+                    <label class="toggle-btn">
+                      <input type="radio" name="targetType" value="variant" <%= offer.targetType === 'variant' ? 'checked' : '' %> onchange="toggleTargetType()">
+                      <div>Specific Variants</div>
+                    </label>
+                  </div>
+
+                  <div id="productSelectGroup" style="margin-top: 16px; position: relative;">
+                    <label>Select Products</label>
+                    <div class="custom-dropdown" id="productDropdown" onclick="toggleCustomDropdown('productOptions')">
+                      <span id="productDropdownText">Select products...</span>
+                      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
+                        stroke="#666" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <polyline points="6 9 12 15 18 9"></polyline>
+                      </svg>
+                    </div>
+                    <div class="dropdown-panel" id="productOptions">
+                      <% products.forEach(product=> {
+                        const defaultVariant = product.variants && product.variants.length > 0 ? product.variants[0] :
+                        null;
+                        const price = defaultVariant ? (defaultVariant.salePrice || defaultVariant.regularPrice) : 0;
+                        const image = defaultVariant && defaultVariant.images.length > 0 ?
+                        defaultVariant.images[0].replace(/\\/g, '/') : '';
+                        %>
+                        <label class="dropdown-item">
+                          <input type="checkbox" name="targetProducts" value="<%= product._id %>"
+                            data-name="<%= product.name %>" data-price="<%= price %>" data-image="<%= image %>"
+                            <%= offer.targetProducts.some(p => p.toString() === product._id.toString()) ? 'checked' : '' %>
+                            onchange="updateLiveStats()">
+                          <span>
+                            <%= product.name %> (₹<%= price %>)
+                          </span>
+                        </label>
+                        <% }) %>
+                    </div>
+                  </div>
+
+                  <div id="categorySelectGroup" style="margin-top: 16px; position: relative; display: none;">
+                    <label>Select Categories</label>
+                    <div class="custom-dropdown" id="categoryDropdown"
+                      onclick="toggleCustomDropdown('categoryOptions')">
+                      <span id="categoryDropdownText">Select categories...</span>
+                      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
+                        stroke="#666" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <polyline points="6 9 12 15 18 9"></polyline>
+                      </svg>
+                    </div>
+                    <div class="dropdown-panel" id="categoryOptions">
+                      <% categories.forEach(category=> { %>
+                        <label class="dropdown-item">
+                          <input type="checkbox" name="targetCategories" value="<%= category._id %>"
+                            data-name="<%= category.name %>"
+                            <%= offer.targetCategories.some(c => c.toString() === category._id.toString()) ? 'checked' : '' %>
+                            onchange="updateLiveStats()">
+                          <span>
+                            <%= category.name %>
+                          </span>
+                        </label>
+                        <% }) %>
+                    </div>
+                  </div>
+
+                  <div id="variantSelectGroup" style="margin-top: 16px; position: relative; display: none;">
+                    <label>Select Variants</label>
+                    <div class="custom-dropdown" id="variantDropdown" onclick="toggleCustomDropdown('variantOptions')">
+                      <span id="variantDropdownText">Select variants...</span>
+                      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
+                        stroke="#666" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <polyline points="6 9 12 15 18 9"></polyline>
+                      </svg>
+                    </div>
+                    <div class="dropdown-panel" id="variantOptions">
+                      <% products.forEach(product=> {
+                        if (product.variants && product.variants.length > 0) {
+                        product.variants.forEach(variant => {
+                        const price = variant.salePrice || variant.regularPrice;
+                        const image = variant.images && variant.images.length > 0 ? variant.images[0].replace(/\\/g,
+                        '/') : '';
+                        %>
+                        <label class="dropdown-item">
+                          <input type="checkbox" name="targetVariants" value="<%= variant._id %>"
+                            data-name="<%= product.name %> - <%= variant.size %>" data-price="<%= price %>"
+                            data-image="<%= image %>"
+                            <%= offer.targetVariants.some(v => v.toString() === variant._id.toString()) ? 'checked' : '' %>
+                            onchange="updateLiveStats()">
+                          <span>
+                            <%= product.name %> - <%= variant.size %> (₹<%= price %>)
+                          </span>
+                        </label>
+                        <% }) } }) %>
+                    </div>
+                  </div>
+
+                  <div class="selected-items-list" id="selectedItemsList">
+                    <div
+                      style="padding: 20px; text-align: center; color: #888; background: #f9f9f9; border-radius: 8px; border: 1px dashed #ddd; font-size: 13px;">
+                      No items selected yet. Select items above.
+                    </div>
+                  </div>
+                </div>
+
+                <div class="card">
+                  <h2>
+                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none"
+                      stroke="#556B55" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                      <circle cx="12" cy="12" r="10"></circle>
+                      <path d="M16 8h-6a2 2 0 1 0 0 4h4a2 2 0 1 1 0 4H8"></path>
+                      <path d="M12 18V6"></path>
+                    </svg>
+                    Discount Architecture
+                  </h2>
+                  <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 24px;">
+                    <div>
+                      <label>Bundle Discount Type</label>
+                      <div class="toggle-group">
+                        <label class="toggle-btn">
+                          <input type="radio" name="discountType" value="percentage" <%= offer.discountType === 'percentage' ? 'checked' : '' %>
+                            onchange="updateLiveStats()">
+                          <div>Percentage (%)</div>
+                        </label>
+                        <label class="toggle-btn">
+                          <input type="radio" name="discountType" value="fixed" <%= offer.discountType === 'fixed' ? 'checked' : '' %> onchange="updateLiveStats()">
+                          <div>Fixed (₹)</div>
+                        </label>
+                      </div>
+                    </div>
+                    <div>
+                      <label>Discount Value</label>
+                      <div style="position: relative;">
+                        <input type="number" name="discountValue" id="discountValueInput" value="<%= offer.discountValue %>" 
+                          oninput="updateLiveStats()">
+                        <span id="symbolSpan"
+                          style="position: absolute; right: 16px; top: 12px; color: #666; font-weight: 500;">%</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+              </div>
+
+              <div class="right-column">
+                <div class="card" style="position: sticky; top: 24px;">
+                  <h3 style="font-size: 14px; font-weight: 600; color: #333; margin-bottom: 16px;">Offer Preview</h3>
+                  
+                  <div style="background: white; border-radius: 12px; padding: 24px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); margin-bottom: 24px; text-align: center; position: relative; border: 1px solid #eaeaea;">
+                    <div style="position: absolute; top: -10px; right: -10px; background: #eef5ee; color: #556B55; font-size: 10px; padding: 4px 8px; border-radius: 20px; font-weight: 600;">ACTIVE</div>
+                    <h4 id="previewValue" style="font-size: 32px; font-weight: 500; color: #556B55; margin-bottom: 8px; font-family: 'Playfair Display', serif;">20% OFF</h4>
+                    <p id="previewTitle" style="font-size: 12px; color: #666; margin-bottom: 24px; font-style: italic;">Campaign Name</p>
+
+                    <div style="border-top: 1px dashed #ddd; padding-top: 16px;">
+                      <div style="display: flex; justify-content: space-between; font-size: 13px; color: #333; margin-bottom: 8px;">
+                        <span>Target</span>
+                        <strong id="summaryTarget">Products</strong>
+                      </div>
+                      <div style="display: flex; justify-content: space-between; font-size: 13px; color: #333;">
+                        <span>Items Selected</span>
+                        <strong id="summaryItems">0</strong>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div style="display: flex; gap: 12px;">
+                    <a href="/admin/offers" class="btn-secondary" style="flex: 1; text-align: center; text-decoration: none; padding: 12px; border-radius: 8px; background: white; border: 1px solid #ddd; color: #666;">Discard</a>
+                    <button type="submit" form="createOfferForm" class="btn-primary" style="flex: 1; padding: 12px; border-radius: 8px; background: #556B55; color: white; border: none; font-weight: 500; cursor: pointer;">Save Changes</button>
+                  </div>
+                </div>
+              </div>
+
+            </form>
+
+          </div>
+      </div>
+  </div>
+
+  <script>
+    const selectedItemsList = document.getElementById('selectedItemsList');
+    const discountValueInput = document.getElementById('discountValueInput');
+    const symbolSpan = document.getElementById('symbolSpan');
+
+    function toggleCustomDropdown(id) {
+      const panel = document.getElementById(id);
+      panel.style.display = panel.style.display === 'block' ? 'none' : 'block';
+      event.stopPropagation();
+    }
+
+    // Close dropdowns when clicking outside
+    document.addEventListener('click', function(event) {
+      if (!event.target.closest('#productSelectGroup')) {
+        document.getElementById('productOptions').style.display = 'none';
+      }
+      if (!event.target.closest('#categorySelectGroup')) {
+        document.getElementById('categoryOptions').style.display = 'none';
+      }
+      if (!event.target.closest('#variantSelectGroup')) {
+        document.getElementById('variantOptions').style.display = 'none';
+      }
+    });
+
+    function toggleTargetType(isInitialLoad) {
+      const shouldClear = isInitialLoad !== true;
+      const targetType = document.querySelector('input[name="targetType"]:checked').value;
+      const productGroup = document.getElementById('productSelectGroup');
+      const categoryGroup = document.getElementById('categorySelectGroup');
+      const variantGroup = document.getElementById('variantSelectGroup');
+
+      productGroup.style.display = 'none';
+      categoryGroup.style.display = 'none';
+      variantGroup.style.display = 'none';
+      
+      if (shouldClear) {
+        document.querySelectorAll('input[name="targetProducts"], input[name="targetCategories"], input[name="targetVariants"]').forEach(cb => cb.checked = false);
+      }
+
+      if (targetType === 'product') {
+        productGroup.style.display = 'block';
+      } else if (targetType === 'category') {
+        categoryGroup.style.display = 'block';
+      } else if (targetType === 'variant') {
+        variantGroup.style.display = 'block';
+      }
+      
+      document.getElementById('productOptions').style.display = 'none';
+      document.getElementById('categoryOptions').style.display = 'none';
+      document.getElementById('variantOptions').style.display = 'none';
+      
+      updateLiveStats();
+    }
+
+    function updateLiveStats() {
+      const discountType = document.querySelector('input[name="discountType"]:checked').value;
+      const discountValue = parseFloat(discountValueInput.value) || 0;
+      
+      symbolSpan.textContent = discountType === 'percentage' ? '%' : '₹';
+
+      const nameInput = document.querySelector('input[name="name"]').value;
+      const targetType = document.querySelector('input[name="targetType"]:checked').value;
+      let targetName = 'Products';
+      if (targetType === 'category') targetName = 'Categories';
+      if (targetType === 'variant') targetName = 'Variants';
+      
+      const selectedCheckboxes = Array.from(document.querySelectorAll(`input[name="target${targetName}"]:checked`));
+      
+      // Update Summary panel
+      const discountDisplay = discountType === 'percentage' ? `${discountValue}% OFF` : `₹${discountValue} OFF`;
+      document.getElementById('previewValue').textContent = discountDisplay;
+      document.getElementById('previewTitle').textContent = nameInput || 'Campaign Name';
+      document.getElementById('summaryTarget').textContent = targetName;
+      document.getElementById('summaryItems').textContent = selectedCheckboxes.length;
+
+      // Update dropdown text
+      const dropdownTextElement = document.getElementById(`${targetType}DropdownText`);
+      if (selectedCheckboxes.length === 0) {
+        dropdownTextElement.textContent = `Select ${targetType === 'product' ? 'products' : (targetType === 'category' ? 'categories' : 'variants')}...`;
+      } else {
+        dropdownTextElement.textContent = `${selectedCheckboxes.length} item${selectedCheckboxes.length > 1 ? 's' : ''} selected`;
+      }
+      
+      if (selectedCheckboxes.length === 0) {
+        selectedItemsList.innerHTML = '<div style="padding: 20px; text-align: center; color: #888; background: #f9f9f9; border-radius: 8px; border: 1px dashed #ddd; font-size: 13px;">No items selected yet. Select items above.</div>';
+        return;
+      }
+
+      selectedItemsList.innerHTML = '';
+      
+      selectedCheckboxes.forEach(checkbox => {
+        let name = checkbox.dataset.name;
+        let image = '/images/placeholder.jpg';
+        let detailText = '';
+
+        if (targetType === 'product' || targetType === 'variant') {
+          const price = parseFloat(checkbox.dataset.price || 0);
+          detailText = `₹${price.toFixed(2)}`;
+          if (checkbox.dataset.image && checkbox.dataset.image !== '') {
+            image = checkbox.dataset.image.startsWith('/') ? checkbox.dataset.image : '/' + checkbox.dataset.image;
+          }
+        } else {
+          detailText = 'Entire Category';
+          image = 'https://ui-avatars.com/api/?name=' + encodeURIComponent(name) + '&background=eef5ee&color=556B55'; 
+        }
+        
+        let discountDisplay = discountType === 'percentage' ? `${discountValue}% OFF` : `₹${discountValue} OFF`;
+        
+        const html = `
+          <div class="item-preview">
+            <img src="${image}" alt="Item">
+            <div class="item-details">
+              <h4>${name}</h4>
+              <p>${detailText}</p>
+            </div>
+            <div style="font-size: 13px; font-weight: 600; color: #556B55; background: #eef5ee; padding: 4px 10px; border-radius: 20px;">
+              ${discountDisplay}
+            </div>
+          </div>
+        `;
+        selectedItemsList.insertAdjacentHTML('beforeend', html);
+      });
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+      toggleTargetType(true);
+      updateLiveStats();
+    });
+
+    document.getElementById('createOfferForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      
+      const submitBtn = e.target.querySelector('button[type="submit"]');
+      submitBtn.disabled = true;
+      submitBtn.textContent = 'Saving...';
+      
+      const formData = new FormData(e.target);
+      const data = Object.fromEntries(formData.entries());
+      
+      const targetProducts = formData.getAll('targetProducts');
+      if (targetProducts.length > 0) data.targetProducts = targetProducts;
+      
+      const targetCategories = formData.getAll('targetCategories');
+      if (targetCategories.length > 0) data.targetCategories = targetCategories;
+      
+      const targetVariants = formData.getAll('targetVariants');
+      if (targetVariants.length > 0) data.targetVariants = targetVariants;
+
+      const offerId = e.target.getAttribute('data-id');
+
+      try {
+        const response = await fetch(`/admin/offers/${offerId}/edit`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(data)
+        });
+        
+        const result = await response.json();
+        
+        if (response.ok) {
+          window.location.href = '/admin/offers';
+        } else {
+          const errorBlock = document.getElementById('errorBlock');
+          errorBlock.style.display = 'block';
+          errorBlock.textContent = result.message || 'Error updating offer.';
+          window.scrollTo(0, 0);
+          submitBtn.disabled = false;
+          submitBtn.textContent = 'Save Changes';
+        }
+      } catch (error) {
+        console.error('Submit error:', error);
+        const errorBlock = document.getElementById('errorBlock');
+        errorBlock.style.display = 'block';
+        errorBlock.textContent = 'An unexpected error occurred.';
+        window.scrollTo(0, 0);
+        submitBtn.disabled = false;
+        submitBtn.textContent = 'Save Changes';
+      }
+    });
+  </script>
+  <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+  <script>
+    flatpickr("#startDate", {
+      dateFormat: "Y-m-d",
+      defaultDate: document.getElementById('startDate').value || new Date()
+    });
+    flatpickr("#endDate", {
+      dateFormat: "Y-m-d",
+      defaultDate: document.getElementById('endDate').value || null
+    });
+  </script>
+</body>
+
+</html>

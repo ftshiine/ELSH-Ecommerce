@@ -140,6 +140,35 @@
                             value="<%= product.skinType && product.skinType.length > 0 ? product.skinType[0] : '' %>">
                         </div>
                       </div>
+
+                      <div class="form-group">
+                        <label>Return Policy (Days)</label>
+                        <div class="input-wrapper custom-dropdown-wrapper" style="position: relative;">
+                          <div class="custom-dropdown form-control" id="returnWindowDropdown"
+                            style="padding: 0; border: none; background: transparent;">
+                            <div class="dropdown-selected" onclick="toggleDropdown(event, 'returnWindowOptions')"
+                              style="display: flex; align-items: center; justify-content: space-between; cursor: pointer; padding: 12px 16px; border: 1px solid #e0e0e0; border-radius: 8px; background: #f9f9f9;">
+                              <span id="selectedReturnWindowText">
+                                <% if (product.returnWindowDays === 0) { %>Non-Returnable (0 Days)<% }
+                                else if (product.returnWindowDays === 14) { %>14 Days<% }
+                                else { %>7 Days<% } %>
+                              </span>
+                              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24"
+                                fill="none" stroke="#222" stroke-width="2" stroke-linecap="round"
+                                stroke-linejoin="round">
+                                <polyline points="6 9 12 15 18 9"></polyline>
+                              </svg>
+                            </div>
+                            <div class="dropdown-options" id="returnWindowOptions"
+                              style="display: none; position: absolute; top: 100%; left: 0; width: 100%; background: white; border: 1px solid #e0e0e0; border-radius: 8px; margin-top: 4px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); z-index: 10; max-height: 200px; overflow-y: auto;">
+                              <div class="dropdown-option <%= product.returnWindowDays === 0 ? 'active' : '' %>" onclick="selectReturnWindow('0', 'Non-Returnable (0 Days)')">Non-Returnable (0 Days)</div>
+                              <div class="dropdown-option <%= (product.returnWindowDays === 7 || product.returnWindowDays === undefined) ? 'active' : '' %>" onclick="selectReturnWindow('7', '7 Days')">7 Days</div>
+                              <div class="dropdown-option <%= product.returnWindowDays === 14 ? 'active' : '' %>" onclick="selectReturnWindow('14', '14 Days')">14 Days</div>
+                            </div>
+                          </div>
+                          <input type="hidden" name="returnWindowDays" id="returnWindowInput" value="<%= product.returnWindowDays !== undefined ? product.returnWindowDays : 7 %>">
+                        </div>
+                      </div>
                     </div>
                   </div>
 
@@ -407,6 +436,17 @@
       document.getElementById('skinTypeOptions').style.display = 'none';
     }
 
+    function selectReturnWindow(value, text) {
+      document.getElementById('returnWindowInput').value = value;
+      document.getElementById('selectedReturnWindowText').textContent = text;
+
+      const optionsList = document.querySelectorAll('#returnWindowOptions .dropdown-option');
+      optionsList.forEach(opt => opt.classList.remove('active'));
+      event.target.classList.add('active');
+
+      document.getElementById('returnWindowOptions').style.display = 'none';
+    }
+
     function selectCategory(value, text) {
       document.getElementById('categoryInput').value = value;
       document.getElementById('selectedCategoryText').textContent = text;
@@ -486,8 +526,7 @@
                   previewEl.src.startsWith('/'))) {
               if (!previewEl.src.startsWith('blob:') &&
                 !previewEl.src.endsWith(window.location.host + window.location.pathname)) {
-                let path = new
-                  URL(previewEl.src).pathname; formData.append(`variantImageMapping_${index}`, path);
+                let path = previewEl.getAttribute('src'); formData.append(`variantImageMapping_${index}`, path);
                 existingImages.push(path);
               }
             }

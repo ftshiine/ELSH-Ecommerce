@@ -54,7 +54,7 @@ export const loadAddProduct = async (req, res) => {
 //Add new product
 export const addProduct = async (req, res) => {
     try {
-        const { name, description, category, brand, isListed, isFeatured, skinType, variants } = req.body;
+        const { name, description, category, brand, isListed, isFeatured, skinType, variants, returnWindowDays } = req.body;
 
         let parsedVariants = [];
         if (variants) {
@@ -93,6 +93,7 @@ export const addProduct = async (req, res) => {
             brand,
             skinType: processedSkinType,
             variants: parsedVariants,
+            returnWindowDays: returnWindowDays !== undefined ? Number(returnWindowDays) : 7,
             isListed: isListed === 'on' || isListed === true || isListed === 'true',
             isFeatured: isFeatured === 'on' || isFeatured === true || isFeatured === 'true'
         });
@@ -128,7 +129,7 @@ export const loadEditProduct = async (req, res) => {
 export const editProduct = async (req, res) => {
     try {
         const { id } = req.params;
-        const { name, description, category, brand, isListed, isFeatured, skinType, variants } = req.body;
+        const { name, description, category, brand, isListed, isFeatured, skinType, variants, returnWindowDays } = req.body;
 
         let parsedVariants = [];
         if (variants) {
@@ -152,7 +153,7 @@ export const editProduct = async (req, res) => {
             if (imageMapping) {
                 const mappings = Array.isArray(imageMapping) ? imageMapping : [imageMapping];
                 let fileIndex = 0;
-                
+
                 // Get files just for this variant
                 const variantFiles = (req.files || []).filter(f => f.fieldname === `variantImages_${index}`);
 
@@ -171,7 +172,7 @@ export const editProduct = async (req, res) => {
                 const variantFiles = (req.files || []).filter(f => f.fieldname === `variantImages_${index}`);
                 finalImages = variantFiles.map(f => f.path);
             }
-            
+
             if (finalImages.length === 0 && variant.images && variant.images.length > 0) {
                 finalImages = variant.images;
             }
@@ -191,6 +192,7 @@ export const editProduct = async (req, res) => {
             brand,
             skinType: processedSkinType,
             variants: parsedVariants,
+            returnWindowDays: returnWindowDays !== undefined ? Number(returnWindowDays) : 7,
             isListed: isListed === 'on' || isListed === true || isListed === 'true',
             isFeatured: isFeatured === 'on' || isFeatured === true || isFeatured === 'true'
         };
@@ -216,7 +218,6 @@ export const editProduct = async (req, res) => {
 export const toggleProductStatus = async (req, res) => {
     try {
         const { id } = req.params;
-
         const product = await Product.findById(id);
 
         if (!product) {

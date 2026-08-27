@@ -1,0 +1,578 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ELSH | My Coupons</title>
+
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Playfair+Display:ital,wght@0,400;0,500;1,400&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/css/user/profile.css" />
+  <script src="https://cdn.jsdelivr.net/npm/toastify-js"></script>
+  <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/toastify-js/src/toastify.min.css">
+  
+  <style>
+    .coupons-wrapper {
+      max-width: 1000px;
+      margin: 0 auto;
+      padding: 40px 24px;
+      font-family: 'Inter', sans-serif;
+    }
+
+    .coupons-header {
+      margin-bottom: 40px;
+    }
+
+    .coupons-header h1 {
+      font-family: 'Playfair Display', serif;
+      font-size: 32px;
+      font-weight: 400;
+      color: #333;
+      margin-bottom: 8px;
+    }
+
+    .coupons-header p {
+      font-size: 14px;
+      color: #666;
+    }
+
+    /* Stats Section */
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 24px;
+      margin-bottom: 48px;
+    }
+
+    .stat-card {
+      background: #fff;
+      border: 1px solid #eaeaea;
+      border-radius: 8px;
+      padding: 32px 24px;
+      text-align: center;
+      box-shadow: 0 2px 12px rgba(0,0,0,0.02);
+    }
+
+    .stat-value {
+      font-family: 'Playfair Display', serif;
+      font-size: 28px;
+      color: #8c8266;
+      margin-bottom: 8px;
+    }
+
+    .stat-label {
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 1px;
+      color: #666;
+      text-transform: uppercase;
+    }
+
+    /* Redeem & Guidelines */
+    .top-actions-grid {
+      display: grid;
+      grid-template-columns: 2fr 1fr;
+      gap: 24px;
+      margin-bottom: 48px;
+    }
+
+    .redeem-card {
+      background: #fff;
+      border: 1px solid #eaeaea;
+      border-radius: 8px;
+      padding: 32px;
+      box-shadow: 0 2px 12px rgba(0,0,0,0.02);
+    }
+
+    .redeem-card h2 {
+      font-family: 'Playfair Display', serif;
+      font-size: 24px;
+      color: #333;
+      margin-bottom: 24px;
+      font-weight: 400;
+    }
+
+    .redeem-input-group {
+      display: flex;
+      gap: 16px;
+      margin-bottom: 16px;
+    }
+
+    .redeem-input-group input {
+      flex: 1;
+      padding: 14px 16px;
+      border: 1px solid #eaeaea;
+      border-radius: 4px;
+      background: #f9f9f9;
+      font-family: 'Inter', sans-serif;
+      font-size: 14px;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+    
+    .redeem-input-group input:focus {
+      border-color: #556B55;
+      background: #fff;
+    }
+
+    .btn-redeem {
+      background: #556B55;
+      color: white;
+      border: none;
+      padding: 0 32px;
+      border-radius: 4px;
+      font-size: 12px;
+      font-weight: 600;
+      letter-spacing: 1px;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+
+    .btn-redeem:hover {
+      background: #455745;
+    }
+
+    .redeem-note {
+      font-size: 11px;
+      color: #888;
+    }
+
+    .guidelines-card {
+      background: #f4f3f0;
+      border-radius: 8px;
+      padding: 32px;
+    }
+
+    .guidelines-title {
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 1px;
+      color: #333;
+      text-transform: uppercase;
+      margin-bottom: 16px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .guidelines-list {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+    }
+
+    .guidelines-list li {
+      font-size: 12px;
+      color: #555;
+      margin-bottom: 12px;
+      position: relative;
+      padding-left: 12px;
+      line-height: 1.5;
+    }
+
+    .guidelines-list li::before {
+      content: '•';
+      position: absolute;
+      left: 0;
+      color: #8c8266;
+    }
+
+    /* Coupon List */
+    .section-title {
+      font-family: 'Playfair Display', serif;
+      font-size: 24px;
+      font-weight: 400;
+      color: #333;
+      margin-bottom: 24px;
+    }
+
+    .coupon-card {
+      display: flex;
+      background: #fff;
+      border: 1px solid #eaeaea;
+      border-radius: 8px;
+      margin-bottom: 16px;
+      overflow: hidden;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.02);
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+
+    .coupon-card:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 16px rgba(0,0,0,0.05);
+    }
+
+    .coupon-value-box {
+      width: 140px;
+      background: #faf9f7;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      border-right: 1px dashed #eaeaea;
+      padding: 24px;
+    }
+
+    .coupon-value {
+      font-family: 'Playfair Display', serif;
+      font-size: 28px;
+      color: #556B55;
+      margin-bottom: 4px;
+    }
+
+    .coupon-value.text-gold {
+      color: #8c8266;
+    }
+
+    .coupon-type {
+      font-size: 10px;
+      font-weight: 600;
+      letter-spacing: 1px;
+      color: #666;
+      text-transform: uppercase;
+    }
+
+    .coupon-details {
+      flex: 1;
+      padding: 24px 32px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+    }
+
+    .coupon-header {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 8px;
+    }
+
+    .coupon-code {
+      font-size: 16px;
+      font-weight: 500;
+      color: #333;
+      letter-spacing: 1px;
+    }
+
+    .badge-active {
+      background: #eef5ee;
+      color: #556B55;
+      font-size: 9px;
+      font-weight: 600;
+      padding: 4px 8px;
+      border-radius: 12px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+    
+    .badge-unused {
+      background: #f4f3f0;
+      color: #666;
+      font-size: 9px;
+      font-weight: 600;
+      padding: 4px 8px;
+      border-radius: 12px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+
+    .coupon-desc {
+      font-size: 13px;
+      color: #555;
+      margin-bottom: 12px;
+    }
+
+    .coupon-meta {
+      font-size: 11px;
+      color: #888;
+    }
+
+    .coupon-action {
+      padding: 24px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .btn-apply {
+      background: transparent;
+      color: #666;
+      border: 1px solid #ddd;
+      padding: 10px 24px;
+      border-radius: 4px;
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 1px;
+      cursor: pointer;
+      transition: all 0.2s;
+      white-space: nowrap;
+    }
+
+    .btn-apply:hover {
+      border-color: #556B55;
+      color: #556B55;
+    }
+
+    /* Expired Coupons */
+    .expired-section {
+      margin-top: 64px;
+    }
+
+    .expired-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 24px;
+      border-bottom: 1px solid #eaeaea;
+      padding-bottom: 16px;
+    }
+
+    .expired-header .section-title {
+      margin-bottom: 0;
+      color: #666;
+    }
+
+    .coupon-card.expired {
+      background: #f9f9f9;
+      opacity: 0.7;
+    }
+
+    .coupon-card.expired:hover {
+      transform: none;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.02);
+    }
+
+    .coupon-card.expired .coupon-value {
+      color: #888;
+    }
+
+    .coupon-card.expired .coupon-code {
+      color: #666;
+    }
+    
+    .status-text {
+      font-size: 11px;
+      color: #999;
+    }
+
+  </style>
+</head>
+
+<body>
+
+  <%- include('../partials/home-navbar') %>
+  <%- include('../partials/breadcrumbs') %>
+
+  <div class="coupons-wrapper">
+
+    <!-- Header -->
+    <div class="coupons-header">
+      <h1>My Coupons</h1>
+      <p>Manage your available discounts, rewards, and promotional offers.</p>
+    </div>
+
+    <!-- Stats Grid -->
+    <div class="stats-grid">
+      <div class="stat-card">
+        <div class="stat-value">
+          <%= activeCoupons.length < 10 ? '0' + activeCoupons.length : activeCoupons.length %>
+        </div>
+        <div class="stat-label">Available Coupons</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-value">
+          <%= activeCoupons.filter(c => c.discountType === 'percentage').length < 10 ? '0' + activeCoupons.filter(c => c.discountType === 'percentage').length : activeCoupons.filter(c => c.discountType === 'percentage').length %>
+        </div>
+        <div class="stat-label">Active Offers</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-value text-gold">₹<%= totalSavings.toFixed(2) %></div>
+        <div class="stat-label">Total Savings</div>
+      </div>
+    </div>
+
+    <!-- Redeem and Guidelines -->
+    <div class="top-actions-grid">
+      <!-- Redeem -->
+      <div class="redeem-card">
+        <h2>Redeem Coupon</h2>
+        <div class="redeem-input-group">
+          <input type="text" id="manualCouponInput" placeholder="Enter coupon code (e.g. LUXURY20)">
+          <button class="btn-redeem" onclick="applyManualCoupon('<%= returnTo || '' %>', '<%= checkoutType || '' %>')">REDEEM</button>
+        </div>
+        <div class="redeem-note">Gift card codes can also be entered here.</div>
+      </div>
+
+      <!-- Guidelines -->
+      <div class="guidelines-card">
+        <div class="guidelines-title">
+          <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="10"></circle>
+            <line x1="12" y1="16" x2="12" y2="12"></line>
+            <line x1="12" y1="8" x2="12.01" y2="8"></line>
+          </svg>
+          Coupon Guidelines
+        </div>
+        <ul class="guidelines-list">
+          <li>One coupon code per order.</li>
+          <li>Promotional offers cannot be combined.</li>
+          <li>Valid for online purchases at ELSH.com only.</li>
+          <li>Check expiry dates before application.</li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- Available Coupons -->
+    <h2 class="section-title">Available Coupons</h2>
+    
+    <% if (activeCoupons.length > 0) { %>
+      <% activeCoupons.forEach(coupon => { %>
+        <div class="coupon-card">
+          <div class="coupon-value-box">
+            <% if (coupon.discountType === 'percentage') { %>
+              <div class="coupon-value"><%= coupon.discountValue %>%</div>
+            <% } else { %>
+              <div class="coupon-value text-gold">₹<%= coupon.discountValue %></div>
+            <% } %>
+            <div class="coupon-type">OFF</div>
+          </div>
+          
+          <div class="coupon-details">
+            <div class="coupon-header">
+              <span class="coupon-code"><%= coupon.code %></span>
+              <span class="badge-active">ACTIVE</span>
+            </div>
+            <div class="coupon-desc"><%= coupon.title %></div>
+            <div class="coupon-meta">
+              Min purchase: ₹<%= coupon.minPurchaseAmount.toFixed(2) %> 
+              <% if (coupon.endDate) { %>
+                • Expires: <%= new Date(coupon.endDate).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' }) %>
+              <% } else { %>
+                • No expiry
+              <% } %>
+            </div>
+          </div>
+
+          <div class="coupon-action">
+            <% if (typeof returnTo !== 'undefined' && returnTo === 'checkout') { %>
+              <button class="btn-apply" onclick="applyToCheckout('<%= coupon.code %>', '<%= checkoutType %>')">APPLY TO CHECKOUT</button>
+            <% } else { %>
+              <button class="btn-apply" onclick="copyToClipboard('<%= coupon.code %>')">APPLY COUPON</button>
+            <% } %>
+          </div>
+        </div>
+      <% }) %>
+    <% } else { %>
+      <div style="padding: 40px; text-align: center; background: #faf9f7; border-radius: 8px; border: 1px dashed #ddd; color: #666; margin-bottom: 24px;">
+        You don't have any available coupons right now. Keep shopping to earn rewards!
+      </div>
+    <% } %>
+
+    <!-- Expired Coupons -->
+    <% if (expiredCoupons.length > 0) { %>
+      <div class="expired-section">
+        <div class="expired-header">
+          <h2 class="section-title">Expired Coupons</h2>
+        </div>
+
+        <% expiredCoupons.forEach(coupon => { %>
+          <div class="coupon-card expired">
+            <div class="coupon-value-box">
+              <% if (coupon.discountType === 'percentage') { %>
+                <div class="coupon-value"><%= coupon.discountValue %>%</div>
+              <% } else { %>
+                <div class="coupon-value">₹<%= coupon.discountValue %></div>
+              <% } %>
+              <div class="coupon-type">OFF</div>
+            </div>
+            
+            <div class="coupon-details">
+              <div class="coupon-header">
+                <span class="coupon-code"><%= coupon.code %></span>
+              </div>
+              <div class="coupon-desc"><%= coupon.title %></div>
+              <div class="coupon-meta">
+                Min purchase: ₹<%= coupon.minPurchaseAmount.toFixed(2) %> 
+                <% if (coupon.endDate) { %>
+                  • Expired: <%= new Date(coupon.endDate).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' }) %>
+                <% } %>
+              </div>
+            </div>
+
+            <div class="coupon-action">
+              <span class="status-text">Inactive</span>
+            </div>
+          </div>
+        <% }) %>
+      </div>
+    <% } %>
+
+  </div>
+
+  <%- include('../partials/footer') %>
+
+  <script>
+    function showToast(message, type = "success") {
+      Toastify({
+        text: message,
+        duration: 3000,
+        gravity: "bottom",
+        position: "center",
+        style: {
+          background: type === "success" ? "#556B55" : "#d9534f",
+          color: "#ffffff",
+          borderRadius: "8px",
+          fontFamily: "'Inter', sans-serif",
+          fontSize: "14px"
+        }
+      }).showToast();
+    }
+
+    function copyToClipboard(code) {
+      navigator.clipboard.writeText(code).then(() => {
+        showToast("Coupon code " + code + " copied! You can apply it at checkout.");
+      }).catch(err => {
+        console.error('Could not copy text: ', err);
+        showToast("Failed to copy code.", "error");
+      });
+    }
+
+    async function applyToCheckout(code, checkoutType) {
+      try {
+        const response = await fetch('/checkout/apply-coupon', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ code: code.toUpperCase(), checkoutType })
+        });
+        const data = await response.json();
+        
+        if (data.success) {
+          showToast("Coupon applied! Returning to checkout...", "success");
+          setTimeout(() => {
+            window.location.href = `/checkout${checkoutType === 'direct' ? '?type=direct' : ''}`;
+          }, 1000);
+        } else {
+          showToast(data.message, "error");
+        }
+      } catch (err) {
+        showToast("An error occurred while applying the coupon.", "error");
+      }
+    }
+
+    function applyManualCoupon(returnTo, checkoutType) {
+      const input = document.getElementById('manualCouponInput').value.trim();
+      if (!input) {
+        showToast("Please enter a coupon code.", "error");
+        return;
+      }
+      
+      if (returnTo === 'checkout') {
+        applyToCheckout(input.toUpperCase(), checkoutType);
+      } else {
+        copyToClipboard(input.toUpperCase());
+        document.getElementById('manualCouponInput').value = '';
+      }
+    }
+  </script>
+</body>
+</html>

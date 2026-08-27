@@ -1,4 +1,5 @@
 import mongoose from 'mongoose';
+import crypto from 'crypto';
 
 const orderItemSchema = new mongoose.Schema({
   product: {
@@ -41,6 +42,10 @@ const orderItemSchema = new mongoose.Schema({
   },
   cancellationReason: {
     type: String
+  },
+  returnWindowDays: {
+    type: Number,
+    default: 7
   }
 });
 
@@ -70,7 +75,7 @@ const orderSchema = new mongoose.Schema({
     method: {
       type: String,
       required: true,
-      enum: ['COD', 'Razorpay', 'Wallet']
+      enum: ['COD', 'Razorpay', 'Wallet', 'Wallet + Razorpay']
     },
     status: {
       type: String,
@@ -80,6 +85,10 @@ const orderSchema = new mongoose.Schema({
     },
     transactionId: {
       type: String
+    },
+    walletAmountUsed: {
+      type: Number,
+      default: 0
     }
   },
   orderStatus: {
@@ -97,16 +106,17 @@ const orderSchema = new mongoose.Schema({
   },
   notes: {
     type: String
+  },
+  deliveredAt: {
+    type: Date
   }
 }, { timestamps: true });
 
 
-orderSchema.pre('validate', async function () {
+orderSchema.pre('validate', function () {
   if (!this.orderId) {
-    const date = new Date();
-    const year = date.getFullYear().toString().slice(-2);
-    const count = await this.constructor.countDocuments();
-    this.orderId = `LM-${year}${(count + 1000).toString()}`;
+    const randomHex = crypto.randomBytes(4).toString('hex').toUpperCase();
+    this.orderId = `LM-${randomHex}`;
   }
 });
 

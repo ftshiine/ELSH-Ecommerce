@@ -1,11 +1,7 @@
 import passport from 'passport';
 import { Strategy as GoogleStrategy } from 'passport-google-oauth20';
-import dotenv from 'dotenv';
 import User from '../models/User.js';
 import { validateAccountStatus } from '../services/user/authService.js';
-
-dotenv.config();
-
 
 passport.use(
   new GoogleStrategy(

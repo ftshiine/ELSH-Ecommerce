@@ -1,16 +1,20 @@
 import Cart from '../../models/Cart.js';
 import Product from '../../models/Product.js';
 import Wishlist from '../../models/Wishlist.js';
+import Coupon from '../../models/Coupon.js';
+import Order from '../../models/Order.js';
 
 
 export const loadCart = async (req, res) => {
     try {
         const userId = req.session.user.id || req.session.user._id;
 
-        let cart = await Cart.findOne({ user: userId }).populate({
-            path: 'items.product',
-            populate: { path: 'category' }
-        });
+        let cart = await Cart.findOne({ user: userId })
+            .populate({
+                path: 'items.product',
+                populate: { path: 'category' }
+            })
+            .populate('appliedCoupon');
 
         if (!cart) {
             cart = { items: [], cartTotal: 0 };
@@ -35,9 +39,11 @@ export const loadCart = async (req, res) => {
                     }
 
                     if (item.quantity > 0) {
-                        const effectivePrice = variant.salePrice && variant.salePrice < variant.regularPrice
-                            ? variant.salePrice
-                            : variant.regularPrice;
+                        const effectivePrice = Math.min(
+                            variant.regularPrice,
+                            (variant.salePrice > 0 ? variant.salePrice : variant.regularPrice),
+                            (variant.offerPrice > 0 ? variant.offerPrice : variant.regularPrice)
+                        );
 
                         item.price = effectivePrice;
                         item.totalPrice = effectivePrice * item.quantity;
@@ -104,9 +110,11 @@ export const addToCart = async (req, res) => {
             return res.status(400).json({ success: false, message: 'Not enough stock available.' });
         }
 
-        const effectivePrice = variant.salePrice && variant.salePrice < variant.regularPrice
-            ? variant.salePrice
-            : variant.regularPrice;
+        const effectivePrice = Math.min(
+            variant.regularPrice,
+            (variant.salePrice > 0 ? variant.salePrice : variant.regularPrice),
+            (variant.offerPrice > 0 ? variant.offerPrice : variant.regularPrice)
+        );
 
         let cart = await Cart.findOne({ user: userId });
 
@@ -278,6 +286,122 @@ export const removeFromCart = async (req, res) => {
         });
     } catch (error) {
         console.error('Error removing from cart:', error);
+        res.status(500).json({ success: false, message: 'Internal Server Error' });
+    }
+};
+
+export const applyCoupon = async (req, res) => {
+    try {
+        const { code } = req.body;
+        const userId = req.session.user.id || req.session.user._id;
+
+        if (!code) {
+            return res.status(400).json({ success: false, message: 'Coupon code is required.' });
+        }
+
+        const coupon = await Coupon.findOne({ code: code.toUpperCase(), isActive: true });
+        
+        if (!coupon) {
+            return res.status(400).json({ success: false, message: 'Invalid or inactive coupon code.' });
+        }
+
+        const now = new Date();
+        if (coupon.startDate > now) {
+            return res.status(400).json({ success: false, message: 'Coupon is not active yet.' });
+        }
+        if (coupon.endDate && coupon.endDate < now) {
+            return res.status(400).json({ success: false, message: 'Coupon has expired.' });
+        }
+
+        if (coupon.usageLimit && coupon.usedCount >= coupon.usageLimit) {
+            return res.status(400).json({ success: false, message: 'Coupon usage limit reached.' });
+        }
+
+        if (coupon.limitPerUser && coupon.usedBy.includes(userId)) {
+            return res.status(400).json({ success: false, message: 'You have already used this coupon.' });
+        }
+        
+        if (coupon.isFirstPurchaseOnly) {
+            const previousOrdersCount = await Order.countDocuments({ user: userId, orderStatus: { $ne: 'CANCELLED' } });
+            if (previousOrdersCount > 0) {
+                return res.status(400).json({ success: false, message: 'This promotional code is reserved for first-time purchases only.' });
+            }
+        }
+
+        const cart = await Cart.findOne({ user: userId }).populate('items.product');
+        if (!cart || cart.items.length === 0) {
+            return res.status(400).json({ success: false, message: 'Your cart is empty.' });
+        }
+
+        let eligibleTotal = 0;
+        if (coupon.applicableCategories && coupon.applicableCategories.length > 0) {
+            const applicableCatStrings = coupon.applicableCategories.map(c => c.toString());
+            for (const item of cart.items) {
+                if (item.product && item.product.category && applicableCatStrings.includes(item.product.category.toString())) {
+                    eligibleTotal += item.totalPrice;
+                }
+            }
+        } else {
+            eligibleTotal = cart.cartTotal;
+        }
+
+        if (eligibleTotal === 0) {
+            return res.status(400).json({ success: false, message: 'This coupon is not applicable to any items in your cart.' });
+        }
+
+        if (eligibleTotal < coupon.minPurchaseAmount) {
+            return res.status(400).json({ success: false, message: `Minimum purchase amount of ₹${coupon.minPurchaseAmount} of eligible items required.` });
+        }
+
+        let discount = 0;
+        if (coupon.discountType === 'percentage') {
+            discount = Math.ceil((eligibleTotal * coupon.discountValue) / 100);
+            if (coupon.maxDiscountLimit && discount > coupon.maxDiscountLimit) {
+                discount = coupon.maxDiscountLimit;
+            }
+        } else {
+            discount = coupon.discountValue;
+        }
+
+        // Ensure discount doesn't exceed eligible total
+        discount = Math.min(discount, eligibleTotal);
+
+        cart.appliedCoupon = coupon._id;
+        cart.discountAmount = discount;
+        await cart.save();
+
+        res.status(200).json({
+            success: true,
+            message: 'Coupon applied successfully.',
+            discountAmount: discount,
+            newTotal: cart.cartTotal - discount
+        });
+    } catch (error) {
+        console.error('Error applying coupon:', error);
+        res.status(500).json({ success: false, message: 'Internal Server Error' });
+    }
+};
+
+export const removeCoupon = async (req, res) => {
+    try {
+        const userId = req.session.user.id || req.session.user._id;
+        
+        const cart = await Cart.findOne({ user: userId });
+        if (!cart) {
+            return res.status(404).json({ success: false, message: 'Cart not found.' });
+        }
+
+        cart.appliedCoupon = null;
+        cart.discountAmount = 0;
+        await cart.save();
+
+        res.status(200).json({
+            success: true,
+            message: 'Coupon removed.',
+            newTotal: cart.cartTotal
+        });
+    } catch (error) {
+        console.error('Error removing coupon:', error);
         res.status(500).json({ success: false, message: 'Internal Server Error' });
     }
 };

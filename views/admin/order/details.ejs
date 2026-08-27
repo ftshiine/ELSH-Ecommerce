@@ -181,20 +181,21 @@
                 <div class="card actions-card">
                   <h2>Quick Actions</h2>
                   <div class="actions-grid">
-                    <a href="/admin/orders/<%= order._id %>/invoice" class="action-btn" target="_blank" style="text-decoration: none; display: flex; align-items: center; justify-content: center; gap: 8px;">
+                    <a href="/admin/orders/<%= order._id %>/invoice" class="action-btn" target="_blank" style="text-decoration: none; display: flex; align-items: center; justify-content: center; gap: 8px; width: 100%; grid-column: 1 / -1;">
                       <img src="/images/icons/admin/arrow-down-to-line.svg" alt="Invoice" width="20">
                       <span>Invoice</span>
                     </a>
-                    <button class="action-btn">
-                      <img src="/images/icons/admin/share-2.svg" alt="Tracking" width="20">
-                      <span>Tracking</span>
-                    </button>
                   </div>
 
                   <div class="update-status-section">
                     <label
                       style="display: block; margin-bottom: 8px; font-weight: 500; font-size: 13px; color: #555;">Update
                       Status</label>
+                    <% if (order.paymentInfo.status === 'PENDING' && ['Razorpay', 'Wallet + Razorpay'].includes(order.paymentInfo.method)) { %>
+                      <div style="padding: 12px; background: #fff3cd; color: #856404; border-radius: 8px; font-size: 13px; border: 1px solid #ffeeba; margin-bottom: 10px;">
+                        Status updates are disabled because the online payment is pending.
+                      </div>
+                    <% } else { %>
                     <div class="custom-dropdown-wrapper filter-dropdown" style="position: relative;">
                       <div class="custom-dropdown" id="statusDropdown">
                         <div class="dropdown-selected" onclick="toggleDropdown(event, 'statusOptions')"
@@ -209,39 +210,78 @@
                         </div>
                         <div class="dropdown-options" id="statusOptions"
                           style="display: none; position: absolute; top: 100%; left: 0; right: 0; background: #fff; border: 1px solid #ddd; border-radius: 8px; margin-top: 5px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); z-index: 100; overflow: hidden;">
-                          <div class="dropdown-option <%= order.orderStatus === 'PENDING' ? 'active' : '' %>"
-                            onclick="selectStatus('PENDING')"
-                            style="padding: 12px 15px; cursor: pointer; font-size: 14px; transition: background 0.2s;">
-                            Pending</div>
-                          <div class="dropdown-option <%= order.orderStatus === 'PROCESSING' ? 'active' : '' %>"
-                            onclick="selectStatus('PROCESSING')"
-                            style="padding: 12px 15px; cursor: pointer; font-size: 14px; transition: background 0.2s;">
-                            Processing</div>
-                          <div class="dropdown-option <%= order.orderStatus === 'SHIPPED' ? 'active' : '' %>"
-                            onclick="selectStatus('SHIPPED')"
-                            style="padding: 12px 15px; cursor: pointer; font-size: 14px; transition: background 0.2s;">
-                            Shipped</div>
-                          <div class="dropdown-option <%= order.orderStatus === 'OUT FOR DELIVERY' ? 'active' : '' %>"
-                            onclick="selectStatus('OUT FOR DELIVERY')"
-                            style="padding: 12px 15px; cursor: pointer; font-size: 14px; transition: background 0.2s;">
-                            Out for Delivery</div>
-                          <div class="dropdown-option <%= order.orderStatus === 'DELIVERED' ? 'active' : '' %>"
-                            onclick="selectStatus('DELIVERED')"
-                            style="padding: 12px 15px; cursor: pointer; font-size: 14px; transition: background 0.2s;">
-                            Delivered</div>
-                          <div class="dropdown-option <%= order.orderStatus === 'CANCELLED' ? 'active' : '' %>"
-                            onclick="selectStatus('CANCELLED')"
-                            style="padding: 12px 15px; cursor: pointer; font-size: 14px; transition: background 0.2s;">
-                            Cancelled</div>
+                          
+                          <% 
+                            const linearFlow = ['PENDING', 'PROCESSING', 'SHIPPED', 'OUT FOR DELIVERY', 'DELIVERED'];
+                            const curIdx = linearFlow.indexOf(order.orderStatus);
+                          %>
+
+                          <% if (curIdx !== -1 && curIdx <= 0) { %>
+                            <div class="dropdown-option <%= order.orderStatus === 'PENDING' ? 'active' : '' %>"
+                              onclick="selectStatus('PENDING')"
+                              style="padding: 12px 15px; cursor: pointer; font-size: 14px; transition: background 0.2s;">
+                              Pending</div>
+                          <% } %>
+
+                          <% if (curIdx !== -1 && curIdx <= 1) { %>
+                            <div class="dropdown-option <%= order.orderStatus === 'PROCESSING' ? 'active' : '' %>"
+                              onclick="selectStatus('PROCESSING')"
+                              style="padding: 12px 15px; cursor: pointer; font-size: 14px; transition: background 0.2s;">
+                              Processing</div>
+                          <% } %>
+
+                          <% if (curIdx !== -1 && curIdx <= 2) { %>
+                            <div class="dropdown-option <%= order.orderStatus === 'SHIPPED' ? 'active' : '' %>"
+                              onclick="selectStatus('SHIPPED')"
+                              style="padding: 12px 15px; cursor: pointer; font-size: 14px; transition: background 0.2s;">
+                              Shipped</div>
+                          <% } %>
+
+                          <% if (curIdx !== -1 && curIdx <= 3) { %>
+                            <div class="dropdown-option <%= order.orderStatus === 'OUT FOR DELIVERY' ? 'active' : '' %>"
+                              onclick="selectStatus('OUT FOR DELIVERY')"
+                              style="padding: 12px 15px; cursor: pointer; font-size: 14px; transition: background 0.2s;">
+                              Out for Delivery</div>
+                          <% } %>
+                          
+                          <% if (curIdx !== -1 && curIdx <= 4) { %>
+                            <div class="dropdown-option <%= order.orderStatus === 'DELIVERED' ? 'active' : '' %>"
+                              onclick="selectStatus('DELIVERED')"
+                              style="padding: 12px 15px; cursor: pointer; font-size: 14px; transition: background 0.2s;">
+                              Delivered</div>
+                          <% } %>
+
+                          <% if (order.orderStatus === 'RETURN_REQUESTED') { %>
+                            <div class="dropdown-option active"
+                              style="padding: 12px 15px; cursor: default; font-size: 14px; transition: background 0.2s;">
+                              Return Requested</div>
+                          <% } %>
+                          
+                          <% if (order.orderStatus === 'RETURNED') { %>
+                            <div class="dropdown-option active"
+                              style="padding: 12px 15px; cursor: default; font-size: 14px; transition: background 0.2s;">
+                              Returned</div>
+                          <% } %>
+                          
+                          <% if (order.orderStatus === 'CANCELLED') { %>
+                            <div class="dropdown-option active"
+                              style="padding: 12px 15px; cursor: default; font-size: 14px; transition: background 0.2s;">
+                              Cancelled</div>
+                          <% } %>
                         </div>
                       </div>
                       <input type="hidden" id="statusSelect" value="<%= order.orderStatus %>">
                     </div>
+                    <% } %>
                   </div>
 
                   <div class="danger-actions">
-                    <button class="btn-refund" onclick="processRefund('<%= order._id %>')">Refund</button>
-                    <button class="btn-cancel">Cancel</button>
+                    <% if (order.orderStatus === 'RETURN_REQUESTED' && order.paymentInfo.status !== 'REFUNDED') { %>
+                      <button class="btn-refund" onclick="processRefund('<%= order._id %>')">Refund</button>
+                    <% } %>
+                    <% if (!['DELIVERED', 'CANCELLED', 'RETURN_REQUESTED', 'RETURNED'].includes(order.orderStatus)) { %>
+                      <button class="btn-cancel" onclick="selectStatus('CANCELLED')">Cancel Order</button>
+                    <% } %>
                   </div>
                 </div>
 
@@ -341,11 +381,12 @@
                       <span class="value">₹<%= order.pricing.subtotal.toLocaleString(undefined, {minimumFractionDigits:
                           2}) %></span>
                     </div>
+                    <% if (order.pricing.discount > 0) { %>
                     <div class="row">
-                      <span class="label">Discount <span class="discount-badge">COUPON</span></span>
-                      <span class="value">-₹<%= order.pricing.discount.toLocaleString(undefined, {minimumFractionDigits:
-                          2}) %></span>
+                      <span class="label">Discount <span class="discount-badge"><%= order.pricing.couponCode || 'COUPON' %></span></span>
+                      <span class="value" style="color: #219653;">-₹<%= order.pricing.discount.toLocaleString(undefined, {minimumFractionDigits: 2}) %></span>
                     </div>
+                    <% } %>
                     <div class="row">
                       <span class="label">Shipping</span>
                       <span class="value">₹<%= order.pricing.shippingFee.toLocaleString(undefined,

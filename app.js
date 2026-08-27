@@ -1,19 +1,15 @@
+import 'dotenv/config.js';
 import express from 'express';
 import methodOverride from 'method-override';
-import dotenv from 'dotenv';
 import connectDB from './config/db.js';
 import adminRoutes from './routes/adminRoutes.js';
 import userRoutes from './routes/userRoutes.js';
 import passport from './config/passport.js';
 import { notFoundHandler, globalErrorHandler } from './middleware/errorMiddleware.js';
 import sessionConfig from './config/session.js';
-
-dotenv.config();
+import { initReferralCron } from './cron/referralCron.js';
 
 const app = express();
-
-
-connectDB();
 
 
 app.use(express.json());
@@ -30,7 +26,7 @@ app.set('view engine', 'ejs');
 app.set('views', './views');
 
 
- 
+
 app.use(passport.initialize());
 
 // Use Central Routers
@@ -44,6 +40,10 @@ app.use(notFoundHandler);
 app.use(globalErrorHandler);
 
 const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => {
-  console.log(`Server running on http://localhost:${PORT}`);
+
+connectDB().then(() => {
+  initReferralCron();
+  app.listen(PORT, () => {
+    console.log(`Server running on http://localhost:${PORT}`);
+  });
 });

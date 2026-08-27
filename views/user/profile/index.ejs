@@ -107,7 +107,52 @@
 
               </div>
 
+              <!-- Refer & Earn -->
+              <div class="details-section">
+                <h3>REFER & EARN</h3>
+                
+                <div class="detail-item" style="margin-bottom: 24px;">
+                  <p style="font-size: 13px; color: #555; margin: 0; line-height: 1.6;">
+                    Invite your friends to ELSH. They get ₹50 on signup, and you get ₹100 when they complete their first order!
+                  </p>
+                </div>
+
+                <div class="detail-item">
+                  <label>YOUR REFERRAL CODE</label>
+                  <div style="font-family: monospace; font-size: 16px; font-weight: 600; color: #2c2c2c; margin-top: 8px;">
+                    <%= user.referralCode %>
+                  </div>
+                </div>
+
+                <div class="detail-item">
+                  <label>SHARE YOUR LINK</label>
+                  <div style="display: flex; gap: 8px; margin-top: 8px;">
+                    <input type="text" id="referralLink" value="http://localhost:3000/signup?ref=<%= user.referralCode %>" readonly 
+                           style="flex: 1; padding: 12px 16px; border: 1.5px solid #e0e0d8; border-radius: 8px; font-size: 13px; background: #fafaf7; color: #555; outline: none; box-sizing: border-box;" />
+                    <button onclick="copyReferralLink()" style="padding: 0 20px; background: transparent; color: #2c2c2c; border: 1.5px solid #2c2c2c; border-radius: 8px; cursor: pointer; font-weight: 600; font-size: 11px; letter-spacing: 1.5px; transition: all 0.2s;" onmouseover="this.style.background='#2c2c2c'; this.style.color='#fff';" onmouseout="this.style.background='transparent'; this.style.color='#2c2c2c';">COPY</button>
+                  </div>
+                </div>
+
+              </div>
+
             </div>
+
+            <script>
+              function copyReferralLink() {
+                const linkInput = document.getElementById('referralLink');
+                linkInput.select();
+                document.execCommand('copy');
+                
+                Swal.fire({
+                  toast: true,
+                  position: 'top-end',
+                  icon: 'success',
+                  title: 'Referral link copied to clipboard!',
+                  showConfirmButton: false,
+                  timer: 3000
+                });
+              }
+            </script>
 
             <!-- Profile Actions -->
             <div class="profile-actions">

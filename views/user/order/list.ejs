@@ -44,6 +44,7 @@
       <a href="/orders?tab=in-progress<%= locals.searchQuery ? '&search=' + locals.searchQuery : '' %>" class="tab-link <%= activeTab === 'in-progress' ? 'active' : '' %>">In Progress</a>
       <a href="/orders?tab=delivered<%= locals.searchQuery ? '&search=' + locals.searchQuery : '' %>" class="tab-link <%= activeTab === 'delivered' ? 'active' : '' %>">Delivered</a>
       <a href="/orders?tab=cancelled<%= locals.searchQuery ? '&search=' + locals.searchQuery : '' %>" class="tab-link <%= activeTab === 'cancelled' ? 'active' : '' %>">Cancelled</a>
+      <a href="/orders?tab=returns<%= locals.searchQuery ? '&search=' + locals.searchQuery : '' %>" class="tab-link <%= activeTab === 'returns' ? 'active' : '' %>">Returns</a>
     </div>
 
     <div class="orders-list">
@@ -68,6 +69,12 @@
                badgeClass = 'badge-delivered';
              } else if (order.orderStatus === 'CANCELLED') {
                badgeClass = 'badge-cancelled';
+             } else if (order.orderStatus === 'RETURN_REQUESTED') {
+               badgeClass = 'badge-progress';
+               displayStatus = 'RETURN REQUESTED';
+             } else if (order.orderStatus === 'RETURNED') {
+               badgeClass = 'badge-cancelled';
+               displayStatus = 'RETURNED';
              } else {
                badgeClass = 'badge-default';
              }
@@ -92,6 +99,9 @@
                 <p class="order-meta">Order ID: #<%= order.orderId %> &bull; <%= date %></p>
                 
                 <div class="order-actions">
+                  <% if (order.paymentInfo.method === 'Razorpay' && order.paymentInfo.status === 'PENDING' && order.orderStatus !== 'CANCELLED') { %>
+                    <button onclick="retryPayment('<%= order._id %>')" class="btn-solid" style="background-color: #556b55; color: white; border-color: #556b55;">Complete Payment</button>
+                  <% } %>
                   <% if (['PENDING', 'PROCESSING', 'SHIPPED', 'OUT FOR DELIVERY'].includes(order.orderStatus)) { %>
                     <% if (['SHIPPED', 'OUT FOR DELIVERY'].includes(order.orderStatus)) { %>
                       <a href="javascript:void(0)" class="btn-solid">Track Order</a>
@@ -131,8 +141,112 @@
 
   <%- include('../partials/footer') %>
 
-  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+  <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
   <script>
+    async function retryPayment(orderId) {
+      try {
+        const response = await fetch(`/orders/${orderId}/retry-payment`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' }
+        });
+        const data = await response.json();
+        
+        if (!data.success) {
+          showCustomModal({
+            title: 'Error',
+            message: data.message || 'Failed to initiate payment.',
+            iconType: 'warning',
+            confirmText: 'OK',
+            showCancel: false
+          });
+          return;
+        }
+
+        const options = {
+          key: data.key,
+          amount: data.amount,
+          currency: 'INR',
+          name: 'ELSH',
+          description: 'Order Payment Retry',
+          order_id: data.razorpayOrderId,
+          handler: async function (response) {
+            try {
+              const verifyRes = await fetch('/checkout/verify-payment', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                  razorpay_payment_id: response.razorpay_payment_id,
+                  razorpay_order_id: response.razorpay_order_id,
+                  razorpay_signature: response.razorpay_signature,
+                  orderId: data.orderId
+                })
+              });
+              
+              const verifyData = await verifyRes.json();
+              if (verifyData.success) {
+                showCustomModal({
+                  title: 'Success',
+                  message: 'Payment completed successfully!',
+                  iconType: 'success',
+                  confirmText: 'OK',
+                  showCancel: false,
+                  onConfirm: () => window.location.reload()
+                });
+              } else {
+                if (verifyData.oversold) {
+                  showCustomModal({
+                    title: 'Out of Stock',
+                    message: verifyData.message,
+                    iconType: 'warning',
+                    confirmText: 'OK',
+                    showCancel: false,
+                    onConfirm: () => window.location.reload()
+                  });
+                } else {
+                  showCustomModal({
+                    title: 'Payment Failed',
+                    message: verifyData.message || 'Verification failed',
+                    iconType: 'warning',
+                    confirmText: 'OK',
+                    showCancel: false,
+                    onConfirm: () => window.location.href = '/checkout/failure/' + data.orderId
+                  });
+                }
+              }
+            } catch (err) {
+              showCustomModal({
+                title: 'Error',
+                message: 'Payment verification failed',
+                iconType: 'warning',
+                confirmText: 'OK',
+                showCancel: false
+              });
+            }
+          },
+          theme: { color: '#556b55' }
+        };
+
+        const rzp = new Razorpay(options);
+        rzp.on('payment.failed', function (response){
+          showCustomModal({
+            title: 'Payment Failed',
+            message: response.error.description || 'Payment failed. Please try again.',
+            iconType: 'warning',
+            confirmText: 'OK',
+            showCancel: false
+          });
+        });
+        rzp.open();
+      } catch (error) {
+        showCustomModal({
+          title: 'Error',
+          message: 'Something went wrong while starting payment',
+          iconType: 'warning',
+          confirmText: 'OK',
+          showCancel: false
+        });
+      }
+    }
     function cancelOrder(orderId) {
       showCustomModal({
         title: 'Cancel Order?',
@@ -185,42 +299,57 @@
       });
     }
 
-    async function returnOrder(orderId) {
-      const { value: reason } = await Swal.fire({
+    function returnOrder(orderId) {
+      showCustomModal({
         title: 'Return Order',
-        input: 'textarea',
-        inputLabel: 'Reason for return',
+        message: 'Are you sure you want to return this order?',
+        iconType: 'warning',
+        confirmText: 'Submit Return',
+        showCancel: true,
+        showInput: true,
         inputPlaceholder: 'Please tell us why you are returning this item...',
-        inputAttributes: {
-          'aria-label': 'Return reason'
-        },
-        showCancelButton: true,
-        inputValidator: (value) => {
-          if (!value) {
-            return 'You need to write something!'
+        requireInput: true,
+        onConfirm: async (reason) => {
+          if (!reason) return;
+          try {
+            const response = await fetch(`/orders/${orderId}/return`, {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ reason })
+            });
+            const data = await response.json();
+            if (data.success) {
+              showCustomModal({
+                title: 'Submitted!',
+                message: data.message,
+                iconType: 'success',
+                confirmText: 'OK',
+                showCancel: false,
+                onConfirm: () => window.location.reload()
+              });
+            } else {
+              showCustomModal({
+                title: 'Error',
+                message: data.message || 'Failed to submit return request',
+                iconType: 'warning',
+                confirmText: 'OK',
+                showCancel: false,
+                onConfirm: () => closeCustomModal()
+              });
+            }
+          } catch (error) {
+            console.error('Return order error:', error);
+            showCustomModal({
+              title: 'Error',
+              message: 'Server error. Please try again later.',
+              iconType: 'warning',
+              confirmText: 'OK',
+              showCancel: false,
+              onConfirm: () => closeCustomModal()
+            });
           }
         }
       });
-
-      if (reason) {
-        try {
-          const response = await fetch(`/orders/${orderId}/return`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ reason })
-          });
-          const data = await response.json();
-          if (data.success) {
-            Swal.fire('Submitted!', data.message, 'success').then(() => {
-              window.location.reload();
-            });
-          } else {
-            Swal.fire('Error', data.message || 'Failed to submit return request', 'error');
-          }
-        } catch (error) {
-          Swal.fire('Error', 'Server error. Please try again later.', 'error');
-        }
-      }
     }
   </script>
 </body>

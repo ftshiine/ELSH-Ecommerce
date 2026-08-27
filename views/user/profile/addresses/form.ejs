@@ -123,7 +123,11 @@
                   <div class="input-wrapper custom-dropdown-wrapper" style="position: relative; border-bottom: none; padding: 0;">
                     <div class="custom-dropdown form-control" id="stateDropdown" style="padding: 0; border: none; background: transparent; width: 100%;">
                       <div class="dropdown-selected" onclick="toggleDropdown(event, 'stateOptions')" style="display: flex; align-items: center; justify-content: space-between; cursor: pointer; padding: 8px 0 12px; border-bottom: 1px solid #e0e0d8; width: 100%;">
-                        <span id="selectedStateText" style="color: <%= selectedState ? '#333' : '#ccc' %>;"><%= selectedState || 'Select State' %></span>
+                        <% if (selectedState) { %>
+                        <span id="selectedStateText" style="color: #333;"><%= selectedState %></span>
+                        <% } else { %>
+                        <span id="selectedStateText" style="color: #ccc;">Select State</span>
+                        <% } %>
                         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#222" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                           <polyline points="6 9 12 15 18 9"></polyline>
                         </svg>

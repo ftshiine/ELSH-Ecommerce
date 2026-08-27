@@ -3,7 +3,8 @@ import {
   loadProfile, loadEditProfile, editProfile, removePhoto,
   requireEmailState, initiateEmailChange, loadVerifyCurrentEmail,
   verifyCurrentEmail, loadNewEmail, submitNewEmail,
-  loadVerifyNewEmail, verifyNewEmail, cancelEmailChange
+  loadVerifyNewEmail, verifyNewEmail, cancelEmailChange,
+  loadUserCoupons
 } from '../../controllers/user/profileController.js';
 import { loadChangePassword, changePassword, authSendForgotPasswordOTP } from '../../controllers/user/passwordController.js';
 import { requireAuth } from '../../middleware/authMiddleware.js';
@@ -18,6 +19,9 @@ router.get('/profile', requireAuth('user'), loadProfile);
 router.get('/profile/edit', requireAuth('user'), loadEditProfile);
 router.put('/profile', requireAuth('user'), handleProfileUpload, editProfile);
 router.delete('/profile/photo', requireAuth('user'), removePhoto);
+
+// coupons
+router.get('/profile/coupons', requireAuth('user'), loadUserCoupons);
 
 // Email Change Routes
 router.post('/profile/email/initiate', requireAuth('user'), initiateEmailChange);

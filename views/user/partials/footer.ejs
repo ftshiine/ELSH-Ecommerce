@@ -14,127 +14,22 @@
             </div>
           </div>
           <div class="footer-links-group">
-            <h4>DISCOVER</h4>
-            <a href="javascript:void(0)">Our Story</a>
-            <a href="javascript:void(0)">Scientific Focus</a>
-            <a href="javascript:void(0)">Sustainability</a>
-            <a href="javascript:void(0)">Ritual Journal</a>
-          </div>
-          <div class="footer-links-group">
-            <h4>SERVICE</h4>
-            <a href="javascript:void(0)">Privacy Policy</a>
-            <a href="javascript:void(0)">Terms of Service</a>
-            <a href="javascript:void(0)">Shipping & Returns</a>
-            <a href="javascript:void(0)">FAQ</a>
-          </div>
-          <div class="footer-links-group">
-            <h4>INQUIRIES</h4>
-            <a href="javascript:void(0)">concierge@elsh.com</a>
-            <a href="javascript:void(0)">+1 (800) ELSH-LUX</a>
+            <h4>CONTACT US</h4>
+            <p style="color: #666; font-size: 13px; margin-bottom: 10px;">elshecommerce@gmail.com</p>
+            <p style="color: #666; font-size: 13px;">+1 (800) ELSH-LUX</p>
           </div>
         </div>
         <div class="footer-bottom">
           <span>© 2024 ELSH ESSENTIAL LUXURY. ALL RIGHTS RESERVED.</span>
           <div class="footer-cities">
-            <span>PARIS</span>
-            <span>GENEVA</span>
-            <span>NEW YORK</span>
+            <span>INDIA</span>
           </div>
         </div>
       </footer>
 
-      <!-- Global Custom Modal -->
-      <div class="modal-overlay" id="customModal">
-        <div class="modal-box">
-          <div class="modal-icon">
-            <img src="/images/icons/admin/triangle-alert.svg" alt="Alert" id="modalIcon" />
-          </div>
-          <h2 class="modal-title" id="modalTitle">Title</h2>
-          <p class="modal-message" id="modalMessage">Message</p>
-          <textarea class="modal-input" id="modalInput" style="display: none;" placeholder="Reason..."></textarea>
-          <div class="modal-error" id="modalError" style="display: none; color: #d32f2f; font-size: 12px; margin-bottom: 12px; text-align: left;"></div>
-          <div class="modal-actions" id="modalActions">
-            <button type="button" class="modal-btn modal-btn-cancel" id="modalCancel">Cancel</button>
-            <button type="button" class="modal-btn modal-btn-confirm" id="modalConfirm">Confirm</button>
-          </div>
-        </div>
-      </div>
-
+      <!-- Global Custom Modal is now included -->
+      <%- include('./custom-modal') %>
       <script>
-        const customModal = document.getElementById('customModal');
-        const modalIcon = document.getElementById('modalIcon');
-        const modalTitle = document.getElementById('modalTitle');
-        const modalMessage = document.getElementById('modalMessage');
-        const modalInput = document.getElementById('modalInput');
-        const modalError = document.getElementById('modalError');
-        const modalConfirm = document.getElementById('modalConfirm');
-        const modalCancel = document.getElementById('modalCancel');
-
-        function closeCustomModal() {
-          if (customModal) customModal.classList.remove('active');
-        }
-
-        function showCustomModal({ title, message, iconType, confirmText, showCancel, showInput, inputPlaceholder, requireInput, onConfirm }) {
-          if (!customModal) return;
-
-          modalTitle.textContent = title;
-          modalMessage.innerHTML = message;
-
-          if (showInput) {
-            modalInput.style.display = 'block';
-            modalInput.placeholder = inputPlaceholder || '';
-            modalInput.value = '';
-            modalError.style.display = 'none';
-          } else {
-            modalInput.style.display = 'none';
-            modalError.style.display = 'none';
-          }
-
-          // Reset button state
-          modalConfirm.disabled = false;
-
-          if (iconType === 'success') {
-            modalIcon.src = '/images/icons/admin/check-circle.svg';
-            modalConfirm.style.background = '#222';
-            modalConfirm.style.color = '#fff';
-          } else if (iconType === 'warning') {
-            modalIcon.src = '/images/icons/admin/triangle-alert.svg';
-            modalConfirm.style.background = '#d32f2f';
-            modalConfirm.style.color = '#fff';
-          } else {
-            modalIcon.src = '/images/icons/admin/triangle-alert.svg';
-            modalConfirm.style.background = '#d32f2f';
-            modalConfirm.style.color = '#fff';
-          }
-
-          modalConfirm.textContent = confirmText || 'OK';
-
-          if (showCancel) {
-            modalCancel.style.display = 'inline-block';
-          } else {
-            modalCancel.style.display = 'none';
-          }
-
-          customModal.classList.add('active');
-
-          modalCancel.onclick = closeCustomModal;
-
-          modalConfirm.onclick = () => {
-            if (showInput && requireInput && !modalInput.value.trim()) {
-              modalError.textContent = 'Please provide a reason';
-              modalError.style.display = 'block';
-              return;
-            }
-            if (onConfirm) {
-              modalConfirm.disabled = true;
-              modalConfirm.textContent = 'Please wait...';
-              onConfirm(showInput ? modalInput.value.trim() : undefined);
-            } else {
-              closeCustomModal();
-            }
-          };
-        }
-
         function handleLogout(event) {
           event.preventDefault();
           showCustomModal({

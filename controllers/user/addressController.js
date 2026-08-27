@@ -18,7 +18,9 @@ export const loadAddresses = async (req, res) => {
       currentPage: page,
       totalPages,
       totalAddresses,
-      breadcrumbs
+      breadcrumbs,
+      returnTo: req.query.returnTo,
+      checkoutType: req.query.type
     });
   } catch (error) {
     console.error('Load addresses error:', error);

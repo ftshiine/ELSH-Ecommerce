@@ -130,6 +130,8 @@
                         onclick="selectStatus('DELIVERED')">DELIVERED</div>
                       <div class="dropdown-option <%= currentStatusFilter === 'CANCELLED' ? 'active' : '' %>"
                         onclick="selectStatus('CANCELLED')">CANCELLED</div>
+                        <div class="dropdown-option <%= currentStatusFilter === 'RETURN_REQUESTED' ? 'active' : '' %>"
+                        onclick="selectStatus('RETURN_REQUESTED')">RETURN_REQUESTED</div>
                     </div>
                   </div>
                   <input type="hidden" name="status" id="statusInput"

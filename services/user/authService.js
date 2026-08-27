@@ -16,6 +16,8 @@ const createUser = async (userData) => {
     password: hashedPassword,
     role: 'user',
     isActive: true,
+    referralCode: userData.referralCode,
+    referredBy: userData.referredBy
   });
   return await user.save();
 };

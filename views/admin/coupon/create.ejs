@@ -1,0 +1,705 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Admin | Create Coupon</title>
+  <link rel="stylesheet" href="/css/admin/layout.css" />
+  <link rel="stylesheet" href="/css/admin/modal.css" />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Playfair+Display:wght@600&display=swap"
+    rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/cropperjs@1.5.12/dist/cropper.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+  <style>
+    /* Custom CSS to match admin UI */
+    .flatpickr-calendar {
+      font-family: inherit !important;
+      border-radius: 8px !important;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1) !important;
+      border: 1px solid #ddd !important;
+    }
+    .flatpickr-day.selected, .flatpickr-day.startRange, .flatpickr-day.endRange, .flatpickr-day.selected.inRange, .flatpickr-day.startRange.inRange, .flatpickr-day.endRange.inRange, .flatpickr-day.selected:focus, .flatpickr-day.startRange:focus, .flatpickr-day.endRange:focus, .flatpickr-day.selected:hover, .flatpickr-day.startRange:hover, .flatpickr-day.endRange:hover, .flatpickr-day.selected.prevMonthDay, .flatpickr-day.startRange.prevMonthDay, .flatpickr-day.endRange.prevMonthDay, .flatpickr-day.selected.nextMonthDay, .flatpickr-day.startRange.nextMonthDay, .flatpickr-day.endRange.nextMonthDay {
+      background: #556B55 !important;
+      border-color: #556B55 !important;
+    }
+
+    /* Content Elements */
+    .content-header {
+      margin-bottom: 24px;
+    }
+
+    .content-header h1 {
+      font-family: 'Playfair Display', serif;
+      font-size: 24px;
+      color: #2C3E2D;
+      margin-bottom: 8px;
+    }
+
+    .content-header p {
+      font-size: 14px;
+      color: #666;
+      max-width: 600px;
+      line-height: 1.5;
+    }
+
+    /* Form Styles */
+    label {
+      display: block;
+      font-size: 12px;
+      font-weight: 500;
+      color: #666;
+      margin-bottom: 8px;
+    }
+
+    input[type="text"],
+    input[type="number"],
+    input[type="date"],
+    textarea {
+      width: 100%;
+      padding: 12px;
+      border: 1px solid #ddd;
+      border-radius: 8px;
+      font-family: 'Inter', sans-serif;
+    }
+
+    /* Button Styles */
+    .btn-primary {
+      padding: 12px;
+      border-radius: 8px;
+      background: #556B55;
+      color: white;
+      border: none;
+      font-weight: 500;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+
+    .btn-primary:hover {
+      background: #455745;
+    }
+
+    .btn-secondary {
+      text-align: center;
+      text-decoration: none;
+      padding: 12px;
+      border-radius: 8px;
+      background: white;
+      border: 1px solid #ddd;
+      color: #666;
+      transition: background 0.2s;
+    }
+
+    .btn-secondary:hover {
+      background: #f0f0f0;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="admin-layout">
+    <%- include('../partials/sidebar') %>
+      <div class="main-content">
+        <%- include('../partials/topbar') %>
+          <div class="page-content">
+            <div class="content-header">
+              <h1>Create New Coupon</h1>
+              <p>Configure promotional discounts and redemption rules for your store.</p>
+            </div>
+
+            <form id="createCouponForm" style="display: grid; grid-template-columns: 2fr 1fr; gap: 24px;">
+
+              <div class="form-sections" style="display: flex; flex-direction: column; gap: 24px;">
+
+                <!-- Coupon Identity -->
+                <div class="card"
+                  style="background: white; padding: 24px; border-radius: 12px; border: 1px solid #eaeaea;">
+                  <h2
+                    style="font-size: 16px; font-weight: 600; color: #333; margin-bottom: 16px; display: flex; align-items: center; gap: 8px;">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none"
+                      stroke="#556B55" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                      <path d="M21.5 12H16c-.7 2-3 3-4.5 1.5S10 9 12 8c2-1 3.5.5 4 2h5.5" />
+                    </svg>
+                    Coupon Identity
+                  </h2>
+
+                  <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 16px;">
+                    <div>
+                      <label style="display: block; font-size: 12px; font-weight: 500; color: #666; margin-bottom: 8px;">Coupon Code</label>
+                      <div class="input-wrapper">
+                        <input type="text" class="form-control" id="code" name="code" placeholder="E.g. LUMIERE20" oninput="updatePreview()" style="width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 8px; text-transform: uppercase;">
+                      </div>
+                    </div>
+                    <div>
+                      <label style="display: block; font-size: 12px; font-weight: 500; color: #666; margin-bottom: 8px;">Coupon Title</label>
+                      <div class="input-wrapper">
+                        <input type="text" class="form-control" id="title" name="title" placeholder="Summer Glow Promotion" oninput="updatePreview()" style="width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 8px;">
+                      </div>
+                    </div>
+                  </div>
+
+                  <div>
+                    <label
+                      style="display: block; font-size: 12px; font-weight: 500; color: #666; margin-bottom: 8px;">Internal
+                      Description</label>
+                    <textarea id="description" name="description" rows="3"
+                      placeholder="Describe the purpose of this coupon..."
+                      style="width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 8px; resize: none;"></textarea>
+                  </div>
+                </div>
+
+                <!-- Discount Configuration -->
+                <div class="card"
+                  style="background: white; padding: 24px; border-radius: 12px; border: 1px solid #eaeaea;">
+                  <h2
+                    style="font-size: 16px; font-weight: 600; color: #333; margin-bottom: 16px; display: flex; align-items: center; gap: 8px;">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none"
+                      stroke="#556B55" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                      <circle cx="12" cy="12" r="10" />
+                      <path d="M16 8h-6a2 2 0 1 0 0 4h4a2 2 0 1 1 0 4H8" />
+                      <path d="M12 18V6" />
+                    </svg>
+                    Discount Configuration
+                  </h2>
+
+                  <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 24px;">
+                    <div>
+                      <label
+                        style="display: block; font-size: 12px; font-weight: 500; color: #666; margin-bottom: 8px;">Discount
+                        Type</label>
+                      <div style="display: flex; gap: 12px;">
+                        <label style="flex: 1; cursor: pointer;">
+                          <input type="radio" name="discountType" value="percentage" checked onchange="updatePreview()"
+                            style="display: none;">
+                          <div class="type-box active"
+                            style="border: 2px solid #556B55; padding: 16px; border-radius: 8px; text-align: center; background: #f8faf8;">
+                            <span style="font-size: 20px; display: block; margin-bottom: 4px;">%</span>
+                            <span style="font-size: 12px; font-weight: 500; color: #333;">Percentage</span>
+                          </div>
+                        </label>
+                        <label style="flex: 1; cursor: pointer;">
+                          <input type="radio" name="discountType" value="fixed" onchange="updatePreview()"
+                            style="display: none;">
+                          <div class="type-box"
+                            style="border: 1px solid #ddd; padding: 16px; border-radius: 8px; text-align: center;">
+                            <span style="font-size: 20px; display: block; margin-bottom: 4px;">₹</span>
+                            <span style="font-size: 12px; font-weight: 500; color: #666;">Fixed Amount</span>
+                          </div>
+                        </label>
+                      </div>
+                    </div>
+
+                    <div>
+                      <label style="display: block; font-size: 12px; font-weight: 500; color: #666; margin-bottom: 8px;">Amount / Value</label>
+                      <div class="input-wrapper" style="position: relative;">
+                        <input type="number" class="form-control" id="discountValue" name="discountValue" min="1" placeholder="15" oninput="updatePreview()" style="width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 8px; font-size: 16px;">
+                        <span id="valueSymbol" style="position: absolute; right: 16px; top: 12px; color: #666; font-size: 16px;">%</span>
+                      </div>
+                      <p style="font-size: 11px; color: #888; margin-top: 8px;">Enter the percentage or dollar amount to subtract from the subtotal.</p>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Redemption Rules -->
+                <div class="card"
+                  style="background: white; padding: 24px; border-radius: 12px; border: 1px solid #eaeaea;">
+                  <h2
+                    style="font-size: 16px; font-weight: 600; color: #333; margin-bottom: 16px; display: flex; align-items: center; gap: 8px;">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none"
+                      stroke="#556B55" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                      <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+                      <path d="M14 2v6h6" />
+                      <path d="M16 13H8" />
+                      <path d="M16 17H8" />
+                      <path d="M10 9H8" />
+                    </svg>
+                    Redemption Rules
+                  </h2>
+
+                  <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 16px;">
+                    <div>
+                      <label style="display: block; font-size: 12px; font-weight: 500; color: #666; margin-bottom: 8px;">Minimum Purchase Amount</label>
+                      <div class="input-wrapper">
+                        <input type="number" class="form-control" id="minPurchaseAmount" name="minPurchaseAmount" placeholder="₹ 0.00" oninput="updatePreview()" style="width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 8px;">
+                      </div>
+                    </div>
+                    <div>
+                      <label style="display: block; font-size: 12px; font-weight: 500; color: #666; margin-bottom: 8px;">Maximum Discount Limit</label>
+                      <div class="input-wrapper">
+                        <input type="number" class="form-control" id="maxDiscountLimit" name="maxDiscountLimit" placeholder="₹ No limit" style="width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 8px;">
+                      </div>
+                    </div>
+                  </div>
+
+                  <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 16px;">
+                    <div>
+                      <label style="display: block; font-size: 12px; font-weight: 500; color: #666; margin-bottom: 8px;">Start Date & Time</label>
+                      <div class="input-wrapper" style="display: flex; flex-direction: column; gap: 8px;">
+                        <input type="text" class="form-control" id="startDate" name="startDate" placeholder="Select Date" style="width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 8px; background: #fff;" required readonly>
+                        <input type="hidden" id="startTime" name="startTime" value="12:00">
+                        <div style="display: flex; gap: 8px;">
+                          <!-- Start Hour -->
+                          <div class="input-wrapper custom-dropdown-wrapper" style="position: relative; flex: 1;">
+                            <div class="custom-dropdown form-control" style="padding: 0; border: none; background: transparent;">
+                              <div class="dropdown-selected" onclick="toggleDropdown(event, 'startHourOptions')" style="display: flex; align-items: center; justify-content: space-between; cursor: pointer; padding: 12px 16px; border: 1px solid #ddd; border-radius: 8px; background: #fff;">
+                                <span id="selectedStartHour">12</span>
+                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#222" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
+                              </div>
+                              <div class="dropdown-options" id="startHourOptions" style="display: none; position: absolute; top: 100%; left: 0; width: 100%; background: white; border: 1px solid #ddd; border-radius: 8px; margin-top: 4px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); z-index: 10; max-height: 150px; overflow-y: auto;">
+                                <% for(let i=1; i<=12; i++) { const h = i.toString().padStart(2, '0'); %>
+                                  <div class="dropdown-option <%= i === 12 ? 'active' : '' %>" onclick="selectTimeComponent('start', 'Hour', '<%= h %>')" style="padding: 10px 16px; cursor: pointer; transition: background 0.2s; border-bottom: 1px solid #eee;"><%= h %></div>
+                                <% } %>
+                              </div>
+                            </div>
+                          </div>
+                          <!-- Start Minute -->
+                          <div class="input-wrapper custom-dropdown-wrapper" style="position: relative; flex: 1;">
+                            <div class="custom-dropdown form-control" style="padding: 0; border: none; background: transparent;">
+                              <div class="dropdown-selected" onclick="toggleDropdown(event, 'startMinuteOptions')" style="display: flex; align-items: center; justify-content: space-between; cursor: pointer; padding: 12px 16px; border: 1px solid #ddd; border-radius: 8px; background: #fff;">
+                                <span id="selectedStartMinute">00</span>
+                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#222" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
+                              </div>
+                              <div class="dropdown-options" id="startMinuteOptions" style="display: none; position: absolute; top: 100%; left: 0; width: 100%; background: white; border: 1px solid #ddd; border-radius: 8px; margin-top: 4px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); z-index: 10; max-height: 150px; overflow-y: auto;">
+                                <% ['00', '15', '30', '45'].forEach((m, idx) => { %>
+                                  <div class="dropdown-option <%= idx === 0 ? 'active' : '' %>" onclick="selectTimeComponent('start', 'Minute', '<%= m %>')" style="padding: 10px 16px; cursor: pointer; transition: background 0.2s; border-bottom: 1px solid #eee;"><%= m %></div>
+                                <% }) %>
+                              </div>
+                            </div>
+                          </div>
+                          <!-- Start AM/PM -->
+                          <div class="input-wrapper custom-dropdown-wrapper" style="position: relative; flex: 1;">
+                            <div class="custom-dropdown form-control" style="padding: 0; border: none; background: transparent;">
+                              <div class="dropdown-selected" onclick="toggleDropdown(event, 'startAmPmOptions')" style="display: flex; align-items: center; justify-content: space-between; cursor: pointer; padding: 12px 16px; border: 1px solid #ddd; border-radius: 8px; background: #fff;">
+                                <span id="selectedStartAmPm">PM</span>
+                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#222" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
+                              </div>
+                              <div class="dropdown-options" id="startAmPmOptions" style="display: none; position: absolute; top: 100%; left: 0; width: 100%; background: white; border: 1px solid #ddd; border-radius: 8px; margin-top: 4px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); z-index: 10;">
+                                <div class="dropdown-option" onclick="selectTimeComponent('start', 'AmPm', 'AM')" style="padding: 10px 16px; cursor: pointer; transition: background 0.2s; border-bottom: 1px solid #eee;">AM</div>
+                                <div class="dropdown-option active" onclick="selectTimeComponent('start', 'AmPm', 'PM')" style="padding: 10px 16px; cursor: pointer; transition: background 0.2s; border-bottom: 1px solid #eee;">PM</div>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                    <div>
+                      <label style="display: block; font-size: 12px; font-weight: 500; color: #666; margin-bottom: 8px;">Expiry Date & Time (Optional)</label>
+                      <div class="input-wrapper" style="display: flex; flex-direction: column; gap: 8px;">
+                        <input type="text" class="form-control" id="endDate" name="endDate" placeholder="Select Date" style="width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 8px; background: #fff;" readonly>
+                        <input type="hidden" id="endTime" name="endTime" value="">
+                        <div style="display: flex; gap: 8px;">
+                          <!-- End Hour -->
+                          <div class="input-wrapper custom-dropdown-wrapper" style="position: relative; flex: 1;">
+                            <div class="custom-dropdown form-control" style="padding: 0; border: none; background: transparent;">
+                              <div class="dropdown-selected" onclick="toggleDropdown(event, 'endHourOptions')" style="display: flex; align-items: center; justify-content: space-between; cursor: pointer; padding: 12px 16px; border: 1px solid #ddd; border-radius: 8px; background: #fff;">
+                                <span id="selectedEndHour">--</span>
+                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#222" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
+                              </div>
+                              <div class="dropdown-options" id="endHourOptions" style="display: none; position: absolute; top: 100%; left: 0; width: 100%; background: white; border: 1px solid #ddd; border-radius: 8px; margin-top: 4px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); z-index: 10; max-height: 150px; overflow-y: auto;">
+                                <% for(let i=1; i<=12; i++) { const h = i.toString().padStart(2, '0'); %>
+                                  <div class="dropdown-option" onclick="selectTimeComponent('end', 'Hour', '<%= h %>')" style="padding: 10px 16px; cursor: pointer; transition: background 0.2s; border-bottom: 1px solid #eee;"><%= h %></div>
+                                <% } %>
+                              </div>
+                            </div>
+                          </div>
+                          <!-- End Minute -->
+                          <div class="input-wrapper custom-dropdown-wrapper" style="position: relative; flex: 1;">
+                            <div class="custom-dropdown form-control" style="padding: 0; border: none; background: transparent;">
+                              <div class="dropdown-selected" onclick="toggleDropdown(event, 'endMinuteOptions')" style="display: flex; align-items: center; justify-content: space-between; cursor: pointer; padding: 12px 16px; border: 1px solid #ddd; border-radius: 8px; background: #fff;">
+                                <span id="selectedEndMinute">--</span>
+                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#222" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
+                              </div>
+                              <div class="dropdown-options" id="endMinuteOptions" style="display: none; position: absolute; top: 100%; left: 0; width: 100%; background: white; border: 1px solid #ddd; border-radius: 8px; margin-top: 4px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); z-index: 10; max-height: 150px; overflow-y: auto;">
+                                <% ['00', '15', '30', '45'].forEach((m) => { %>
+                                  <div class="dropdown-option" onclick="selectTimeComponent('end', 'Minute', '<%= m %>')" style="padding: 10px 16px; cursor: pointer; transition: background 0.2s; border-bottom: 1px solid #eee;"><%= m %></div>
+                                <% }) %>
+                              </div>
+                            </div>
+                          </div>
+                          <!-- End AM/PM -->
+                          <div class="input-wrapper custom-dropdown-wrapper" style="position: relative; flex: 1;">
+                            <div class="custom-dropdown form-control" style="padding: 0; border: none; background: transparent;">
+                              <div class="dropdown-selected" onclick="toggleDropdown(event, 'endAmPmOptions')" style="display: flex; align-items: center; justify-content: space-between; cursor: pointer; padding: 12px 16px; border: 1px solid #ddd; border-radius: 8px; background: #fff;">
+                                <span id="selectedEndAmPm">--</span>
+                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#222" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
+                              </div>
+                              <div class="dropdown-options" id="endAmPmOptions" style="display: none; position: absolute; top: 100%; left: 0; width: 100%; background: white; border: 1px solid #ddd; border-radius: 8px; margin-top: 4px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); z-index: 10;">
+                                <div class="dropdown-option" onclick="selectTimeComponent('end', 'AmPm', 'AM')" style="padding: 10px 16px; cursor: pointer; transition: background 0.2s; border-bottom: 1px solid #eee;">AM</div>
+                                <div class="dropdown-option" onclick="selectTimeComponent('end', 'AmPm', 'PM')" style="padding: 10px 16px; cursor: pointer; transition: background 0.2s; border-bottom: 1px solid #eee;">PM</div>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; align-items: start;">
+                    <div>
+                      <label style="display: block; font-size: 12px; font-weight: 500; color: #666; margin-bottom: 8px;">Usage Limit</label>
+                      <div class="input-wrapper">
+                        <input type="number" class="form-control" id="usageLimit" name="usageLimit" placeholder="unlimited" oninput="updatePreview()" style="width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 8px;">
+                      </div>
+                      <div style="display: flex; align-items: center; gap: 8px; margin-top: 16px;">
+                        <input type="checkbox" id="limitPerUser" name="limitPerUser" style="width: 16px; height: 16px;">
+                        <label for="limitPerUser" style="font-size: 13px; color: #333; margin-bottom: 0;">Limit to one
+                          use per customer</label>
+                      </div>
+                      <div style="display: flex; align-items: center; gap: 8px; margin-top: 12px;">
+                        <input type="checkbox" id="isFirstPurchaseOnly" name="isFirstPurchaseOnly" style="width: 16px; height: 16px;">
+                        <label for="isFirstPurchaseOnly" style="font-size: 13px; color: #333; margin-bottom: 0;">Valid for First Purchase Only</label>
+                      </div>
+                      <div style="display: flex; align-items: center; gap: 8px; margin-top: 12px;">
+                        <input type="checkbox" id="restoreOnCancel" name="restoreOnCancel" checked style="width: 16px; height: 16px;">
+                        <label for="restoreOnCancel" style="font-size: 13px; color: #333; margin-bottom: 0;">Restore Usage on Order Cancellation</label>
+                      </div>
+                    </div>
+                    <div>
+                      <div class="input-wrapper custom-dropdown-wrapper" style="position: relative;">
+                        <div class="custom-dropdown form-control" id="categoryDropdown"
+                          style="padding: 0; border: none; background: transparent;">
+                          <div class="dropdown-selected" onclick="toggleDropdown(event, 'categoryOptions')"
+                            style="display: flex; align-items: center; justify-content: space-between; cursor: pointer; padding: 12px 16px; border: 1px solid #ddd; border-radius: 8px; background: #fff;">
+                            <span id="selectedCategoryText">All Categories (Store-wide)</span>
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24"
+                              fill="none" stroke="#222" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                              <polyline points="6 9 12 15 18 9"></polyline>
+                            </svg>
+                          </div>
+                          <div class="dropdown-options" id="categoryOptions"
+                            style="display: none; position: absolute; top: 100%; left: 0; width: 100%; background: white; border: 1px solid #ddd; border-radius: 8px; margin-top: 4px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); z-index: 10; max-height: 200px; overflow-y: auto;">
+                            <div class="dropdown-option active"
+                              onclick="selectCategory('', 'All Categories (Store-wide)')"
+                              style="padding: 12px 16px; cursor: pointer; transition: background 0.2s; border-bottom: 1px solid #eee;">
+                              All Categories (Store-wide)
+                            </div>
+                            <% categories.forEach(category=> { %>
+                              <div class="dropdown-option"
+                                onclick="selectCategory('<%= category._id %>', '<%= category.name %>')"
+                                style="padding: 12px 16px; cursor: pointer; transition: background 0.2s; border-bottom: 1px solid #eee;">
+                                <%= category.name %>
+                              </div>
+                              <% }); %>
+                          </div>
+                        </div>
+                        <input type="hidden" name="applicableCategories" id="categoryInput" value="">
+                      </div>
+                      <p style="font-size: 11px; color: #888; margin-top: 4px;">Leave as 'All Categories' to apply the
+                        coupon store-wide.</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Right Column: Preview & Actions -->
+              <div>
+                <div class="card"
+                  style="background: #fdf3e8; padding: 24px; border-radius: 12px; position: sticky; top: 24px;">
+                  <h3 style="font-size: 14px; font-weight: 600; color: #333; margin-bottom: 16px;">Coupon Preview</h3>
+
+                  <div
+                    style="background: white; border-radius: 12px; padding: 24px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); margin-bottom: 24px; text-align: center; position: relative;">
+                    <div
+                      style="position: absolute; top: -10px; right: -10px; background: #eef5ee; color: #556B55; font-size: 10px; padding: 4px 8px; border-radius: 20px; font-weight: 600;">
+                      ACTIVE</div>
+                    <h4 id="previewValue"
+                      style="font-size: 32px; font-weight: 500; color: #556B55; margin-bottom: 8px; font-family: 'Playfair Display', serif;">
+                      15% OFF</h4>
+                    <p id="previewTitle" style="font-size: 12px; color: #666; margin-bottom: 24px; font-style: italic;">
+                      Promotion Name</p>
+
+                    <div style="border-top: 1px dashed #ddd; padding-top: 16px;">
+                      <div
+                        style="font-size: 10px; color: #888; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 4px;">
+                        Coupon Code</div>
+                      <div id="previewCode"
+                        style="font-size: 20px; font-weight: 600; color: #333; letter-spacing: 2px;">CODE</div>
+                    </div>
+                  </div>
+
+                  <div style="margin-bottom: 24px;">
+                    <h4 style="font-size: 12px; font-weight: 600; color: #666; margin-bottom: 12px;">Summary</h4>
+                    <div
+                      style="display: flex; justify-content: space-between; font-size: 13px; color: #333; margin-bottom: 8px;">
+                      <span>Discount Value</span>
+                      <strong id="summaryValue">15%</strong>
+                    </div>
+                    <div
+                      style="display: flex; justify-content: space-between; font-size: 13px; color: #333; margin-bottom: 8px;">
+                      <span>Min. Purchase</span>
+                      <strong id="summaryMin">₹0.00</strong>
+                    </div>
+                    <div
+                      style="display: flex; justify-content: space-between; font-size: 13px; color: #333; margin-bottom: 8px;">
+                      <span>Valid Period</span>
+                      <strong id="summaryPeriod">Indefinite</strong>
+                    </div>
+                    <div style="display: flex; justify-content: space-between; font-size: 13px; color: #333;">
+                      <span>Usage Limit</span>
+                      <strong id="summaryLimit">unlimited</strong>
+                    </div>
+                  </div>
+
+                  <div style="display: flex; gap: 12px;">
+                    <a href="/admin/coupons" class="btn-secondary"
+                      style="flex: 1; text-align: center; text-decoration: none; padding: 12px; border-radius: 8px; background: white; border: 1px solid #ddd; color: #666;">Discard
+                      Draft</a>
+                    <button type="submit" class="btn-primary"
+                      style="flex: 1; padding: 12px; border-radius: 8px; background: #556B55; color: white; border: none; font-weight: 500; cursor: pointer;">Publish
+                      Coupon</button>
+                  </div>
+                </div>
+              </div>
+            </form>
+
+            <!-- Custom Modal -->
+            <div class="modal-overlay" id="customModal">
+              <div class="modal-box">
+                <div class="modal-icon">
+                  <img src="/images/icons/admin/triangle-alert.svg" alt="Alert" id="modalIcon" />
+                </div>
+                <h2 class="modal-title" id="modalTitle">Title</h2>
+                <p class="modal-message" id="modalMessage">Message</p>
+                <div class="modal-actions" id="modalActions">
+                  <button type="button" class="modal-btn modal-btn-cancel" id="modalCancel">Cancel</button>
+                  <button type="button" class="modal-btn modal-btn-confirm" id="modalConfirm">Confirm</button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+          <script>
+            // Initialize Flatpickr
+            flatpickr("#startDate", {
+              dateFormat: "Y-m-d",
+              defaultDate: new Date()
+            });
+            flatpickr("#endDate", {
+              dateFormat: "Y-m-d"
+            });
+
+            // Handle radio button styling
+            document.querySelectorAll('input[name="discountType"]').forEach(radio => {
+              radio.addEventListener('change', function () {
+                document.querySelectorAll('.type-box').forEach(box => {
+                  box.style.border = '1px solid #ddd';
+                  box.style.background = 'transparent';
+                  box.querySelector('span:nth-child(2)').style.color = '#666';
+                });
+                if (this.checked) {
+                  const box = this.nextElementSibling;
+                  box.style.border = '2px solid #556B55';
+                  box.style.background = '#f8faf8';
+                  box.querySelector('span:nth-child(2)').style.color = '#333';
+
+                  document.getElementById('valueSymbol').textContent = this.value === 'percentage' ? '%' : '₹';
+                }
+              });
+            });
+
+            // Dynamic Preview
+            function updatePreview() {
+              const code = document.getElementById('code').value.toUpperCase() || 'CODE';
+              const title = document.getElementById('title').value || 'Promotion Name';
+              const type = document.querySelector('input[name="discountType"]:checked').value;
+              const value = document.getElementById('discountValue').value || '15';
+              const minPurchase = document.getElementById('minPurchaseAmount').value || '0';
+              const limit = document.getElementById('usageLimit').value || 'unlimited';
+
+              const formattedValue = type === 'percentage' ? `${value}% OFF` : `₹${value} OFF`;
+              const summaryVal = type === 'percentage' ? `${value}%` : `₹${value}`;
+
+              document.getElementById('previewCode').textContent = code;
+              document.getElementById('previewTitle').textContent = title;
+              document.getElementById('previewValue').textContent = formattedValue;
+
+              document.getElementById('summaryValue').textContent = summaryVal;
+              document.getElementById('summaryMin').textContent = `₹${minPurchase}`;
+              document.getElementById('summaryLimit').textContent = limit;
+            }
+
+            // Common Modal Elements
+            const customModal = document.getElementById('customModal');
+            const modalIcon = document.getElementById('modalIcon');
+            const modalTitle = document.getElementById('modalTitle');
+            const modalMessage = document.getElementById('modalMessage');
+            const modalCancel = document.getElementById('modalCancel');
+            const modalConfirm = document.getElementById('modalConfirm');
+
+            const closeModal = () => {
+              customModal.classList.remove('active');
+            };
+
+            // Handle form submission
+            document.getElementById('createCouponForm').addEventListener('submit', async function (e) {
+              e.preventDefault();
+
+              // Validate form
+              const isValid = window.AdminValidator.validateForm(this, {
+                code: 'couponCode',
+                title: 'couponTitle',
+                discountValue: 'discountValue',
+                minPurchaseAmount: 'couponAmount',
+                maxDiscountLimit: 'couponAmount',
+                startDate: 'couponStartDate',
+                endDate: 'couponEndDate',
+                usageLimit: 'usageLimit'
+              });
+
+              if (!isValid) return;
+
+              // Show Confirmation Modal for Creation
+              modalIcon.src = '/images/icons/admin/triangle-alert.svg';
+              modalTitle.textContent = 'Create Coupon?';
+              modalMessage.innerHTML = 'Are you sure you want to create this new coupon?';
+              modalConfirm.textContent = 'Create Coupon';
+              modalConfirm.classList.add('modal-btn-positive');
+              modalConfirm.disabled = false;
+              modalCancel.style.display = 'inline-block';
+
+              customModal.classList.add('active');
+              modalCancel.onclick = closeModal;
+
+              modalConfirm.onclick = async () => {
+                modalConfirm.disabled = true;
+                modalConfirm.textContent = 'Creating...';
+
+                const formData = new FormData(this);
+                const data = Object.fromEntries(formData.entries());
+
+                try {
+                  const response = await fetch('/admin/coupons', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(data)
+                  });
+                  const result = await response.json();
+
+                  if (result.success) {
+                    modalIcon.src = '/images/icons/admin/check-circle.svg';
+                    modalTitle.textContent = 'Success!';
+                    modalMessage.innerHTML = result.message;
+                    modalCancel.style.display = 'none';
+                    modalConfirm.textContent = 'OK';
+                    modalConfirm.disabled = false;
+
+                    modalConfirm.onclick = () => {
+                      window.location.href = '/admin/coupons';
+                    };
+                  } else {
+                    modalIcon.src = '/images/icons/admin/triangle-alert.svg';
+                    modalTitle.textContent = 'Error';
+                    modalMessage.innerHTML = result.message;
+                    modalCancel.style.display = 'none';
+                    modalConfirm.textContent = 'Close';
+                    modalConfirm.disabled = false;
+                    modalConfirm.classList.remove('modal-btn-positive');
+                    modalConfirm.onclick = closeModal;
+                  }
+                } catch (err) {
+                  modalIcon.src = '/images/icons/admin/triangle-alert.svg';
+                  modalTitle.textContent = 'Error';
+                  modalMessage.innerHTML = 'An error occurred while creating the coupon.';
+                  modalCancel.style.display = 'none';
+                  modalConfirm.textContent = 'Close';
+                  modalConfirm.disabled = false;
+                  modalConfirm.classList.remove('modal-btn-positive');
+                  modalConfirm.onclick = closeModal;
+                }
+              };
+            });
+          </script>
+
+      </div>
+  </div>
+  </div>
+  </div>
+
+  <script>
+    function toggleDropdown(event, id) {
+      const options = document.getElementById(id);
+      options.style.display = options.style.display === 'block' ? 'none' : 'block';
+      event.stopPropagation();
+    }
+
+    function selectCategory(value, text) {
+      document.getElementById('categoryInput').value = value;
+      document.getElementById('selectedCategoryText').textContent = text;
+
+      const optionsList = document.querySelectorAll('#categoryOptions .dropdown-option');
+      optionsList.forEach(opt => opt.style.background = 'white');
+      event.target.style.background = '#f4f4f4';
+
+      document.getElementById('categoryOptions').style.display = 'none';
+    }
+
+    document.addEventListener('click', function (event) {
+      if (!event.target.closest('.custom-dropdown-wrapper')) {
+        const allDropdowns = document.querySelectorAll('.dropdown-options');
+        allDropdowns.forEach(dropdown => {
+          dropdown.style.display = 'none';
+        });
+      }
+    });
+
+    function selectTimeComponent(type, component, value) {
+      // type: 'start' | 'end'
+      // component: 'Hour' | 'Minute' | 'AmPm'
+      const typeCapitalized = type.charAt(0).toUpperCase() + type.slice(1);
+      document.getElementById(`selected${typeCapitalized}${component}`).textContent = value;
+      
+      const optionsList = document.querySelectorAll(`#${type}${component}Options .dropdown-option`);
+      optionsList.forEach(opt => {
+        opt.style.background = 'white';
+        opt.classList.remove('active');
+      });
+      event.target.style.background = '#f4f4f4';
+      event.target.classList.add('active');
+      
+      document.getElementById(`${type}${component}Options`).style.display = 'none';
+
+      // Re-calculate the hidden input value
+      calculateHiddenTime(type);
+    }
+
+    function calculateHiddenTime(type) {
+      const typeCapitalized = type.charAt(0).toUpperCase() + type.slice(1);
+      const hourStr = document.getElementById(`selected${typeCapitalized}Hour`).textContent;
+      const minStr = document.getElementById(`selected${typeCapitalized}Minute`).textContent;
+      const ampmStr = document.getElementById(`selected${typeCapitalized}AmPm`).textContent;
+      
+      if (hourStr === '--' || minStr === '--' || ampmStr === '--') {
+        document.getElementById(`${type}Time`).value = '';
+        return;
+      }
+
+      let hour = parseInt(hourStr, 10);
+      if (ampmStr === 'PM' && hour < 12) hour += 12;
+      if (ampmStr === 'AM' && hour === 12) hour = 0;
+      
+      document.getElementById(`${type}Time`).value = `${hour.toString().padStart(2, '0')}:${minStr}`;
+    }
+
+    // Add hover effects for dropdown options
+    document.addEventListener('DOMContentLoaded', () => {
+      document.querySelectorAll('.dropdown-option').forEach(opt => {
+        opt.addEventListener('mouseover', function () {
+          if (this.style.background !== 'rgb(244, 244, 244)' && this.style.background !== '#f4f4f4') {
+            this.style.background = '#f9f9f9';
+          }
+        });
+        opt.addEventListener('mouseout', function () {
+          if (this.style.background === 'rgb(249, 249, 249)' || this.style.background === '#f9f9f9') {
+            this.style.background = 'white';
+          }
+        });
+      });
+    });
+  </script>
+  <script src="/js/admin/formValidator.js"></script>
+</body>
+
+</html>

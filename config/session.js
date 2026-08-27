@@ -1,5 +1,6 @@
 import session from 'express-session';
 import MongoStore from 'connect-mongo';
+import mongoose from 'mongoose';
 
 const sessionConfig = session({
     secret: process.env.SESSION_SECRET,
@@ -9,7 +10,7 @@ const sessionConfig = session({
     saveUninitialized: false,
 
     store: MongoStore.create({
-        mongoUrl: process.env.MONGO_URI,
+        clientPromise: mongoose.connection.asPromise().then(c => c.getClient()),
     }),
 
     cookie: {

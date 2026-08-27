@@ -1,29 +1,25 @@
 <% if (!locals._navbarCssLoaded) { %>
   <link rel="stylesheet" href="/css/user/navbar.css" />
-  <% locals._navbarCssLoaded = true; %>
-<% } %>
-<nav class="navbar">
-  <div class="navbar-container">
-    <a href="/" class="navbar-logo">ELSH</a>
+  <% locals._navbarCssLoaded=true; %>
+    <% } %>
+      <nav class="navbar">
+        <div class="navbar-container">
+          <a href="/" class="navbar-logo">ELSH</a>
 
-    <ul class="navbar-links">
-      <li><a href="/about">ABOUT</a></li>
-      <li><a href="/science">SCIENCE</a></li>
-      <li><a href="/journal">JOURNAL</a></li>
-      <li><a href="/contact">CONTACT</a></li>
-    </ul>
+          <ul class="navbar-links">
+          </ul>
 
-    <div class="navbar-actions">
-      <a href="/login" class="navbar-login">LOGIN</a>
-      <a href="/signup" class="navbar-signup">CREATE ACCOUNT</a>
-    </div>
-  </div>
-</nav>
-<script>
-  // Bfcache (Back/Forward Cache) Busting
-  window.addEventListener('pageshow', function (event) {
-    if (event.persisted) {
-      window.location.reload();
-    }
-  });
-</script>
+          <div class="navbar-actions">
+            <a href="/login" class="navbar-login">LOGIN</a>
+            <a href="/signup" class="navbar-signup">CREATE ACCOUNT</a>
+          </div>
+        </div>
+      </nav>
+      <script>
+        // Bfcache (Back/Forward Cache) Busting
+        window.addEventListener('pageshow', function (event) {
+          if (event.persisted) {
+            window.location.reload();
+          }
+        });
+      </script>

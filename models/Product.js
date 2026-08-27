@@ -21,6 +21,16 @@ const variantSchema = new mongoose.Schema({
         min: [0, 'Stock cannot be negative'],
         default: 0
     },
+    offerPrice: {
+        type: Number,
+        default: null,
+        min: [0, 'Offer price cannot be negative']
+    },
+    appliedOffer: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Offer',
+        default: null
+    },
     images: {
         type: [String],
         validate: {
@@ -59,9 +69,17 @@ const productSchema = new mongoose.Schema({
             validator: function(v) {
                 return v && v.length > 0;
             },
-            message: 'A product must have at least one variant'
-        },
-        required: true
+            message: 'A product must have at least 1 variant'
+        }
+    },
+    returnWindowDays: {
+        type: Number,
+        default: 7,
+        min: 0
+    },
+    isBlocked: {
+        type: Boolean,
+        default: false
     },
     skinType: {
         type: [String],

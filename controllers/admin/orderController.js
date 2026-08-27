@@ -1,12 +1,13 @@
 import Order from '../../models/Order.js';
 import Product from '../../models/Product.js';
 import Wallet from '../../models/Wallet.js';
+import Coupon from '../../models/Coupon.js';
 import { generateInvoicePDF } from '../../utils/pdfGenerator.js';
 
 export const getOrders = async (req, res, next) => {
   try {
     const page = parseInt(req.query.page) || 1;
-    const limit = 10;
+    const limit = 5;
     const skip = (page - 1) * limit;
 
     // Filters
@@ -155,9 +156,44 @@ export const updateOrderStatus = async (req, res) => {
     }
 
     const previousStatus = order.orderStatus;
+
+    // Prevent progressing order if online payment is pending
+    if (order.paymentInfo.status === 'PENDING' && ['Razorpay', 'Wallet + Razorpay'].includes(order.paymentInfo.method)) {
+      if (status !== 'CANCELLED') {
+        return res.status(400).json({ success: false, message: 'Cannot update order status because the online payment is still pending.' });
+      }
+    }
+
+    // Define the valid forward progression
+    const progression = ['PENDING', 'PROCESSING', 'SHIPPED', 'OUT FOR DELIVERY', 'DELIVERED'];
+
+    // Enforce strict forward state transitions
+    if (progression.includes(previousStatus) && progression.includes(status)) {
+      if (progression.indexOf(status) < progression.indexOf(previousStatus)) {
+        return res.status(400).json({ success: false, message: 'Cannot move order status backwards.' });
+      }
+    }
+
+    if (previousStatus === 'DELIVERED' && !['DELIVERED', 'RETURN_REQUESTED', 'RETURNED'].includes(status)) {
+      return res.status(400).json({ success: false, message: 'Cannot revert a delivered order to previous stages.' });
+    }
+
+    if (previousStatus === 'CANCELLED' && status !== 'CANCELLED') {
+      return res.status(400).json({ success: false, message: 'Cannot change status of a cancelled order.' });
+    }
+
+    if (previousStatus === 'RETURNED' && status !== 'RETURNED') {
+      return res.status(400).json({ success: false, message: 'Cannot change status of a returned order.' });
+    }
+
+    // Only allow admin to process refund (RETURNED)
+    if (status === 'RETURN_REQUESTED' && previousStatus !== 'RETURN_REQUESTED') {
+      return res.status(400).json({ success: false, message: 'Return requests must be initiated by the customer.' });
+    }
+
     order.orderStatus = status;
 
-    // Restock if cancelled or returned 
+    // Restock if cancelled or returned
     if ((status === 'CANCELLED' || status === 'RETURNED') &&
       (previousStatus !== 'CANCELLED' && previousStatus !== 'RETURNED')) {
       for (const item of order.items) {
@@ -166,11 +202,24 @@ export const updateOrderStatus = async (req, res) => {
           { $inc: { 'variants.$.stock': item.quantity } }
         );
       }
+
+      // If cancelled, restore coupon usage if applicable
+      if (status === 'CANCELLED' && order.pricing && order.pricing.couponCode) {
+        const coupon = await Coupon.findOne({ code: order.pricing.couponCode });
+        if (coupon && coupon.restoreOnCancel) {
+          if (coupon.usedCount > 0) coupon.usedCount -= 1;
+          coupon.usedBy = coupon.usedBy.filter(id => id.toString() !== order.user.toString());
+          await coupon.save();
+        }
+      }
     }
 
     // Automatically update payment status for COD if delivered
-    if (status === 'DELIVERED' && order.paymentInfo.method === 'COD') {
-      order.paymentInfo.status = 'PAID';
+    if (status === 'DELIVERED') {
+      if (!order.deliveredAt) order.deliveredAt = new Date();
+      if (order.paymentInfo.method === 'COD') {
+        order.paymentInfo.status = 'PAID';
+      }
     }
 
     await order.save();
@@ -205,18 +254,25 @@ export const processRefund = async (req, res) => {
       wallet = new Wallet({ user: order.user, balance: 0, totalRefunds: 0, transactions: [] });
     }
 
-    const refundAmount = order.pricing.totalAmount;
+    let refundAmount = 0;
+    if (['Razorpay', 'Wallet', 'Wallet + Razorpay'].includes(order.paymentInfo.method) && order.paymentInfo.status === 'PAID') {
+      refundAmount = order.pricing.totalAmount;
+    } else if (order.paymentInfo.walletAmountUsed && order.paymentInfo.walletAmountUsed > 0) {
+      refundAmount = order.paymentInfo.walletAmountUsed;
+    }
 
-    // Credit Wallet
-    wallet.balance += refundAmount;
-    wallet.totalRefunds += refundAmount;
-    wallet.transactions.push({
-      amount: refundAmount,
-      type: 'CREDIT',
-      description: `Refund for Order #${order.orderId}`
-    });
+    if (refundAmount > 0) {
+      // Credit Wallet
+      wallet.balance += refundAmount;
+      wallet.totalRefunds += refundAmount;
+      wallet.transactions.push({
+        amount: refundAmount,
+        type: 'CREDIT',
+        description: `Refund for Order #${order.orderId}`
+      });
 
-    await wallet.save();
+      await wallet.save();
+    }
 
     // Update Order Status and Restock Items if not already cancelled
     order.paymentInfo.status = 'REFUNDED';

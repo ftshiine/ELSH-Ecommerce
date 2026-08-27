@@ -1,0 +1,328 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Admin | Coupon Management</title>
+  <link rel="stylesheet" href="/css/admin/layout.css" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Playfair+Display:wght@600&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+  <style>
+    /* Content Elements */
+    .content-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 24px; }
+    .content-header h1 { font-family: 'Playfair Display', serif; font-size: 24px; color: #2C3E2D; margin-bottom: 8px; }
+    .content-header p { font-size: 14px; color: #666; max-width: 600px; line-height: 1.5; }
+    
+    /* Button Styles */
+    .btn-primary { background: #556B55; color: white; border: none; padding: 10px 20px; border-radius: 6px; font-weight: 500; font-size: 14px; cursor: pointer; text-decoration: none; display: inline-flex; align-items: center; gap: 8px; transition: background 0.2s; }
+    .btn-primary:hover { background: #455745; }
+    .btn-primary:hover { background: #455745; }
+    
+    /* Stats Cards */
+    .stats-container { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; }
+    .stat-card { background: white; padding: 20px; border-radius: 12px; border: 1px solid #EAEAEA; box-shadow: 0 2px 8px rgba(0,0,0,0.02); }
+    .stat-title { font-size: 13px; color: #666; font-weight: 500; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 12px; }
+    .stat-value { font-size: 28px; font-family: 'Playfair Display', serif; color: #2C3E2D; }
+    
+    /* Table Styles */
+    .table-card { background: white; border-radius: 12px; border: 1px solid #EAEAEA; box-shadow: 0 2px 8px rgba(0,0,0,0.02); overflow: hidden; }
+    table { width: 100%; border-collapse: collapse; }
+    th { background: #F8F9FA; padding: 16px 24px; text-align: left; font-size: 12px; font-weight: 600; color: #555; text-transform: uppercase; letter-spacing: 0.5px; border-bottom: 1px solid #EAEAEA; }
+    td { padding: 16px 24px; border-bottom: 1px solid #EAEAEA; font-size: 14px; vertical-align: middle; }
+    tr:last-child td { border-bottom: none; }
+    
+    /* Badges & Elements */
+    .coupon-code { font-family: monospace; font-weight: 600; font-size: 14px; background: #F0F4F0; padding: 4px 8px; border-radius: 4px; color: #2C3E2D; display: inline-block; }
+    .status-badge { padding: 4px 10px; border-radius: 12px; font-size: 12px; font-weight: 500; }
+    .status-active { background: #E6F4EA; color: #1E8E3E; }
+    .status-inactive { background: #FCE8E6; color: #D93025; }
+    
+    /* Toggle Switch */
+    .switch { position: relative; display: inline-block; width: 44px; height: 24px; }
+    .switch input { opacity: 0; width: 0; height: 0; }
+    .slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #ccc; transition: .4s; border-radius: 24px; }
+    .slider:before { position: absolute; content: ""; height: 18px; width: 18px; left: 3px; bottom: 3px; background-color: white; transition: .4s; border-radius: 50%; }
+    input:checked + .slider { background-color: #556B55; }
+    input:checked + .slider:before { transform: translateX(20px); }
+  </style>
+</head>
+<body>
+  <div class="admin-layout">
+    <%- include('../partials/sidebar') %>
+    <div class="main-content">
+      <%- include('../partials/topbar') %>
+      <div class="page-content">
+  <div class="content-header">
+    <div class="header-left">
+      <h1>Coupon Management</h1>
+      <p>Create and monitor promotional offers to drive customer engagement and track campaign performance through real-time redemption data.</p>
+    </div>
+    <div class="header-actions">
+      <a href="/admin/coupons/create" class="btn-primary" style="text-decoration:none;">+ Create Coupon</a>
+    </div>
+  </div>
+
+  <div class="stats-grid" style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; margin-bottom: 24px;">
+    <!-- Active Campaigns -->
+    <div class="stat-card" style="background: white; padding: 24px; border-radius: 12px; border: 1px solid #eaeaea;">
+      <div class="stat-header" style="display: flex; justify-content: space-between; margin-bottom: 16px;">
+        <div class="stat-icon" style="background: #eef5ee; width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: #556B55;">
+          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7V4h16v3M4 17v3h16v-3M2 12h20M7 7h1M7 17h1M16 7h1M16 17h1"/></svg>
+        </div>
+        <span class="stat-trend positive" style="color: #219653; font-weight: 500; font-size: 13px;">+12% vs last month</span>
+      </div>
+      <div class="stat-title" style="color: #666; font-size: 12px; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 8px;">Active Coupons</div>
+      <div class="stat-value" style="font-size: 28px; font-weight: 500; color: #333;"><%= stats.activeCampaigns %> Campaigns</div>
+    </div>
+
+    <!-- Total Redemptions -->
+    <div class="stat-card" style="background: white; padding: 24px; border-radius: 12px; border: 1px solid #eaeaea;">
+      <div class="stat-header" style="display: flex; justify-content: space-between; margin-bottom: 16px;">
+        <div class="stat-icon" style="background: #fdf3e8; width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: #d68940;">
+          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline></svg>
+        </div>
+        <span class="stat-trend" style="color: #333; font-weight: 500; font-size: 13px;">84.2% Rate</span>
+      </div>
+      <div class="stat-title" style="color: #666; font-size: 12px; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 8px;">Total Redemptions</div>
+      <div class="stat-value" style="font-size: 28px; font-weight: 500; color: #333;"><%= stats.totalRedemptions %></div>
+    </div>
+
+    <!-- Best Performing -->
+    <div class="stat-card" style="background: white; padding: 24px; border-radius: 12px; border: 1px solid #eaeaea;">
+      <div class="stat-header" style="display: flex; justify-content: space-between; margin-bottom: 16px;">
+        <div class="stat-icon" style="background: #eef5ee; width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: #556B55;">
+          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>
+        </div>
+        <span class="stat-badge" style="background: #f4f4f4; padding: 4px 10px; border-radius: 20px; font-size: 12px; font-weight: 600;"><%= stats.bestPerforming.code %></span>
+      </div>
+      <div class="stat-title" style="color: #666; font-size: 12px; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 8px;">Best Performing</div>
+      <div class="stat-value" style="font-size: 28px; font-weight: 500; color: #333;">₹<%= stats.bestPerforming.sales.toLocaleString() %> Sales</div>
+    </div>
+  </div>
+
+  <div class="content-card" style="background: white; border-radius: 12px; border: 1px solid #eaeaea;">
+    <div class="card-header" style="padding: 24px; border-bottom: 1px solid #eaeaea; display: flex; justify-content: space-between; align-items: center;">
+      <h2 style="font-size: 20px; font-weight: 500; color: #333; margin: 0;">Active Campaigns</h2>
+      <div class="header-filters" style="display: flex; gap: 12px;">
+        <select class="form-select" style="padding: 8px 16px; border-radius: 20px; border: 1px solid #ddd; outline: none;">
+          <option>All Status</option>
+          <option>Active</option>
+          <option>Inactive</option>
+        </select>
+        <select class="form-select" style="padding: 8px 16px; border-radius: 20px; border: 1px solid #ddd; outline: none;">
+          <option>Recent First</option>
+          <option>Oldest First</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="table-container" style="overflow-x: auto;">
+      <table class="data-table" style="width: 100%; border-collapse: collapse;">
+        <thead style="background: #fafafa;">
+          <tr>
+            <th style="text-align: left; padding: 16px 24px; font-size: 11px; font-weight: 600; color: #666; text-transform: uppercase; letter-spacing: 1px; border-bottom: 1px solid #eaeaea;">Coupon Code</th>
+            <th style="text-align: left; padding: 16px 24px; font-size: 11px; font-weight: 600; color: #666; text-transform: uppercase; letter-spacing: 1px; border-bottom: 1px solid #eaeaea;">Type & Value</th>
+            <th style="text-align: left; padding: 16px 24px; font-size: 11px; font-weight: 600; color: #666; text-transform: uppercase; letter-spacing: 1px; border-bottom: 1px solid #eaeaea;">Redemption Status</th>
+            <th style="text-align: left; padding: 16px 24px; font-size: 11px; font-weight: 600; color: #666; text-transform: uppercase; letter-spacing: 1px; border-bottom: 1px solid #eaeaea;">Expiry Date</th>
+            <th style="text-align: left; padding: 16px 24px; font-size: 11px; font-weight: 600; color: #666; text-transform: uppercase; letter-spacing: 1px; border-bottom: 1px solid #eaeaea;">Usage Limit</th>
+            <th style="text-align: right; padding: 16px 24px; font-size: 11px; font-weight: 600; color: #666; text-transform: uppercase; letter-spacing: 1px; border-bottom: 1px solid #eaeaea;">Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% if (coupons.length === 0) { %>
+            <tr>
+              <td colspan="6" style="text-align: center; padding: 40px; color: #666;">No coupons found.</td>
+            </tr>
+          <% } else { %>
+            <% coupons.forEach(coupon => { %>
+              <tr style="border-bottom: 1px solid #eaeaea;">
+                <td style="padding: 16px 24px;">
+                  <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 4px;">
+                    <div style="font-weight: 600; color: #333; font-size: 14px;"><%= coupon.code %></div>
+                    <% if (coupon.isActive) { %>
+                      <span style="background: #eef5ee; color: #219653; font-size: 10px; padding: 2px 8px; border-radius: 12px; font-weight: 600; letter-spacing: 0.5px;">ACTIVE</span>
+                    <% } else { %>
+                      <span style="background: #fce8e6; color: #d32f2f; font-size: 10px; padding: 2px 8px; border-radius: 12px; font-weight: 600; letter-spacing: 0.5px;">INACTIVE</span>
+                    <% } %>
+                  </div>
+                  <div style="font-size: 12px; color: #888;"><%= coupon.title %></div>
+                </td>
+                <td style="padding: 16px 24px;">
+                  <% if(coupon.discountType === 'percentage') { %>
+                    <span style="display: inline-block; padding: 4px 12px; background: #f0f0f0; border-radius: 20px; font-size: 12px; font-weight: 500; color: #333;">Percentage - <%= coupon.discountValue %>% OFF</span>
+                  <% } else { %>
+                    <span style="display: inline-block; padding: 4px 12px; background: #fdf3e8; border-radius: 20px; font-size: 12px; font-weight: 500; color: #d68940;">Fixed - ₹<%= coupon.discountValue.toFixed(2) %> OFF</span>
+                  <% } %>
+                </td>
+                <td style="padding: 16px 24px;">
+                  <div style="display: flex; justify-content: space-between; font-size: 12px; font-weight: 500; color: #333; margin-bottom: 4px;">
+                    <span><%= coupon.usedCount %> / <%= coupon.usageLimit ? coupon.usageLimit : '∞' %></span>
+                    <% 
+                      let percentage = 0;
+                      if(coupon.usageLimit) percentage = Math.min(100, Math.round((coupon.usedCount / coupon.usageLimit) * 100));
+                    %>
+                    <% if(coupon.usageLimit) { %>
+                      <span style="color: #666;"><%= percentage %>%</span>
+                    <% } else { %>
+                      <span style="color: #666;">Ongoing</span>
+                    <% } %>
+                  </div>
+                  <div style="width: 100%; background: #eaeaea; height: 4px; border-radius: 2px; overflow: hidden;">
+                    <div style="width: <%= coupon.usageLimit ? percentage : 100 %>%; background: <%= coupon.isActive ? '#556B55' : '#ccc' %>; height: 100%;"></div>
+                  </div>
+                </td>
+                <td style="padding: 16px 24px; font-size: 13px; color: #555;">
+                  <% if (coupon.endDate) { %>
+                    <%= new Date(coupon.endDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) %>
+                  <% } else { %>
+                    No Expiry
+                  <% } %>
+                </td>
+                <td style="padding: 16px 24px; font-size: 13px; color: #555;">
+                  <% if (coupon.limitPerUser) { %>
+                    Single use per user
+                  <% } else if (coupon.minPurchaseAmount > 0) { %>
+                    Min Order ₹<%= coupon.minPurchaseAmount %>
+                  <% } else { %>
+                    Unique Code
+                  <% } %>
+                </td>
+                <td style="padding: 16px 24px; text-align: right;">
+                  <button class="action-btn" onclick="toggleCoupon('<%= coupon._id %>', <%= coupon.isActive %>)" style="background: none; border: none; cursor: pointer; color: #666; padding: 8px;">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                      <circle cx="12" cy="12" r="1"></circle>
+                      <circle cx="12" cy="5" r="1"></circle>
+                      <circle cx="12" cy="19" r="1"></circle>
+                    </svg>
+                  </button>
+                </td>
+              </tr>
+            <% }) %>
+          <% } %>
+        </tbody>
+      </table>
+    </div>
+
+    <% if (totalPages > 1) { %>
+      <div class="pagination" style="padding: 24px; display: flex; justify-content: space-between; align-items: center; border-top: 1px solid #eaeaea;">
+        <span style="font-size: 13px; color: #666;">Showing <%= ((currentPage - 1) * 10) + 1 %>-<%= Math.min(currentPage * 10, totalCoupons) %> of <%= totalCoupons %> campaigns</span>
+        <div class="page-numbers" style="display: flex; gap: 8px;">
+          <% if (currentPage > 1) { %>
+            <a href="?page=<%= currentPage - 1 %>" style="width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; border: 1px solid #eaeaea; border-radius: 50%; color: #666; text-decoration: none;">&lt;</a>
+          <% } %>
+          
+          <% for(let i = 1; i <= totalPages; i++) { %>
+            <a href="?page=<%= i %>" style="width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; border: 1px solid <%= currentPage === i ? '#556B55' : '#eaeaea' %>; background: <%= currentPage === i ? '#eef5ee' : 'white' %>; color: <%= currentPage === i ? '#556B55' : '#666' %>; border-radius: 50%; text-decoration: none;"><%= i %></a>
+          <% } %>
+          
+          <% if (currentPage < totalPages) { %>
+            <a href="?page=<%= currentPage + 1 %>" style="width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; border: 1px solid #eaeaea; border-radius: 50%; color: #666; text-decoration: none;">&gt;</a>
+          <% } %>
+        </div>
+      </div>
+    <% } %>
+  </div>
+</div>
+
+<!-- Custom Modal -->
+<div class="modal-overlay" id="customModal">
+  <div class="modal-box">
+    <div class="modal-icon">
+      <img src="/images/icons/admin/triangle-alert.svg" alt="Alert" id="modalIcon" />
+    </div>
+    <h2 class="modal-title" id="modalTitle">Title</h2>
+    <p class="modal-message" id="modalMessage">Message</p>
+    <div class="modal-actions" id="modalActions">
+      <button type="button" class="modal-btn modal-btn-cancel" id="modalCancel" onclick="closeModal()">Cancel</button>
+      <button type="button" class="modal-btn modal-btn-confirm" id="modalConfirm">Confirm</button>
+    </div>
+  </div>
+</div>
+
+<script>
+  const customModal = document.getElementById('customModal');
+  const modalIcon = document.getElementById('modalIcon');
+  const modalTitle = document.getElementById('modalTitle');
+  const modalMessage = document.getElementById('modalMessage');
+  const modalCancel = document.getElementById('modalCancel');
+  const modalConfirm = document.getElementById('modalConfirm');
+
+  function closeModal() {
+    customModal.classList.remove('active');
+  }
+
+  async function toggleCoupon(id, currentStatus) {
+    const action = currentStatus ? 'deactivate' : 'activate';
+    
+    modalIcon.src = '/images/icons/admin/triangle-alert.svg';
+    modalTitle.textContent = `Are you sure?`;
+    modalMessage.innerHTML = `Do you want to ${action} this coupon?`;
+    modalConfirm.textContent = `Yes, ${action} it!`;
+    
+    if (action === 'deactivate') {
+      modalConfirm.classList.remove('modal-btn-positive');
+      modalConfirm.style.background = '#d32f2f'; // Give it a red tint for deactivation
+    } else {
+      modalConfirm.classList.add('modal-btn-positive');
+      modalConfirm.style.background = ''; // reset
+    }
+
+    modalCancel.style.display = 'inline-block';
+    customModal.classList.add('active');
+
+    modalConfirm.onclick = async () => {
+      modalConfirm.disabled = true;
+      modalConfirm.textContent = 'Processing...';
+
+      try {
+        const response = await fetch(`/admin/coupons/${id}/toggle`, {
+          method: 'PATCH',
+          headers: { 'Content-Type': 'application/json' }
+        });
+        const data = await response.json();
+        
+        if (data.success) {
+          modalIcon.src = '/images/icons/admin/check-circle.svg';
+          modalTitle.textContent = 'Success!';
+          modalMessage.innerHTML = data.message;
+          modalCancel.style.display = 'none';
+          modalConfirm.textContent = 'OK';
+          modalConfirm.style.background = '';
+          modalConfirm.classList.add('modal-btn-positive');
+          modalConfirm.disabled = false;
+
+          modalConfirm.onclick = () => {
+            location.reload();
+          };
+        } else {
+          modalIcon.src = '/images/icons/admin/triangle-alert.svg';
+          modalTitle.textContent = 'Error';
+          modalMessage.innerHTML = data.message;
+          modalCancel.style.display = 'none';
+          modalConfirm.textContent = 'Close';
+          modalConfirm.disabled = false;
+          modalConfirm.style.background = '';
+          modalConfirm.classList.remove('modal-btn-positive');
+          modalConfirm.onclick = closeModal;
+        }
+      } catch (err) {
+        modalIcon.src = '/images/icons/admin/triangle-alert.svg';
+        modalTitle.textContent = 'Error';
+        modalMessage.innerHTML = 'Something went wrong';
+        modalCancel.style.display = 'none';
+        modalConfirm.textContent = 'Close';
+        modalConfirm.disabled = false;
+        modalConfirm.style.background = '';
+        modalConfirm.classList.remove('modal-btn-positive');
+        modalConfirm.onclick = closeModal;
+      }
+    };
+  }
+</script>
+
+        </div>
+      </div>
+    </div>
+  </div>
+</body>
+</html>

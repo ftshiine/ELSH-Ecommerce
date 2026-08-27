@@ -37,9 +37,9 @@ export const loadShop = async (req, res) => {
             query.variants = {
                 $elemMatch: {
                     $or: [
-                        { salePrice: { $gte: min, $lte: max, $ne: null } },
-                        { salePrice: null, regularPrice: { $gte: min, $lte: max } },
-                        { salePrice: { $exists: false }, regularPrice: { $gte: min, $lte: max } }
+                        { offerPrice: { $gte: min, $lte: max, $type: 'number' } },
+                        { offerPrice: { $not: { $type: 'number' } }, salePrice: { $gte: min, $lte: max, $type: 'number' } },
+                        { offerPrice: { $not: { $type: 'number' } }, salePrice: { $not: { $type: 'number' } }, regularPrice: { $gte: min, $lte: max } }
                     ]
                 }
             };
@@ -86,11 +86,11 @@ export const loadShop = async (req, res) => {
                                     input: "$variants",
                                     as: "variant",
                                     in: {
-                                        $cond: {
-                                            if: { $and: [{ $gt: ["$$variant.salePrice", 0] }, { $lt: ["$$variant.salePrice", "$$variant.regularPrice"] }] },
-                                            then: "$$variant.salePrice",
-                                            else: "$$variant.regularPrice"
-                                        }
+                                        $min: [
+                                            "$$variant.regularPrice",
+                                            { $cond: [{ $gt: ["$$variant.salePrice", 0] }, "$$variant.salePrice", "$$variant.regularPrice"] },
+                                            { $cond: [{ $gt: ["$$variant.offerPrice", 0] }, "$$variant.offerPrice", "$$variant.regularPrice"] }
+                                        ]
                                     }
                                 }
                             }

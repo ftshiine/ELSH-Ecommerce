@@ -1,0 +1,148 @@
+body {
+  font-family: "SF Pro Display", "SF Pro Text", -apple-system, BlinkMacSystemFont, "Helvetica Neue", Helvetica, Arial, sans-serif;
+}
+
+.failure-wrapper {
+  max-width: 900px;
+  margin: 60px auto;
+  padding: 0 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.failure-header {
+  text-align: center;
+  margin-bottom: 50px;
+}
+
+.x-circle {
+  width: 80px;
+  height: 80px;
+  background: #fbecec;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 30px auto;
+}
+
+.x-circle svg {
+  width: 32px;
+  height: 32px;
+}
+
+.failure-header h1 {
+  font-family: "SF Pro Display", "SF Pro Text", -apple-system, BlinkMacSystemFont, "Helvetica Neue", Helvetica, Arial, sans-serif;
+  font-size: 42px;
+  font-weight: 500;
+  margin: 0 0 15px 0;
+  color: #222;
+}
+
+.failure-header p {
+  color: #666;
+  font-size: 15px;
+  max-width: 500px;
+  margin: 0 auto;
+  line-height: 1.6;
+}
+
+.order-status-card {
+  width: 100%;
+  background: linear-gradient(to right, #FBFbfb, #F5F5F5);
+  border-radius: 12px;
+  padding: 40px;
+  margin-bottom: 50px;
+  position: relative;
+}
+
+.status-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 50px;
+}
+
+.estimated-arrival .label {
+  display: block;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 1px;
+  color: #666;
+  margin-bottom: 8px;
+}
+
+.estimated-arrival .date {
+  display: block;
+  font-family: "SF Pro Display", "SF Pro Text", -apple-system, BlinkMacSystemFont, "Helvetica Neue", Helvetica, Arial, sans-serif;
+  font-size: 28px;
+  color: #222;
+}
+
+.status-actions {
+  display: flex;
+}
+
+.btn-retry {
+  background: #222;
+  color: #fff;
+  padding: 12px 24px;
+  border-radius: 4px;
+  text-decoration: none;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+  transition: background 0.2s;
+}
+
+.btn-retry:hover {
+  background: #000;
+}
+
+.btn-shop {
+  padding: 12px 24px;
+  border-radius: 4px;
+  text-decoration: none;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+  border: 1px solid #222;
+  color: #222;
+  transition: all 0.2s;
+  background: transparent;
+}
+
+.btn-shop:hover {
+  background: #f5f5f5;
+}
+
+.order-details-grid {
+  width: 100%;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 40px;
+  padding-top: 40px;
+  border-top: 1px solid #EAEAEA;
+}
+
+.detail-block h5 {
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 1px;
+  color: #666;
+  margin: 0 0 15px 0;
+}
+
+.detail-block p {
+  margin: 0;
+  font-size: 14px;
+  color: #444;
+  line-height: 1.6;
+}
+
+.payment-method {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}

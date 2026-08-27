@@ -59,6 +59,91 @@ window.AdminValidator = {
         return 'Stock must be a valid positive integer.';
       }
       return null;
+    },
+
+    // Coupon Rules
+    couponCode: function(value) {
+      if (!value || value.trim().length === 0) {
+        return 'Coupon code is required.';
+      }
+      if (value.trim().length < 3 || value.trim().length > 20) {
+        return 'Coupon code must be between 3 and 20 characters.';
+      }
+      if (!/^[A-Za-z0-9]+$/.test(value.trim())) {
+        return 'Coupon code can only contain alphanumeric characters without spaces.';
+      }
+      return null;
+    },
+
+    couponTitle: function(value) {
+      if (!value || value.trim().length === 0) {
+        return 'Promotion title is required.';
+      }
+      return null;
+    },
+
+    discountValue: function(value) {
+      const dValue = parseFloat(value);
+      if (isNaN(dValue) || dValue <= 0) {
+        return 'Discount value must be a positive number.';
+      }
+      // If percentage is checked in the form, validate it doesn't exceed 100
+      const typeRadio = document.querySelector('input[name="discountType"]:checked');
+      if (typeRadio && typeRadio.value === 'percentage' && dValue > 100) {
+        return 'Percentage discount cannot exceed 100%.';
+      }
+      return null;
+    },
+
+    couponAmount: function(value) {
+      if (!value) return null; // Optional fields
+      const amt = parseFloat(value);
+      if (isNaN(amt) || amt < 0) {
+        return 'Amount cannot be negative.';
+      }
+      return null;
+    },
+
+    couponStartDate: function(value) {
+      if (!value) {
+        return 'Start date is required.';
+      }
+      const sDate = new Date(value);
+      const today = new Date();
+      
+      // If the selected date is today, we can allow slightly past times (like a few minutes) 
+      // but to be strict, we'll just check if it's strictly in the past.
+      // To be forgiving for same-day start times without a specific time constraint,
+      // we'll just check if the start date is before the start of today
+      const startOfToday = new Date();
+      startOfToday.setHours(0, 0, 0, 0);
+      
+      if (sDate < startOfToday) {
+        return 'Start date cannot be in the past.';
+      }
+      return null;
+    },
+
+    couponEndDate: function(value, data) {
+      if (!value) return null; // Optional field
+      const eDate = new Date(value);
+      
+      if (data.startDate) {
+        const sDate = new Date(data.startDate);
+        if (eDate <= sDate) {
+          return 'End time must be exactly after the start time.';
+        }
+      }
+      return null;
+    },
+
+    usageLimit: function(value) {
+      if (!value) return null; // Optional
+      const limit = parseInt(value, 10);
+      if (isNaN(limit) || limit <= 0 || limit.toString() !== value.trim()) {
+        return 'Usage limit must be a positive integer.';
+      }
+      return null;
     }
   },
 
