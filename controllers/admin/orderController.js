@@ -1,106 +1,24 @@
-import Order from '../../models/Order.js';
-import Product from '../../models/Product.js';
-import Wallet from '../../models/Wallet.js';
-import Coupon from '../../models/Coupon.js';
+import * as orderService from '../../services/admin/orderService.js';
 import { generateInvoicePDF } from '../../utils/pdfGenerator.js';
+import { STATUS_CODES, COMMON_MESSAGES, ORDER_MESSAGES } from '../../constants/index.js';
 
 export const getOrders = async (req, res, next) => {
   try {
     const page = parseInt(req.query.page) || 1;
     const limit = 5;
-    const skip = (page - 1) * limit;
-
-    // Filters
-    const query = {};
-    if (req.query.status && req.query.status !== 'All Status') {
-      query.orderStatus = req.query.status.toUpperCase();
-    }
-
-    // Search by Order ID, Customer Name, Email, or Phone
-    const search = req.query.search ? req.query.search.trim() : '';
-    if (search) {
-
-      const mongoose = await import('mongoose');
-      const User = (await import('../../models/User.js')).default;
-
-      const matchingUsers = await User.find({
-        $or: [
-          { firstName: { $regex: search, $options: 'i' } },
-          { lastName: { $regex: search, $options: 'i' } },
-          { email: { $regex: search, $options: 'i' } },
-          { phone: { $regex: search, $options: 'i' } }
-        ]
-      }).select('_id');
-
-      const userIds = matchingUsers.map(u => u._id);
-
-      query.$or = [
-        { orderId: { $regex: search, $options: 'i' } },
-        { user: { $in: userIds } }
-      ];
-    }
-
-    // Date filter
+    const status = req.query.status;
+    const search = req.query.search;
     const dateFilter = req.query.date || 'Last 30 Days';
-    if (dateFilter && dateFilter !== 'All Time') {
-      const now = new Date();
-      let startDate;
-      if (dateFilter === 'Last 7 Days') {
-        startDate = new Date();
-        startDate.setDate(startDate.getDate() - 7);
-        startDate.setHours(0, 0, 0, 0);
-      } else if (dateFilter === 'Last 30 Days') {
-        startDate = new Date();
-        startDate.setDate(startDate.getDate() - 30);
-        startDate.setHours(0, 0, 0, 0);
-      } else if (dateFilter === 'This Year') {
-        startDate = new Date(now.getFullYear(), 0, 1);
-        startDate.setHours(0, 0, 0, 0);
-      }
 
-      if (startDate) {
-        query.createdAt = { $gte: startDate };
-      }
-    }
-
-    // Sort by latest
-    const sort = { createdAt: -1 };
-
-    // Fetch orders with pagination
-    const orders = await Order.find(query)
-      .populate('user', 'fullName email profileImage phone createdAt totalSpend')
-      .sort(sort)
-      .skip(skip)
-      .limit(limit);
-
-    const totalOrdersCount = await Order.countDocuments(query);
-    const totalPages = Math.ceil(totalOrdersCount / limit);
-
-    // Calculate stats for top cards
-    const allOrdersCount = await Order.countDocuments();
-    const pendingFulfillmentCount = await Order.countDocuments({ orderStatus: { $in: ['PENDING', 'PROCESSING'] } });
-    const outForDeliveryCount = await Order.countDocuments({ orderStatus: 'SHIPPED' });
-
-    // Calculate Monthly Revenue 
-    const startOfMonth = new Date();
-    startOfMonth.setDate(1);
-    startOfMonth.setHours(0, 0, 0, 0);
-
-    const revenueStats = await Order.aggregate([
-      {
-        $match: {
-          createdAt: { $gte: startOfMonth },
-          orderStatus: { $ne: 'CANCELLED' }
-        }
-      },
-      {
-        $group: {
-          _id: null,
-          total: { $sum: '$pricing.totalAmount' }
-        }
-      }
-    ]);
-    const monthlyRevenue = revenueStats.length > 0 ? revenueStats[0].total : 0;
+    const {
+      orders,
+      totalPages,
+      totalOrdersCount,
+      allOrdersCount,
+      pendingFulfillmentCount,
+      outForDeliveryCount,
+      monthlyRevenue
+    } = await orderService.getOrdersAdmin({ page, limit, status, search, dateFilter });
 
     res.render('admin/order/index', {
       orders,
@@ -113,7 +31,7 @@ export const getOrders = async (req, res, next) => {
       monthlyRevenue,
       currentStatusFilter: req.query.status || 'All Status',
       currentDateFilter: dateFilter,
-      searchQuery: search,
+      searchQuery: search || '',
       title: 'Orders',
       activePage: 'orders'
     });
@@ -124,11 +42,10 @@ export const getOrders = async (req, res, next) => {
 
 export const getOrderDetails = async (req, res, next) => {
   try {
-    const order = await Order.findById(req.params.id)
-      .populate('user', 'fullName email createdAt totalSpend');
+    const order = await orderService.getOrderDetailsAdmin(req.params.id);
 
     if (!order) {
-      return res.status(404).render('admin/404', { title: 'Order Not Found', activePage: 'orders' });
+      return res.status(STATUS_CODES.NOT_FOUND).render('admin/404', { title: ORDER_MESSAGES.NOT_FOUND, activePage: 'orders' });
     }
 
     res.render('admin/order/details', {
@@ -144,166 +61,35 @@ export const getOrderDetails = async (req, res, next) => {
 export const updateOrderStatus = async (req, res) => {
   try {
     const { status } = req.body;
-    const order = await Order.findById(req.params.id);
+    await orderService.updateOrderStatusAdmin(req.params.id, status);
 
-    if (!order) {
-      return res.status(404).json({ success: false, message: 'Order not found' });
-    }
-
-    const validStatuses = ['PENDING', 'PROCESSING', 'SHIPPED', 'OUT FOR DELIVERY', 'DELIVERED', 'CANCELLED', 'RETURN_REQUESTED', 'RETURNED'];
-    if (!validStatuses.includes(status)) {
-      return res.status(400).json({ success: false, message: 'Invalid status' });
-    }
-
-    const previousStatus = order.orderStatus;
-
-    // Prevent progressing order if online payment is pending
-    if (order.paymentInfo.status === 'PENDING' && ['Razorpay', 'Wallet + Razorpay'].includes(order.paymentInfo.method)) {
-      if (status !== 'CANCELLED') {
-        return res.status(400).json({ success: false, message: 'Cannot update order status because the online payment is still pending.' });
-      }
-    }
-
-    // Define the valid forward progression
-    const progression = ['PENDING', 'PROCESSING', 'SHIPPED', 'OUT FOR DELIVERY', 'DELIVERED'];
-
-    // Enforce strict forward state transitions
-    if (progression.includes(previousStatus) && progression.includes(status)) {
-      if (progression.indexOf(status) < progression.indexOf(previousStatus)) {
-        return res.status(400).json({ success: false, message: 'Cannot move order status backwards.' });
-      }
-    }
-
-    if (previousStatus === 'DELIVERED' && !['DELIVERED', 'RETURN_REQUESTED', 'RETURNED'].includes(status)) {
-      return res.status(400).json({ success: false, message: 'Cannot revert a delivered order to previous stages.' });
-    }
-
-    if (previousStatus === 'CANCELLED' && status !== 'CANCELLED') {
-      return res.status(400).json({ success: false, message: 'Cannot change status of a cancelled order.' });
-    }
-
-    if (previousStatus === 'RETURNED' && status !== 'RETURNED') {
-      return res.status(400).json({ success: false, message: 'Cannot change status of a returned order.' });
-    }
-
-    // Only allow admin to process refund (RETURNED)
-    if (status === 'RETURN_REQUESTED' && previousStatus !== 'RETURN_REQUESTED') {
-      return res.status(400).json({ success: false, message: 'Return requests must be initiated by the customer.' });
-    }
-
-    order.orderStatus = status;
-
-    // Restock if cancelled or returned
-    if ((status === 'CANCELLED' || status === 'RETURNED') &&
-      (previousStatus !== 'CANCELLED' && previousStatus !== 'RETURNED')) {
-      for (const item of order.items) {
-        await Product.updateOne(
-          { _id: item.product, 'variants._id': item.variant },
-          { $inc: { 'variants.$.stock': item.quantity } }
-        );
-      }
-
-      // If cancelled, restore coupon usage if applicable
-      if (status === 'CANCELLED' && order.pricing && order.pricing.couponCode) {
-        const coupon = await Coupon.findOne({ code: order.pricing.couponCode });
-        if (coupon && coupon.restoreOnCancel) {
-          if (coupon.usedCount > 0) coupon.usedCount -= 1;
-          coupon.usedBy = coupon.usedBy.filter(id => id.toString() !== order.user.toString());
-          await coupon.save();
-        }
-      }
-    }
-
-    // Automatically update payment status for COD if delivered
-    if (status === 'DELIVERED') {
-      if (!order.deliveredAt) order.deliveredAt = new Date();
-      if (order.paymentInfo.method === 'COD') {
-        order.paymentInfo.status = 'PAID';
-      }
-    }
-
-    await order.save();
-
-    res.json({ success: true, message: 'Order status updated successfully' });
+    res.status(STATUS_CODES.OK).json({ success: true, message: ORDER_MESSAGES.STATUS_UPDATED });
   } catch (error) {
     console.error('Error updating order status:', error);
-    res.status(500).json({ success: false, message: 'Failed to update order status' });
+    const statusCode = error.statusCode || STATUS_CODES.INTERNAL_SERVER_ERROR;
+    res.status(statusCode).json({ success: false, message: error.message || ORDER_MESSAGES.STATUS_UPDATE_FAILED });
   }
 };
 
 export const processRefund = async (req, res) => {
   try {
     const { id } = req.params;
-    const order = await Order.findById(id).populate('items.product');
+    await orderService.processRefundAdmin(id);
 
-    if (!order) {
-      return res.status(404).json({ success: false, message: 'Order not found' });
-    }
-
-    if (order.orderStatus !== 'RETURN_REQUESTED' && order.orderStatus !== 'CANCELLED') {
-      return res.status(400).json({ success: false, message: 'Order is not eligible for refund.' });
-    }
-
-    if (order.paymentInfo.status === 'REFUNDED') {
-      return res.status(400).json({ success: false, message: 'Order is already refunded.' });
-    }
-
-    // Find or create wallet for user
-    let wallet = await Wallet.findOne({ user: order.user });
-    if (!wallet) {
-      wallet = new Wallet({ user: order.user, balance: 0, totalRefunds: 0, transactions: [] });
-    }
-
-    let refundAmount = 0;
-    if (['Razorpay', 'Wallet', 'Wallet + Razorpay'].includes(order.paymentInfo.method) && order.paymentInfo.status === 'PAID') {
-      refundAmount = order.pricing.totalAmount;
-    } else if (order.paymentInfo.walletAmountUsed && order.paymentInfo.walletAmountUsed > 0) {
-      refundAmount = order.paymentInfo.walletAmountUsed;
-    }
-
-    if (refundAmount > 0) {
-      // Credit Wallet
-      wallet.balance += refundAmount;
-      wallet.totalRefunds += refundAmount;
-      wallet.transactions.push({
-        amount: refundAmount,
-        type: 'CREDIT',
-        description: `Refund for Order #${order.orderId}`
-      });
-
-      await wallet.save();
-    }
-
-    // Update Order Status and Restock Items if not already cancelled
-    order.paymentInfo.status = 'REFUNDED';
-
-    if (order.orderStatus === 'RETURN_REQUESTED') {
-      order.orderStatus = 'RETURNED';
-
-      // Restock Items atomically
-      for (const item of order.items) {
-        await Product.updateOne(
-          { _id: item.product._id, 'variants._id': item.variant },
-          { $inc: { 'variants.$.stock': item.quantity } }
-        );
-      }
-    }
-
-    await order.save();
-
-    res.json({ success: true, message: 'Refund processed successfully and amount credited to Wallet.' });
+    res.status(STATUS_CODES.OK).json({ success: true, message: ORDER_MESSAGES.REFUND_SUCCESS });
   } catch (error) {
     console.error('Error processing refund:', error);
-    res.status(500).json({ success: false, message: 'Failed to process refund.' });
+    const statusCode = error.statusCode || STATUS_CODES.INTERNAL_SERVER_ERROR;
+    res.status(statusCode).json({ success: false, message: error.message || ORDER_MESSAGES.REFUND_FAILED });
   }
 };
 
 export const downloadInvoice = async (req, res) => {
   try {
-    const order = await Order.findById(req.params.id).populate('items.product');
+    const order = await orderService.getOrderWithProductsAdmin(req.params.id);
 
     if (!order) {
-      return res.status(404).send('Order not found');
+      return res.status(STATUS_CODES.NOT_FOUND).send(ORDER_MESSAGES.NOT_FOUND);
     }
 
     res.setHeader('Content-Type', 'application/pdf');
@@ -312,6 +98,6 @@ export const downloadInvoice = async (req, res) => {
     generateInvoicePDF(order, res);
   } catch (error) {
     console.error('Error generating invoice:', error);
-    res.status(500).send('Error generating invoice');
+    res.status(STATUS_CODES.INTERNAL_SERVER_ERROR).send(ORDER_MESSAGES.INVOICE_ERROR);
   }
 };

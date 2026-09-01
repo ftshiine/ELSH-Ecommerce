@@ -54,4 +54,15 @@ const preventCache = (req, res, next) => {
   next();
 };
 
-export { requireAuth, requireGuest, preventCache };
+const requireEmailState = (requiredStatus) => {
+  return (req, res, next) => {
+    if (!req.session.emailChangeState || req.session.emailChangeState.status !== requiredStatus) {
+      delete req.session.emailChangeState;
+      req.session.error = 'Invalid email change flow. Please start over.';
+      return res.redirect('/profile/edit');
+    }
+    next();
+  };
+};
+
+export { requireAuth, requireGuest, preventCache, requireEmailState };

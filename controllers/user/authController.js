@@ -2,6 +2,7 @@ import { findUserByEmail, createUser, validateAccountStatus } from '../../servic
 import { sendOTP, verifyOTP } from '../../services/user/otpService.js';
 import { validate } from '../../utils/validation.js';
 import bcrypt from 'bcrypt';
+import { STATUS_CODES, COMMON_MESSAGES, AUTH_MESSAGES } from '../../constants/index.js';
 
 const loadSignup = (req, res) => {
   const refCode = req.query.ref || '';
@@ -47,7 +48,7 @@ const signup = async (req, res) => {
 
   } catch (error) {
     console.error('Signup error:', error);
-    res.redirectWithState('/signup', { error: 'Something went wrong' });
+    res.redirectWithState('/signup', { error: COMMON_MESSAGES.SOMETHING_WENT_WRONG });
   }
 };
 
@@ -75,7 +76,7 @@ const verifyOTPHandler = async (req, res) => {
     const isAjax = req.headers['content-type'] === 'application/json';
 
     if (!result.success) {
-      if (isAjax) return res.json({ success: false, message: result.message });
+      if (isAjax) return res.status(STATUS_CODES.BAD_REQUEST).json({ success: false, message: result.message });
       const now = Date.now();
       const otpSentAt = req.session.otpSentAt || now;
       const elapsed = Math.floor((now - otpSentAt) / 1000);
@@ -93,32 +94,32 @@ const verifyOTPHandler = async (req, res) => {
     req.session.otpSentAt = null;
 
     if (isAjax) {
-      return res.json({ success: true });
+      return res.status(STATUS_CODES.OK).json({ success: true });
     }
 
     res.redirect('/login');
 
   } catch (error) {
     console.error('OTP verify error:', error);
-    res.redirectWithState('/otp', { error: 'Something went wrong' });
+    res.redirectWithState('/otp', { error: COMMON_MESSAGES.SOMETHING_WENT_WRONG });
   }
 };
 
 const resendOTP = async (req, res) => {
   try {
     const email = req.session.pendingEmail;
-    if (!email) return res.status(400).json({ success: false });
+    if (!email) return res.status(STATUS_CODES.BAD_REQUEST).json({ success: false });
 
     await sendOTP(email);
     req.session.otpSentAt = Date.now();
-    res.status(200).json({ success: true });
+    res.status(STATUS_CODES.OK).json({ success: true });
 
   } catch (error) {
 
     console.error('Resend OTP error:', error);
-    res.status(500).json({ success: false });
+    res.status(STATUS_CODES.INTERNAL_SERVER_ERROR).json({ success: false });
   }
-}
+};
 
 const loadLogin = (req, res) => {
   res.render('user/auth/login');
@@ -170,7 +171,7 @@ const login = async (req, res) => {
 
   } catch (error) {
     console.error('Login error:', error);
-    res.redirectWithState('/login', { error: 'Something went wrong' })
+    res.redirectWithState('/login', { error: COMMON_MESSAGES.SOMETHING_WENT_WRONG });
   }
 };
 

@@ -1,30 +1,14 @@
-import Product from '../../models/Product.js';
-import Category from '../../models/Category.js';
+import * as productService from '../../services/admin/productService.js';
+import { STATUS_CODES, COMMON_MESSAGES, PRODUCT_MESSAGES } from '../../constants/index.js';
 
 //load products
 export const loadProducts = async (req, res) => {
     try {
         const page = parseInt(req.query.page) || 1;
         const limit = 10;
-        const skip = (page - 1) * limit;
+        const search = req.query.search || '';
 
-        let search = '';
-        if (req.query.search) {
-            search = req.query.search;
-        }
-
-        const query = {
-            name: { $regex: '.*' + search + '.*', $options: 'i' }
-        };
-
-        const products = await Product.find(query)
-            .populate('category')
-            .sort({ createdAt: -1 })
-            .skip(skip)
-            .limit(limit);
-
-        const totalProducts = await Product.countDocuments(query);
-        const totalPages = Math.ceil(totalProducts / limit);
+        const { products, totalPages } = await productService.getProductsAdmin({ page, limit, search });
 
         res.render('admin/product/list', {
             products,
@@ -36,18 +20,18 @@ export const loadProducts = async (req, res) => {
         });
     } catch (error) {
         console.error('Error loading products:', error);
-        res.status(500).send('Internal Server Error');
+        res.status(STATUS_CODES.INTERNAL_SERVER_ERROR).send(COMMON_MESSAGES.INTERNAL_SERVER_ERROR);
     }
 };
 
 //Load add product
 export const loadAddProduct = async (req, res) => {
     try {
-        const categories = await Category.find({ isListed: true });
+        const categories = await productService.getActiveCategories();
         res.render('admin/product/add', { title: 'Add Product', categories, activePage: 'products' });
     } catch (error) {
         console.error('Error loading add product page:', error);
-        res.status(500).send('Internal Server Error');
+        res.status(STATUS_CODES.INTERNAL_SERVER_ERROR).send(COMMON_MESSAGES.INTERNAL_SERVER_ERROR);
     }
 };
 
@@ -61,12 +45,12 @@ export const addProduct = async (req, res) => {
             try {
                 parsedVariants = typeof variants === 'string' ? JSON.parse(variants) : variants;
             } catch (e) {
-                return res.status(400).json({ success: false, message: 'Invalid variants format' });
+                return res.status(STATUS_CODES.BAD_REQUEST).json({ success: false, message: PRODUCT_MESSAGES.INVALID_VARIANTS });
             }
         }
 
         if (!parsedVariants || !Array.isArray(parsedVariants) || parsedVariants.length === 0) {
-            return res.status(400).json({ success: false, message: 'At least one variant is required' });
+            return res.status(STATUS_CODES.BAD_REQUEST).json({ success: false, message: PRODUCT_MESSAGES.VARIANT_REQUIRED });
         }
 
         // Attach images
@@ -86,7 +70,7 @@ export const addProduct = async (req, res) => {
 
         const processedSkinType = Array.isArray(skinType) ? skinType : (skinType ? [skinType] : []);
 
-        const newProduct = new Product({
+        const productData = {
             name,
             description,
             category,
@@ -96,14 +80,14 @@ export const addProduct = async (req, res) => {
             returnWindowDays: returnWindowDays !== undefined ? Number(returnWindowDays) : 7,
             isListed: isListed === 'on' || isListed === true || isListed === 'true',
             isFeatured: isFeatured === 'on' || isFeatured === true || isFeatured === 'true'
-        });
+        };
 
-        await newProduct.save();
+        await productService.createProduct(productData);
 
-        return res.status(201).json({ success: true, message: 'Product added successfully' });
+        return res.status(STATUS_CODES.CREATED).json({ success: true, message: PRODUCT_MESSAGES.ADDED_SUCCESS });
     } catch (error) {
         console.error('Error adding product:', error);
-        return res.status(500).json({ success: false, message: error.message || 'Internal Server Error' });
+        return res.status(STATUS_CODES.INTERNAL_SERVER_ERROR).json({ success: false, message: error.message || COMMON_MESSAGES.INTERNAL_SERVER_ERROR });
     }
 };
 
@@ -111,19 +95,18 @@ export const addProduct = async (req, res) => {
 export const loadEditProduct = async (req, res) => {
     try {
         const { id } = req.params;
-        const product = await Product.findById(id).populate('category');
+        const product = await productService.getProductByIdWithCategory(id);
         if (!product) {
             return res.redirect('/admin/products');
         }
 
-        const categories = await Category.find({ isListed: true });
+        const categories = await productService.getActiveCategories();
         res.render('admin/product/edit', { title: 'Edit Product', product, categories, activePage: 'products' });
     } catch (error) {
         console.error('Error loading edit product page:', error);
-        res.status(500).send('Internal Server Error');
+        res.status(STATUS_CODES.INTERNAL_SERVER_ERROR).send(COMMON_MESSAGES.INTERNAL_SERVER_ERROR);
     }
 };
-
 
 //Edit existing product
 export const editProduct = async (req, res) => {
@@ -136,12 +119,12 @@ export const editProduct = async (req, res) => {
             try {
                 parsedVariants = typeof variants === 'string' ? JSON.parse(variants) : variants;
             } catch (e) {
-                return res.status(400).json({ success: false, message: 'Invalid variants format' });
+                return res.status(STATUS_CODES.BAD_REQUEST).json({ success: false, message: PRODUCT_MESSAGES.INVALID_VARIANTS });
             }
         }
 
         if (!parsedVariants || !Array.isArray(parsedVariants) || parsedVariants.length === 0) {
-            return res.status(400).json({ success: false, message: 'At least one variant is required' });
+            return res.status(STATUS_CODES.BAD_REQUEST).json({ success: false, message: PRODUCT_MESSAGES.VARIANT_REQUIRED });
         }
 
         // Process images for each variant
@@ -197,20 +180,16 @@ export const editProduct = async (req, res) => {
             isFeatured: isFeatured === 'on' || isFeatured === true || isFeatured === 'true'
         };
 
-        const updatedProduct = await Product.findByIdAndUpdate(
-            id,
-            updateData,
-            { new: true, runValidators: true }
-        );
+        const updatedProduct = await productService.updateProduct(id, updateData);
 
         if (!updatedProduct) {
-            return res.status(404).json({ success: false, message: 'Product not found' });
+            return res.status(STATUS_CODES.NOT_FOUND).json({ success: false, message: PRODUCT_MESSAGES.NOT_FOUND });
         }
 
-        return res.status(200).json({ success: true, message: 'Product updated successfully', product: updatedProduct });
+        return res.status(STATUS_CODES.OK).json({ success: true, message: PRODUCT_MESSAGES.UPDATED_SUCCESS, product: updatedProduct });
     } catch (error) {
         console.error('Error editing product:', error);
-        return res.status(500).json({ success: false, message: error.message || 'Internal Server Error' });
+        return res.status(STATUS_CODES.INTERNAL_SERVER_ERROR).json({ success: false, message: error.message || COMMON_MESSAGES.INTERNAL_SERVER_ERROR });
     }
 };
 
@@ -218,20 +197,17 @@ export const editProduct = async (req, res) => {
 export const toggleProductStatus = async (req, res) => {
     try {
         const { id } = req.params;
-        const product = await Product.findById(id);
+        const product = await productService.toggleProductStatus(id);
 
         if (!product) {
-            return res.status(404).json({ success: false, message: 'Product not found' });
+            return res.status(STATUS_CODES.NOT_FOUND).json({ success: false, message: PRODUCT_MESSAGES.NOT_FOUND });
         }
 
-        product.isListed = !product.isListed;
-        await product.save();
+        const statusMessage = product.isListed ? PRODUCT_MESSAGES.LISTED_SUCCESS : PRODUCT_MESSAGES.UNLISTED_SUCCESS;
 
-        const statusMessage = product.isListed ? 'Product listed successfully' : 'Product unlisted successfully';
-
-        return res.status(200).json({ success: true, message: statusMessage, isListed: product.isListed });
+        return res.status(STATUS_CODES.OK).json({ success: true, message: statusMessage, isListed: product.isListed });
     } catch (error) {
         console.error('Error toggling product status:', error);
-        return res.status(500).json({ success: false, message: 'Internal Server Error' });
+        return res.status(STATUS_CODES.INTERNAL_SERVER_ERROR).json({ success: false, message: COMMON_MESSAGES.INTERNAL_SERVER_ERROR });
     }
 };

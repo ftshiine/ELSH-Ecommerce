@@ -1,5 +1,6 @@
 import { findAdminByEmail, verifyPassword } from '../../services/admin/authService.js';
 import { validate } from '../../utils/validation.js';
+import { COMMON_MESSAGES } from '../../constants/index.js';
 
 const loadLogin = (req, res) => {
   res.render('admin/auth/login', { error: null });
@@ -40,7 +41,7 @@ const login = async (req, res) => {
     res.redirect('/admin/dashboard');
   } catch (error) {
     console.error('Admin login error:', error);
-    res.redirectWithState('/admin/login', { error: 'Something went wrong' });
+    res.redirectWithState('/admin/login', { error: COMMON_MESSAGES.SOMETHING_WENT_WRONG });
   }
 };
 

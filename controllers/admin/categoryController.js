@@ -1,44 +1,22 @@
-import Category from '../../models/Category.js';
-import Product from '../../models/Product.js';
-
+import * as categoryService from '../../services/admin/categoryService.js';
+import { STATUS_CODES, COMMON_MESSAGES, CATEGORY_MESSAGES } from '../../constants/index.js';
 
 export const loadCategories = async (req, res) => {
     try {
         const page = parseInt(req.query.page) || 1;
         const limit = 5;
-        const skip = (page - 1) * limit;
+        const search = req.query.search || '';
 
-        let search = '';
-        if (req.query.search) {
-            search = req.query.search;
-        }
-
-        const query = {
-            name: { $regex: '.*' + search + '.*', $options: 'i' },
-            isDeleted: false
-        };
-
-        const categories = await Category.find(query)
-            .sort({ createdAt: -1 })
-            .skip(skip)
-            .limit(limit);
-
-        const totalCategories = await Category.countDocuments(query);
-        const activeCategories = await Category.countDocuments({ ...query, isListed: true });
-        const inactiveCategories = await Category.countDocuments({ ...query, isListed: false });
-
-        const totalPages = Math.ceil(totalCategories / limit);
-
-        const categoriesWithProductCount = await Promise.all(categories.map(async (category) => {
-            const productCount = await Product.countDocuments({ category: category._id });
-            return {
-                ...category.toObject(),
-                productCount
-            };
-        }));
+        const {
+            categories,
+            totalCategories,
+            activeCategories,
+            inactiveCategories,
+            totalPages
+        } = await categoryService.getCategoriesAdmin({ page, limit, search });
 
         res.render('admin/category/list', {
-            categories: categoriesWithProductCount,
+            categories,
             totalCategories,
             activeCategories,
             inactiveCategories,
@@ -50,17 +28,16 @@ export const loadCategories = async (req, res) => {
         });
     } catch (error) {
         console.error('Error loading categories:', error);
-        res.status(500).send('Internal Server Error');
+        res.status(STATUS_CODES.INTERNAL_SERVER_ERROR).send(COMMON_MESSAGES.INTERNAL_SERVER_ERROR);
     }
 };
-
 
 export const loadAddCategory = async (req, res) => {
     try {
         res.render('admin/category/add', { title: 'Add Category', activePage: 'category' });
     } catch (error) {
         console.error('Error loading add category page:', error);
-        res.status(500).send('Internal Server Error');
+        res.status(STATUS_CODES.INTERNAL_SERVER_ERROR).send(COMMON_MESSAGES.INTERNAL_SERVER_ERROR);
     }
 };
 
@@ -71,64 +48,61 @@ export const addCategory = async (req, res) => {
         const image = req.file ? req.file.path : null;
 
         if (!name || name.trim().length < 3 || name.trim().length > 50) {
-            return res.status(400).json({ success: false, message: 'Category name must be between 3 and 50 characters' });
+            return res.status(STATUS_CODES.BAD_REQUEST).json({ success: false, message: CATEGORY_MESSAGES.NAME_VALIDATION });
         }
 
         const nameRegex = /^[a-zA-Z0-9\s\-]+$/;
         if (!nameRegex.test(name.trim())) {
-            return res.status(400).json({ success: false, message: 'Category name can only contain letters, numbers, spaces, and hyphens' });
+            return res.status(STATUS_CODES.BAD_REQUEST).json({ success: false, message: CATEGORY_MESSAGES.NAME_FORMAT });
         }
 
         if (!description || description.trim().length < 10 || description.trim().length > 500) {
-            return res.status(400).json({ success: false, message: 'Description must be between 10 and 500 characters' });
+            return res.status(STATUS_CODES.BAD_REQUEST).json({ success: false, message: CATEGORY_MESSAGES.DESC_VALIDATION });
         }
 
         if (!image) {
-            return res.status(400).json({ success: false, message: 'Image is required' });
+            return res.status(STATUS_CODES.BAD_REQUEST).json({ success: false, message: CATEGORY_MESSAGES.IMAGE_REQUIRED });
         }
 
-        const existingCategory = await Category.findOne({
-            name: { $regex: new RegExp(`^${name.trim()}$`, 'i') }
-        });
+        const existingCategory = await categoryService.checkCategoryNameExists(name);
 
         if (existingCategory) {
-            return res.status(400).json({ success: false, message: 'Category already exists' });
+            return res.status(STATUS_CODES.BAD_REQUEST).json({ success: false, message: CATEGORY_MESSAGES.ALREADY_EXISTS });
         }
 
-        const newCategory = new Category({
+        const newCategoryData = {
             name,
             description,
             image,
             isListed: isListed === 'on' || isListed === true
-        });
+        };
 
-        await newCategory.save();
+        await categoryService.createCategory(newCategoryData);
 
-        return res.status(201).json({ success: true, message: 'Category added successfully' });
+        return res.status(STATUS_CODES.CREATED).json({ success: true, message: CATEGORY_MESSAGES.ADDED_SUCCESS });
     } catch (error) {
         console.error('Error adding category:', error instanceof Error ? error.stack : JSON.stringify(error, null, 2));
 
         if (error.name === 'ValidationError') {
             const messages = Object.values(error.errors).map(val => val.message);
-            return res.status(400).json({ success: false, message: messages.join(', ') });
+            return res.status(STATUS_CODES.BAD_REQUEST).json({ success: false, message: messages.join(', ') });
         }
 
-        return res.status(500).json({ success: false, message: error.message || 'Internal Server Error' });
+        return res.status(STATUS_CODES.INTERNAL_SERVER_ERROR).json({ success: false, message: error.message || COMMON_MESSAGES.INTERNAL_SERVER_ERROR });
     }
 };
-
 
 export const loadEditCategory = async (req, res) => {
     try {
         const { id } = req.params;
-        const category = await Category.findById(id);
+        const category = await categoryService.getCategoryById(id);
         if (!category) {
             return res.redirect('/admin/categories');
         }
         res.render('admin/category/edit', { title: 'Edit Category', category, activePage: 'category' });
     } catch (error) {
         console.error('Error loading edit category page:', error);
-        res.status(500).send('Internal Server Error');
+        res.status(STATUS_CODES.INTERNAL_SERVER_ERROR).send(COMMON_MESSAGES.INTERNAL_SERVER_ERROR);
     }
 };
 
@@ -139,25 +113,22 @@ export const editCategory = async (req, res) => {
         const { name, description, isListed } = req.body;
 
         if (!name || name.trim().length < 3 || name.trim().length > 50) {
-            return res.status(400).json({ success: false, message: 'Category name must be between 3 and 50 characters' });
+            return res.status(STATUS_CODES.BAD_REQUEST).json({ success: false, message: CATEGORY_MESSAGES.NAME_VALIDATION });
         }
 
         const nameRegex = /^[a-zA-Z0-9\s\-]+$/;
         if (!nameRegex.test(name.trim())) {
-            return res.status(400).json({ success: false, message: 'Category name can only contain letters, numbers, spaces, and hyphens' });
+            return res.status(STATUS_CODES.BAD_REQUEST).json({ success: false, message: CATEGORY_MESSAGES.NAME_FORMAT });
         }
 
         if (!description || description.trim().length < 10 || description.trim().length > 500) {
-            return res.status(400).json({ success: false, message: 'Description must be between 10 and 500 characters' });
+            return res.status(STATUS_CODES.BAD_REQUEST).json({ success: false, message: CATEGORY_MESSAGES.DESC_VALIDATION });
         }
 
-        const existingCategory = await Category.findOne({
-            name: { $regex: new RegExp(`^${name.trim()}$`, 'i') },
-            _id: { $ne: id }
-        });
+        const existingCategory = await categoryService.checkCategoryNameExists(name, id);
 
         if (existingCategory) {
-            return res.status(400).json({ success: false, message: 'Category name already in use' });
+            return res.status(STATUS_CODES.BAD_REQUEST).json({ success: false, message: CATEGORY_MESSAGES.NAME_IN_USE });
         }
 
         const updateData = {
@@ -170,45 +141,35 @@ export const editCategory = async (req, res) => {
             updateData.image = req.file.path;
         }
 
-        const updatedCategory = await Category.findByIdAndUpdate(
-            id,
-            updateData,
-            { new: true, runValidators: true }
-        );
+        const updatedCategory = await categoryService.updateCategory(id, updateData);
 
         if (!updatedCategory) {
-            return res.status(404).json({ success: false, message: 'Category not found' });
+            return res.status(STATUS_CODES.NOT_FOUND).json({ success: false, message: CATEGORY_MESSAGES.NOT_FOUND });
         }
 
-        return res.status(200).json({ success: true, message: 'Category updated successfully', category: updatedCategory });
+        return res.status(STATUS_CODES.OK).json({ success: true, message: CATEGORY_MESSAGES.UPDATED_SUCCESS, category: updatedCategory });
     } catch (error) {
         console.error('Error editing category:', error);
-        return res.status(500).json({ success: false, message: 'Internal Server Error' });
+        return res.status(STATUS_CODES.INTERNAL_SERVER_ERROR).json({ success: false, message: COMMON_MESSAGES.INTERNAL_SERVER_ERROR });
     }
 };
 
-//category toggle (Listed/unlisted)
+//category toggle(Listed / unlisted)
 export const toggleCategoryListing = async (req, res) => {
     try {
         const { id } = req.params;
+        const category = await categoryService.toggleCategoryListing(id);
 
-        const category = await Category.findById(id);
-
-        if (!category || category.isDeleted) {
-            return res.status(404).json({ success: false, message: 'Category not found' });
+        if (!category) {
+            return res.status(STATUS_CODES.NOT_FOUND).json({ success: false, message: CATEGORY_MESSAGES.NOT_FOUND });
         }
 
-        category.isListed = !category.isListed;
-        await category.save();
+        const statusMessage = category.isListed ? CATEGORY_MESSAGES.LISTED_SUCCESS : CATEGORY_MESSAGES.UNLISTED_SUCCESS;
 
-        await Product.updateMany({ category: id }, { isListed: category.isListed });
-
-        const statusMessage = category.isListed ? 'Category listed successfully' : 'Category unlisted successfully';
-
-        return res.status(200).json({ success: true, message: statusMessage, isListed: category.isListed });
+        return res.status(STATUS_CODES.OK).json({ success: true, message: statusMessage, isListed: category.isListed });
     } catch (error) {
         console.error('Error toggling category listing:', error);
-        return res.status(500).json({ success: false, message: 'Internal Server Error' });
+        return res.status(STATUS_CODES.INTERNAL_SERVER_ERROR).json({ success: false, message: COMMON_MESSAGES.INTERNAL_SERVER_ERROR });
     }
 };
 

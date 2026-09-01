@@ -1,13 +1,13 @@
 import express from 'express';
 import {
   loadProfile, loadEditProfile, editProfile, removePhoto,
-  requireEmailState, initiateEmailChange, loadVerifyCurrentEmail,
+  initiateEmailChange, loadVerifyCurrentEmail,
   verifyCurrentEmail, loadNewEmail, submitNewEmail,
   loadVerifyNewEmail, verifyNewEmail, cancelEmailChange,
   loadUserCoupons
 } from '../../controllers/user/profileController.js';
 import { loadChangePassword, changePassword, authSendForgotPasswordOTP } from '../../controllers/user/passwordController.js';
-import { requireAuth } from '../../middleware/authMiddleware.js';
+import { requireAuth, requireEmailState } from '../../middleware/authMiddleware.js';
 
 const router = express.Router();
 

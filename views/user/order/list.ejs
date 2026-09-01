@@ -255,8 +255,8 @@
         confirmText: 'Yes, cancel it',
         showCancel: true,
         showInput: true,
-        inputPlaceholder: 'Please tell us why you want to cancel (optional)...',
-        requireInput: false,
+        inputPlaceholder: 'Please tell us why you want to cancel',
+        requireInput: true,
         onConfirm: async (reason) => {
           try {
             const response = await fetch(`/orders/${orderId}/cancel`, {

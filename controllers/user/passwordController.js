@@ -2,6 +2,7 @@ import { findUserByEmail, updatePassword } from '../../services/user/authService
 import { sendOTP, verifyOTP } from '../../services/user/otpService.js';
 import { validate } from '../../utils/validation.js';
 import bcrypt from 'bcrypt';
+import { STATUS_CODES, COMMON_MESSAGES, AUTH_MESSAGES } from '../../constants/index.js';
 
 const loadForgotPassword = (req, res) => {
   res.render('user/auth/forgot-password');
@@ -11,7 +12,7 @@ const sendForgotPasswordOTP = async (req, res) => {
   try {
     const { email } = req.body;
     if (!email) {
-      return res.redirectWithState('/forgot-password', { error: 'Email is required' });
+      return res.redirectWithState('/forgot-password', { error: AUTH_MESSAGES.EMAIL_REQUIRED });
     }
 
     const user = await findUserByEmail(email.toLowerCase().trim());
@@ -25,7 +26,7 @@ const sendForgotPasswordOTP = async (req, res) => {
     res.redirectWithState('/forgot-password', { success: 'If an account exists, an email was sent.' });
   } catch (error) {
     console.error('Forgot password error:', error);
-    res.redirectWithState('/forgot-password', { error: 'Something went wrong' });
+    res.redirectWithState('/forgot-password', { error: COMMON_MESSAGES.SOMETHING_WENT_WRONG });
   }
 };
 
@@ -49,7 +50,7 @@ const authSendForgotPasswordOTP = async (req, res) => {
     return res.redirect('/profile/change-password');
   } catch (error) {
     console.error('Authenticated forgot password error:', error);
-    req.session.error = 'Something went wrong';
+    req.session.error = COMMON_MESSAGES.SOMETHING_WENT_WRONG;
     res.redirect('/profile/change-password');
   }
 };
@@ -89,22 +90,22 @@ const verifyForgotOTP = async (req, res) => {
 
   } catch (error) {
     console.error('Forgot OTP verify error:', error);
-    res.redirectWithState('/forgot-password/otp', { error: 'Something went wrong' });
+    res.redirectWithState('/forgot-password/otp', { error: COMMON_MESSAGES.SOMETHING_WENT_WRONG });
   }
 };
 
 const resendForgotOTP = async (req, res) => {
   try {
     const email = req.session.resetEmailUser;
-    if (!email) return res.status(400).json({ success: false });
+    if (!email) return res.status(STATUS_CODES.BAD_REQUEST).json({ success: false });
 
     await sendOTP(email);
     req.session.resetOtpSentAtUser = Date.now();
-    res.status(200).json({ success: true });
+    res.status(STATUS_CODES.OK).json({ success: true });
 
   } catch (error) {
     console.error('Resend Forgot OTP error:', error);
-    res.status(500).json({ success: false });
+    res.status(STATUS_CODES.INTERNAL_SERVER_ERROR).json({ success: false });
   }
 };
 
@@ -132,7 +133,6 @@ const resetPassword = async (req, res) => {
 
     await updatePassword(email, newPassword);
 
-
     delete req.session.resetEmailUser;
     delete req.session.resetOtpSentAtUser;
     delete req.session.otpVerifiedUser;
@@ -141,13 +141,13 @@ const resetPassword = async (req, res) => {
       req.session.success = 'Password updated successfully.';
       res.redirect('/profile');
     } else {
-      req.session.success = 'Password reset successfully. Please sign in.';
+      req.session.success = AUTH_MESSAGES.PASSWORD_RESET_SUCCESS;
       res.redirect('/login');
     }
 
   } catch (error) {
     console.error('Reset password error:', error);
-    res.redirectWithState('/forgot-password/reset', { error: 'Something went wrong' });
+    res.redirectWithState('/forgot-password/reset', { error: COMMON_MESSAGES.SOMETHING_WENT_WRONG });
   }
 };
 
@@ -171,11 +171,9 @@ const changePassword = async (req, res) => {
     const userEmail = req.session.user.email;
     const fieldErrors = {};
 
-
     if (!currentPassword || !newPassword || !confirmPassword) {
       return res.redirectWithState('/profile/change-password', { error: 'All fields are required.' });
     }
-
 
     if (newPassword !== confirmPassword) {
       fieldErrors.confirmPassword = 'Passwords do not match.';
@@ -185,7 +183,6 @@ const changePassword = async (req, res) => {
       });
     }
 
-
     if (newPassword === currentPassword) {
       fieldErrors.newPassword = 'New password must be different from current password.';
       return res.redirectWithState('/profile/change-password', {
@@ -193,7 +190,6 @@ const changePassword = async (req, res) => {
         fieldErrors
       });
     }
-
 
     const minLengthRegex = /.{8,}/;
     const uppercaseRegex = /[A-Z]/;
@@ -214,7 +210,6 @@ const changePassword = async (req, res) => {
         fieldErrors
       });
     }
-
 
     const user = await findUserByEmail(userEmail);
     if (!user) {
@@ -242,11 +237,9 @@ const changePassword = async (req, res) => {
 
   } catch (error) {
     console.error('change password error:', error);
-    res.redirectWithState('/profile/change-password', { error: 'Something went wrong.' });
+    res.redirectWithState('/profile/change-password', { error: COMMON_MESSAGES.SOMETHING_WENT_WRONG });
   }
 };
-
-
 
 export {
   loadForgotPassword,

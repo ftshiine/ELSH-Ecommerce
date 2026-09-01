@@ -181,6 +181,8 @@
     const closeModal = () => {
       confirmModal.classList.remove('active');
       pendingProductId = null;
+      confirmActionBtn.style.display = '';
+      cancelConfirm.textContent = 'Cancel';
     };
 
     if (cancelConfirm) cancelConfirm.addEventListener('click', closeModal);
@@ -199,14 +201,18 @@
             
             const data = await response.json();
             if (data.success) {
-              window.location.reload(); 
+              window.location.reload();
             } else {
-              Swal.fire('Error!', data.message || 'Something went wrong', 'error');
-              closeModal();
+              confirmModalTitle.textContent = 'Action Failed';
+              confirmModalMessage.textContent = data.message || 'Something went wrong.';
+              confirmActionBtn.style.display = 'none';
+              cancelConfirm.textContent = 'Close';
             }
           } catch (error) {
-            Swal.fire('Error!', 'Failed to update status', 'error');
-            closeModal();
+            confirmModalTitle.textContent = 'Network Error';
+            confirmModalMessage.textContent = 'Failed to update product status. Please try again.';
+            confirmActionBtn.style.display = 'none';
+            cancelConfirm.textContent = 'Close';
           }
         }
       });

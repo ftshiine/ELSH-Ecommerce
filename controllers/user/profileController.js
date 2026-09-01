@@ -106,16 +106,6 @@ const removePhoto = async (req, res) => {
     }
 }
 
-const requireEmailState = (requiredStatus) => {
-    return (req, res, next) => {
-        if (!req.session.emailChangeState || req.session.emailChangeState.status !== requiredStatus) {
-            delete req.session.emailChangeState;
-            req.session.error = 'Invalid email change flow. Please start over.';
-            return res.redirect('/profile/edit');
-        }
-        next();
-    };
-};
 
 const initiateEmailChange = async (req, res) => {
     try {
@@ -295,7 +285,6 @@ export {
     loadEditProfile, 
     editProfile, 
     removePhoto, 
-    requireEmailState,
     initiateEmailChange,
     loadVerifyCurrentEmail,
     verifyCurrentEmail,

@@ -15,9 +15,8 @@
 
       <% const datePlaced=new Date(order.createdAt).toLocaleDateString('en-US', { month: 'long' , day: 'numeric' ,
         year: 'numeric' }); let dateArriving=new Date(order.createdAt); dateArriving.setDate(dateArriving.getDate() +
-        4); dateArriving=dateArriving.toLocaleDateString('en-US', { month: 'long' , day: 'numeric' });
-        // Compute timeline states 
-        let orderedActive=true; let processingActive=['PROCESSING', 'SHIPPED' , 'OUT FOR DELIVERY'
+        4); dateArriving=dateArriving.toLocaleDateString('en-US', { month: 'long' , day: 'numeric' }); // Compute
+        timeline states let orderedActive=true; let processingActive=['PROCESSING', 'SHIPPED' , 'OUT FOR DELIVERY'
         , 'DELIVERED' ].includes(order.orderStatus); let shippedActive=['SHIPPED', 'OUT FOR DELIVERY' , 'DELIVERED'
         ].includes(order.orderStatus); let outForDeliveryActive=['OUT FOR DELIVERY', 'DELIVERED'
         ].includes(order.orderStatus); let arrivedActive=order.orderStatus==='DELIVERED' ; let
@@ -264,18 +263,18 @@
                         <span>₹<%= (order.pricing.totalAmount - order.pricing.subtotal - order.pricing.shippingFee +
                             order.pricing.discount).toFixed(2) %></span>
                       </div>
-                      <% if (order.pricing.discount > 0) { %>
+                      <% if (order.pricing.discount> 0) { %>
                         <div class="invoice-row" style="color: #219653;">
                           <span>Discount (<%= order.pricing.couponCode || 'Promo' %>)</span>
                           <span>-₹<%= order.pricing.discount.toFixed(2) %></span>
                         </div>
-                      <% } %>
-                      <hr class="invoice-divider">
-                      <div class="invoice-total">
-                        <span>TOTAL AMOUNT</span>
-                        <span class="total-price">₹<%= order.pricing.totalAmount.toFixed(2) %></span>
-                      </div>
-                      <p class="invoice-footer">Secure transaction processed via ELSH Encrypted Gateways.</p>
+                        <% } %>
+                          <hr class="invoice-divider">
+                          <div class="invoice-total">
+                            <span>TOTAL AMOUNT</span>
+                            <span class="total-price">₹<%= order.pricing.totalAmount.toFixed(2) %></span>
+                          </div>
+                          <p class="invoice-footer">Secure transaction processed via ELSH Encrypted Gateways.</p>
                     </div>
 
                     <!-- Action Card (Cancel/Return) -->
@@ -441,8 +440,8 @@
                 confirmText: 'Yes, Cancel',
                 showCancel: true,
                 showInput: true,
-                inputPlaceholder: 'Please tell us why you want to cancel (optional)...',
-                requireInput: false,
+                requireInput: true,
+                inputPlaceholder: 'Please tell us why you want to cancel',
                 onConfirm: async (reason) => {
                   try {
                     const response = await fetch(`/orders/${orderId}/cancel`, {
@@ -492,8 +491,8 @@
                 confirmText: 'Yes, Cancel Item',
                 showCancel: true,
                 showInput: true,
-                inputPlaceholder: 'Please tell us why you want to cancel (optional)...',
-                requireInput: false,
+                requireInput: true,
+                inputPlaceholder: 'Please tell us why you want to cancel',
                 onConfirm: async (reason) => {
                   try {
                     const response = await fetch(`/orders/${orderId}/cancel-item/${itemId}`, {
