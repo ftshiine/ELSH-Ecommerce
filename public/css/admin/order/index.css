@@ -458,15 +458,30 @@ body {
   cursor: not-allowed;
 }
 
+/* Adding btn-view styles */
+.btn-view {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background-color: #f4f6f8;
+  transition: all 0.2s ease;
+}
+
+.btn-view:hover {
+  background-color: #e5e5e5;
+}
+
 /* Analytics Lower Section */
 .analytics-section {
   display: grid;
-  grid-template-columns: 2fr 1fr;
+  grid-template-columns: 1fr;
   gap: 20px;
 }
 
-.chart-container,
-.loyalty-card {
+.chart-container {
   background: var(--bg-white);
   border-radius: 16px;
   padding: 30px;
@@ -546,33 +561,13 @@ body {
   border-radius: 4px 4px 0 0;
 }
 
-.h-30 {
-  height: 30%;
-}
-
-.h-40 {
-  height: 40%;
-}
-
-.h-50 {
-  height: 50%;
-}
-
-.h-60 {
-  height: 60%;
-}
-
-.h-80 {
-  height: 80%;
-}
-
-.h-90 {
-  height: 90%;
-}
-
-.h-20 {
-  height: 20%;
-}
+.h-30 { height: 30%; }
+.h-40 { height: 40%; }
+.h-50 { height: 50%; }
+.h-60 { height: 60%; }
+.h-80 { height: 80%; }
+.h-90 { height: 90%; }
+.h-20 { height: 20%; }
 
 .chart-labels {
   display: flex;
@@ -583,70 +578,6 @@ body {
   padding: 0 10px;
 }
 
-/* Loyalty Card */
-.loyalty-card {
-  background: #f4d9c4;
-  /* Matching the figma peach */
-  position: relative;
-  overflow: hidden;
-}
-
-.loyalty-card h3 {
-  margin: 0 0 15px 0;
-  font-family: 'Playfair Display', serif;
-  font-size: 20px;
-  color: #5c3a21;
-}
-
-.loyalty-card p {
-  margin: 0 0 25px 0;
-  font-size: 14px;
-  line-height: 1.6;
-  color: #7a5438;
-}
-
-.btn-segments {
-  background: #5c3a21;
-  color: #fff;
-  border: none;
-  padding: 10px 20px;
-  border-radius: 30px;
-  font-size: 13px;
-  font-weight: 500;
-  cursor: pointer;
-  position: relative;
-  z-index: 2;
-}
-
-.bg-shape {
-  position: absolute;
-  right: -20px;
-  bottom: -20px;
-  width: 100px;
-  height: 100px;
-  border: 15px solid #eabf9f;
-  border-radius: 50%;
-  opacity: 0.5;
-  clip-path: polygon(0 50%, 100% 50%, 100% 100%, 0 100%);
-}
-
-/* Adding btn-view styles */
-.btn-view {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 36px;
-  height: 36px;
-  border-radius: 50%;
-  background-color: #f4f6f8;
-  transition: all 0.2s ease;
-}
-
-.btn-view:hover {
-  background-color: #e5e5e5;
-}
-
-/* Custom Dropdown Styling */
 /* Custom Dropdown Styling */
 .custom-dropdown-wrapper {
   position: relative;

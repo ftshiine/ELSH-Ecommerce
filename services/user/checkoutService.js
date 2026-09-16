@@ -155,8 +155,8 @@ export const processOrderPlacement = async ({
             throw error;
         }
         const product = await Product.findById(directItem.productId);
-        if (!product) {
-            const error = new Error('Product is no longer available.');
+        if (!product || !product.isListed) {
+            const error = new Error('This product is currently unavailable.');
             error.statusCode = STATUS_CODES.BAD_REQUEST;
             throw error;
         }
@@ -195,6 +195,16 @@ export const processOrderPlacement = async ({
         const product = item.product;
         if (!product) {
             const error = new Error('One or more items in your cart are no longer available.');
+            error.statusCode = STATUS_CODES.BAD_REQUEST;
+            throw error;
+        }
+
+        // Guard against ordering unlisted products — they may still be in the
+        // cart document shown as "Temporarily Unavailable" in the UI
+        if (!product.isListed) {
+            const error = new Error(
+                `"${product.name}" is temporarily unavailable and cannot be ordered. Please remove it from your cart to continue.`
+            );
             error.statusCode = STATUS_CODES.BAD_REQUEST;
             throw error;
         }
@@ -239,6 +249,7 @@ export const processOrderPlacement = async ({
         if (coupon.endDate && coupon.endDate < now) isValid = false;
         if (coupon.usageLimit && coupon.usedCount >= coupon.usageLimit) isValid = false;
         if (coupon.limitPerUser && coupon.usedBy.includes(userId)) isValid = false;
+        if (coupon.targetUserId && coupon.targetUserId.toString() !== userId.toString()) isValid = false;
 
         let eligibleTotal = 0;
         if (coupon.applicableCategories && coupon.applicableCategories.length > 0) {
@@ -500,6 +511,17 @@ export const verifyPaymentSignatureAndFulfill = async ({
         }
 
         await order.save();
+
+        // Clear the cart after successful Razorpay payment
+        const cart = await Cart.findOne({ user: order.user });
+        if (cart) {
+            cart.items = [];
+            cart.cartTotal = 0;
+            cart.appliedCoupon = null;
+            cart.discountAmount = 0;
+            await cart.save();
+        }
+
         return { success: true, message: 'Payment verified successfully' };
 
     } else {
@@ -565,6 +587,11 @@ export const applyCheckoutCoupon = async ({ userId, code, checkoutType, directIt
     }
     if (coupon.limitPerUser && coupon.usedBy.includes(userId)) {
         const error = new Error('You have already used this coupon.');
+        error.statusCode = STATUS_CODES.BAD_REQUEST;
+        throw error;
+    }
+    if (coupon.targetUserId && coupon.targetUserId.toString() !== userId.toString()) {
+        const error = new Error('This coupon code is personalized for another user and cannot be used here.');
         error.statusCode = STATUS_CODES.BAD_REQUEST;
         throw error;
     }

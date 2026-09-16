@@ -1,0 +1,613 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin | Return Requests</title>
+  <link rel="stylesheet" href="/css/admin/order/returns.css">
+</head>
+
+<body>
+  <div class="admin-layout">
+    <%- include('../partials/sidebar') %>
+
+    <div class="main-content">
+      <%- include('../partials/topbar') %>
+
+      <div class="page-container">
+
+        <!-- Header -->
+        <div class="page-header">
+          <div class="header-left">
+            <div class="breadcrumbs">
+              <a href="/admin/dashboard">Dashboard</a>
+              <span class="separator">/</span>
+              <a href="/admin/orders">Orders</a>
+              <span class="separator">/</span>
+              <span>Return Requests</span>
+            </div>
+            <h1>Return Requests</h1>
+          </div>
+          <a href="/admin/orders" class="btn-back-orders">
+            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none"
+              stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <polyline points="15 18 9 12 15 6"></polyline>
+            </svg>
+            Back to Orders
+          </a>
+        </div>
+
+        <!-- Summary Cards -->
+        <div class="summary-cards">
+          <div class="card">
+            <div class="card-top">
+              <div class="card-icon" style="background: #FFF8EE;">
+                <img src="/images/icons/admin/baggage-claim.svg" alt="Pending">
+              </div>
+            </div>
+            <div class="card-bottom">
+              <span class="card-label">Pending Returns</span>
+              <span class="card-value"><%= pendingCount.toLocaleString() %></span>
+            </div>
+          </div>
+          <div class="card">
+            <div class="card-top">
+              <div class="card-icon" style="background: #EAF2EA;">
+                <img src="/images/icons/admin/check-circle.svg" alt="Resolved">
+              </div>
+            </div>
+            <div class="card-bottom">
+              <span class="card-label">Resolved Returns</span>
+              <span class="card-value"><%= resolvedCount.toLocaleString() %></span>
+            </div>
+          </div>
+          <div class="card">
+            <div class="card-top">
+              <div class="card-icon" style="background: #f4f6f8;">
+                <img src="/images/icons/admin/wallet-cards.svg" alt="Refunded">
+              </div>
+            </div>
+            <div class="card-bottom">
+              <span class="card-label">Total Refunded</span>
+              <span class="card-value">₹<%= totalRefunded.toLocaleString(undefined, {minimumFractionDigits: 2}) %></span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Filters -->
+        <form action="/admin/orders/returns" method="GET" id="returnsFilterForm">
+          <div class="filters-area">
+
+            <!-- Status Tabs -->
+            <div class="status-tabs">
+              <% const tabs = [
+                { label: 'All', value: 'All' },
+                { label: 'Pending Review', value: 'RETURN_REQUESTED' },
+                { label: 'Resolved', value: 'RETURNED' }
+              ]; %>
+              <% tabs.forEach(tab => { %>
+                <a href="?status=<%= tab.value %><%= typeof searchQuery !== 'undefined' && searchQuery ? '&search=' + encodeURIComponent(searchQuery) : '' %><%= typeof currentDateFilter !== 'undefined' && currentDateFilter !== 'All Time' ? '&date=' + encodeURIComponent(currentDateFilter) : '' %>"
+                  class="tab-btn <%= currentStatusFilter === tab.value ? 'active' : '' %>">
+                  <%= tab.label %>
+                </a>
+              <% }); %>
+            </div>
+
+            <!-- Search -->
+            <div class="search-box">
+              <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none"
+                stroke="#888" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="11" cy="11" r="8"></circle>
+                <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+              </svg>
+              <input type="text" name="search" class="search-input" placeholder="Search by order ID or customer..."
+                value="<%= typeof searchQuery !== 'undefined' ? searchQuery : '' %>">
+              <input type="hidden" name="status" value="<%= currentStatusFilter %>">
+            </div>
+
+            <!-- Date Filter -->
+            <div class="custom-dropdown-wrapper">
+              <div class="custom-dropdown" id="dateDropdown">
+                <div class="dropdown-selected" onclick="toggleDropdown(event, 'dateOptions')">
+                  <span id="selectedDateText"><%= currentDateFilter %></span>
+                  <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none"
+                    stroke="#888" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <polyline points="6 9 12 15 18 9"></polyline>
+                  </svg>
+                </div>
+                <div class="dropdown-options" id="dateOptions">
+                  <div class="dropdown-option <%= currentDateFilter === 'All Time' ? 'active' : '' %>" onclick="selectDate('All Time')">All Time</div>
+                  <div class="dropdown-option <%= currentDateFilter === 'Last 7 Days' ? 'active' : '' %>" onclick="selectDate('Last 7 Days')">Last 7 Days</div>
+                  <div class="dropdown-option <%= currentDateFilter === 'Last 30 Days' ? 'active' : '' %>" onclick="selectDate('Last 30 Days')">Last 30 Days</div>
+                  <div class="dropdown-option <%= currentDateFilter === 'This Year' ? 'active' : '' %>" onclick="selectDate('This Year')">This Year</div>
+                </div>
+              </div>
+              <input type="hidden" name="date" id="dateInput" value="<%= currentDateFilter %>">
+            </div>
+
+            <button type="submit" class="btn-search">Search</button>
+
+            <% if ((typeof searchQuery !== 'undefined' && searchQuery) || currentStatusFilter !== 'All' || currentDateFilter !== 'All Time') { %>
+              <a href="/admin/orders/returns" class="btn-clear">Clear</a>
+            <% } %>
+
+            <span class="showing-text">
+              Showing <%= returnRequests.length %> of <%= totalCount.toLocaleString() %> requests
+            </span>
+          </div>
+        </form>
+
+        <!-- Table + Panel Wrapper -->
+        <div class="returns-split-layout">
+
+          <!-- List Column -->
+          <div class="returns-list-col" id="returnsListCol">
+
+            <% if (returnRequests && returnRequests.length > 0) { %>
+              <div class="table-container">
+                <table class="returns-table">
+                  <thead>
+                    <tr>
+                      <th>Order ID</th>
+                      <th>Customer</th>
+                      <th>Date</th>
+                      <th>Items</th>
+                      <th>Reason</th>
+                      <th>Status</th>
+                      <th>Total</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <% returnRequests.forEach((order, idx) => { %>
+                      <tr id="row-<%= order._id %>"
+                        onclick="openPanel('<%= order._id %>')"
+                        data-id="<%= order._id %>"
+                        data-orderid="<%= order.orderId %>"
+                        data-date="<%= order.createdAt.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) %>"
+                        data-status="<%= order.orderStatus %>"
+                        data-payment-status="<%= order.paymentInfo.status %>"
+                        data-payment-method="<%= order.paymentInfo.method %>"
+                        data-subtotal="<%= order.pricing.subtotal %>"
+                        data-discount="<%= order.pricing.discount %>"
+                        data-coupon="<%= order.pricing.couponCode || '' %>"
+                        data-shipping="<%= order.pricing.shippingFee %>"
+                        data-total="<%= order.pricing.totalAmount %>"
+                        data-customer-name="<%= order.user ? order.user.fullName : 'Guest' %>"
+                        data-customer-email="<%= order.user ? order.user.email : '' %>"
+                        data-customer-since="<%= order.user ? order.user.createdAt.toLocaleString('en-US', { month: 'short', year: 'numeric' }) : 'N/A' %>"
+                        data-customer-spend="<%= order.user && order.user.totalSpend !== undefined ? order.user.totalSpend.toLocaleString(undefined, {minimumFractionDigits: 2}) : '0.00' %>"
+                        data-reason="<%= order.items[0] && order.items[0].cancellationReason ? order.items[0].cancellationReason : '' %>"
+                        data-items='<%= JSON.stringify(order.items.map(i => ({ name: i.productName, variant: i.variantName, qty: i.quantity, price: i.price, thumbnail: i.thumbnail || "/images/placeholder.jpg" }))) %>'>
+
+                        <td class="col-id">#<%= order.orderId %></td>
+                        <td>
+                          <div class="customer-info">
+                            <% const initial = order.user ? (order.user.fullName ? order.user.fullName.charAt(0) : 'U') : 'G'; %>
+                            <div class="avatar"><%= initial.toUpperCase() %></div>
+                            <div class="details">
+                              <span class="name"><%= order.user ? order.user.fullName : 'Guest User' %></span>
+                              <span class="email"><%= order.user ? order.user.email : '-' %></span>
+                            </div>
+                          </div>
+                        </td>
+                        <td><%= order.createdAt.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) %></td>
+                        <td>
+                          <div class="product-thumbnails">
+                            <% order.items.slice(0, 2).forEach(item => { %>
+                              <img src="<%= item.thumbnail || '/images/placeholder.jpg' %>" alt="<%= item.productName %>">
+                            <% }); %>
+                            <% if (order.items.length > 2) { %>
+                              <div class="more-items">+<%= order.items.length - 2 %></div>
+                            <% } %>
+                          </div>
+                        </td>
+                        <td>
+                          <span class="return-reason">
+                            <%= order.items[0] && order.items[0].cancellationReason ? order.items[0].cancellationReason : '—' %>
+                          </span>
+                        </td>
+                        <td>
+                          <% if (order.orderStatus === 'RETURN_REQUESTED') { %>
+                            <span class="badge return-requested"><span class="dot"></span> Return Requested</span>
+                          <% } else { %>
+                            <span class="badge returned"><span class="dot"></span> Returned</span>
+                          <% } %>
+                        </td>
+                        <td>₹<%= order.pricing.totalAmount.toLocaleString(undefined, {minimumFractionDigits: 2}) %></td>
+                      </tr>
+                    <% }); %>
+                  </tbody>
+                </table>
+              </div>
+
+              <!-- Pagination -->
+              <% if (totalPages > 1) {
+                let queryStr = '';
+                if (typeof searchQuery !== 'undefined' && searchQuery) queryStr += '&search=' + encodeURIComponent(searchQuery);
+                if (typeof currentStatusFilter !== 'undefined' && currentStatusFilter !== 'All') queryStr += '&status=' + encodeURIComponent(currentStatusFilter);
+                if (typeof currentDateFilter !== 'undefined' && currentDateFilter !== 'All Time') queryStr += '&date=' + encodeURIComponent(currentDateFilter);
+              %>
+                <div class="pagination">
+                  <span class="page-info">PAGE <%= currentPage %> OF <%= totalPages %></span>
+                  <div class="page-controls">
+                    <a href="?page=<%= currentPage - 1 %><%= queryStr %>"
+                      class="page-btn <%= currentPage === 1 ? 'disabled' : '' %>">&lt;</a>
+                    <a href="?page=1<%= queryStr %>"
+                      class="page-num <%= currentPage === 1 ? 'active' : '' %>">1</a>
+                    <% if (totalPages > 1) { %>
+                      <a href="?page=2<%= queryStr %>"
+                        class="page-num <%= currentPage === 2 ? 'active' : '' %>">2</a>
+                    <% } %>
+                    <% if (totalPages > 2) { %>
+                      <a href="?page=3<%= queryStr %>"
+                        class="page-num <%= currentPage === 3 ? 'active' : '' %>">3</a>
+                    <% } %>
+                    <% if (totalPages > 3) { %>
+                      <span class="page-dots">...</span>
+                    <% } %>
+                    <a href="?page=<%= currentPage + 1 %><%= queryStr %>"
+                      class="page-btn <%= currentPage === totalPages ? 'disabled' : '' %>">&gt;</a>
+                  </div>
+                </div>
+              <% } %>
+
+            <% } else { %>
+              <div class="table-container">
+                <div class="empty-state">
+                  <div class="empty-state-icon">
+                    <img src="/images/icons/admin/baggage-claim.svg" alt="No returns">
+                  </div>
+                  <h3>No return requests found</h3>
+                  <p>There are no return requests matching your filters.</p>
+                </div>
+              </div>
+            <% } %>
+
+          </div><!-- /returns-list-col -->
+
+        </div><!-- /returns-split-layout -->
+
+      </div><!-- /page-container -->
+    </div><!-- /main-content -->
+  </div><!-- /admin-layout -->
+
+  <!-- ─── DETAIL PANEL ─── -->
+  <div class="return-detail-panel" id="returnDetailPanel">
+    <div class="panel-header">
+      <div>
+        <div class="panel-order-id" id="panelOrderId">—</div>
+        <div class="panel-order-date" id="panelOrderDate">—</div>
+      </div>
+      <button class="panel-close-btn" onclick="closePanel()" title="Close">
+        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none"
+          stroke="#555" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <line x1="18" y1="6" x2="6" y2="18"></line>
+          <line x1="6" y1="6" x2="18" y2="18"></line>
+        </svg>
+      </button>
+    </div>
+
+    <div class="panel-body">
+
+      <!-- Customer -->
+      <div class="panel-section">
+        <div class="panel-section-title">Customer</div>
+        <div class="panel-customer">
+          <div class="avatar" id="panelCustomerAvatar">A</div>
+          <div class="info">
+            <span class="name" id="panelCustomerName">—</span>
+            <span class="email" id="panelCustomerEmail">—</span>
+          </div>
+        </div>
+        <div class="panel-info-rows">
+          <div class="panel-info-row">
+            <span class="label">Member Since</span>
+            <span class="value" id="panelCustomerSince">—</span>
+          </div>
+          <div class="panel-info-row">
+            <span class="label">Lifetime Spend</span>
+            <span class="value" id="panelCustomerSpend">—</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Items -->
+      <div class="panel-section">
+        <div class="panel-section-title">Order Items</div>
+        <div class="panel-items" id="panelItems">—</div>
+      </div>
+
+      <!-- Return Reason -->
+      <div class="panel-section">
+        <div class="panel-section-title">Return Reason</div>
+        <div id="panelReason"></div>
+      </div>
+
+      <!-- Pricing -->
+      <div class="panel-section">
+        <div class="panel-section-title">Financial Summary</div>
+        <div class="panel-pricing">
+          <div class="pricing-row">
+            <span>Subtotal</span>
+            <span id="panelSubtotal">—</span>
+          </div>
+          <div class="pricing-row discount" id="panelDiscountRow" style="display:none;">
+            <span>Discount <span id="panelCouponBadge" style="font-size:10px;background:#f0f0ea;padding:2px 6px;border-radius:4px;"></span></span>
+            <span id="panelDiscount">—</span>
+          </div>
+          <div class="pricing-row">
+            <span>Shipping</span>
+            <span id="panelShipping">—</span>
+          </div>
+          <div class="pricing-row total-refundable">
+            <span>Total Refundable</span>
+            <span id="panelTotal">—</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Payment Method -->
+      <div class="panel-section">
+        <div class="panel-section-title">Payment Method</div>
+        <div class="panel-payment-box">
+          <img src="/images/icons/admin/wallet-cards.svg" alt="Payment">
+          <div class="panel-payment-info">
+            <span class="panel-payment-method" id="panelPaymentMethod">—</span>
+            <span class="panel-payment-note">Refund will be credited to the customer's wallet</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Refund already done banner (hidden by default) -->
+      <div class="refund-done-banner" id="refundDoneBanner" style="display:none;">
+        <img src="/images/icons/admin/check-circle.svg" alt="Done">
+        Refund already processed for this order.
+      </div>
+
+    </div><!-- /panel-body -->
+
+    <!-- Panel Actions -->
+    <div class="panel-actions" id="panelActions">
+      <button class="btn-reject-return" id="btnReject" onclick="handleReject()">Reject</button>
+      <button class="btn-approve-refund" id="btnApprove" onclick="handleApprove()">Approve & Refund</button>
+    </div>
+  </div><!-- /return-detail-panel -->
+
+  <!-- Custom Modal (reusing existing pattern) -->
+  <div class="modal-overlay" id="customModal">
+    <div class="modal-box">
+      <div class="modal-icon">
+        <img src="/images/icons/admin/triangle-alert.svg" alt="Alert" id="modalIcon" />
+      </div>
+      <h2 class="modal-title" id="modalTitle">Title</h2>
+      <p class="modal-message" id="modalMessage">Message</p>
+      <div class="modal-actions" id="modalActions">
+        <button type="button" class="modal-btn modal-btn-cancel" id="modalCancel">Cancel</button>
+        <button type="button" class="modal-btn modal-btn-confirm" id="modalConfirm">Confirm</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    let activeOrderId = null;
+
+    // ── Modal helpers ──────────────────────────────────
+    const customModal = document.getElementById('customModal');
+    const modalIcon = document.getElementById('modalIcon');
+    const modalTitle = document.getElementById('modalTitle');
+    const modalMessage = document.getElementById('modalMessage');
+    const modalConfirm = document.getElementById('modalConfirm');
+    const modalCancel = document.getElementById('modalCancel');
+
+    function closeCustomModal() {
+      customModal.classList.remove('active');
+    }
+
+    function showCustomModal({ title, message, iconType, confirmText, showCancel, onConfirm }) {
+      modalTitle.textContent = title;
+      modalMessage.innerHTML = message;
+      modalConfirm.disabled = false;
+      if (iconType === 'success') {
+        modalIcon.src = '/images/icons/admin/check-circle.svg';
+        modalConfirm.style.background = '#222';
+        modalConfirm.style.color = '#fff';
+      } else {
+        modalIcon.src = '/images/icons/admin/triangle-alert.svg';
+        modalConfirm.style.background = '#d32f2f';
+        modalConfirm.style.color = '#fff';
+      }
+      modalConfirm.textContent = confirmText || 'OK';
+      modalCancel.style.display = showCancel ? 'inline-block' : 'none';
+      customModal.classList.add('active');
+      modalCancel.onclick = closeCustomModal;
+      modalConfirm.onclick = () => {
+        if (onConfirm) {
+          modalConfirm.disabled = true;
+          modalConfirm.textContent = 'Please wait...';
+          onConfirm();
+        } else {
+          closeCustomModal();
+        }
+      };
+    }
+
+    // ── Panel open/close ───────────────────────────────
+    function openPanel(orderId) {
+      const row = document.getElementById('row-' + orderId);
+      if (!row) return;
+
+      // Clear active class from all rows
+      document.querySelectorAll('.returns-table tbody tr').forEach(r => r.classList.remove('row-active'));
+      row.classList.add('row-active');
+
+      activeOrderId = orderId;
+
+      // Populate panel data from row data attributes
+      const d = row.dataset;
+
+      document.getElementById('panelOrderId').textContent = 'Order #' + d.orderid;
+      document.getElementById('panelOrderDate').textContent = d.date;
+
+      const initial = d.customerName ? d.customerName.charAt(0).toUpperCase() : 'G';
+      document.getElementById('panelCustomerAvatar').textContent = initial;
+      document.getElementById('panelCustomerName').textContent = d.customerName || 'Guest';
+      document.getElementById('panelCustomerEmail').textContent = d.customerEmail || '—';
+      document.getElementById('panelCustomerSince').textContent = d.customerSince || '—';
+      document.getElementById('panelCustomerSpend').textContent = '₹' + (d.customerSpend || '0.00');
+
+      // Items
+      const items = JSON.parse(d.items);
+      const itemsEl = document.getElementById('panelItems');
+      itemsEl.innerHTML = items.map(item => `
+        <div class="panel-item">
+          <img src="${item.thumbnail}" alt="${item.name}" onerror="this.src='/images/placeholder.jpg'">
+          <div class="panel-item-meta">
+            <div class="panel-item-name">${item.name}</div>
+            <div class="panel-item-sub">${item.variant} &nbsp;·&nbsp; Qty: ${item.qty}</div>
+          </div>
+          <span class="panel-item-price">₹${Number(item.price).toLocaleString(undefined, {minimumFractionDigits: 2})}</span>
+        </div>
+      `).join('');
+
+      // Return reason
+      const reasonEl = document.getElementById('panelReason');
+      if (d.reason && d.reason.trim()) {
+        reasonEl.innerHTML = `<div class="panel-reason-box">"${d.reason}"</div>`;
+      } else {
+        reasonEl.innerHTML = `<span class="panel-no-reason">No reason provided by customer.</span>`;
+      }
+
+      // Pricing
+      const subtotal = parseFloat(d.subtotal);
+      const discount = parseFloat(d.discount);
+      const shipping = parseFloat(d.shipping);
+      const total = parseFloat(d.total);
+
+      document.getElementById('panelSubtotal').textContent = '₹' + subtotal.toLocaleString(undefined, {minimumFractionDigits: 2});
+      document.getElementById('panelShipping').textContent = '₹' + shipping.toLocaleString(undefined, {minimumFractionDigits: 2});
+      document.getElementById('panelTotal').textContent = '₹' + total.toLocaleString(undefined, {minimumFractionDigits: 2});
+
+      const discountRow = document.getElementById('panelDiscountRow');
+      if (discount > 0) {
+        discountRow.style.display = 'flex';
+        document.getElementById('panelDiscount').textContent = '-₹' + discount.toLocaleString(undefined, {minimumFractionDigits: 2});
+        document.getElementById('panelCouponBadge').textContent = d.coupon || 'COUPON';
+      } else {
+        discountRow.style.display = 'none';
+      }
+
+      document.getElementById('panelPaymentMethod').textContent = d.paymentMethod;
+
+      // Actions vs resolved banner
+      const isResolved = d.status === 'RETURNED' || d.paymentStatus === 'REFUNDED';
+      document.getElementById('panelActions').style.display = isResolved ? 'none' : 'flex';
+      document.getElementById('refundDoneBanner').style.display = isResolved ? 'flex' : 'none';
+
+      // Open panel + push list column
+      document.getElementById('returnDetailPanel').classList.add('panel-visible');
+      document.getElementById('returnsListCol').classList.add('panel-open');
+    }
+
+    function closePanel() {
+      document.getElementById('returnDetailPanel').classList.remove('panel-visible');
+      document.getElementById('returnsListCol').classList.remove('panel-open');
+      document.querySelectorAll('.returns-table tbody tr').forEach(r => r.classList.remove('row-active'));
+      activeOrderId = null;
+    }
+
+    // ── Approve (refund) ───────────────────────────────
+    function handleApprove() {
+      if (!activeOrderId) return;
+      showCustomModal({
+        title: 'Approve Return & Refund?',
+        message: 'This will process the refund to the customer\'s wallet and mark the order as Returned.',
+        iconType: 'warning',
+        confirmText: 'Yes, Approve & Refund',
+        showCancel: true,
+        onConfirm: async () => {
+          try {
+            const res = await fetch(`/admin/orders/${activeOrderId}/refund`, {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' }
+            });
+            const data = await res.json();
+            if (data.success) {
+              showCustomModal({
+                title: 'Refund Processed!',
+                message: data.message,
+                iconType: 'success',
+                confirmText: 'Done',
+                onConfirm: () => window.location.reload()
+              });
+            } else {
+              showCustomModal({ title: 'Failed', message: data.message || 'An error occurred.', iconType: 'error', confirmText: 'OK' });
+            }
+          } catch (e) {
+            showCustomModal({ title: 'Error', message: 'An unexpected error occurred.', iconType: 'error', confirmText: 'OK' });
+          }
+        }
+      });
+    }
+
+    // ── Reject return ──────────────────────────────────
+    function handleReject() {
+      if (!activeOrderId) return;
+      showCustomModal({
+        title: 'Reject Return Request?',
+        message: 'The return request will be dismissed and the order will revert to <strong>Delivered</strong> status.',
+        iconType: 'warning',
+        confirmText: 'Yes, Reject',
+        showCancel: true,
+        onConfirm: async () => {
+          try {
+            const res = await fetch(`/admin/orders/${activeOrderId}/reject-return`, {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' }
+            });
+            const data = await res.json();
+            if (data.success) {
+              showCustomModal({
+                title: 'Request Rejected',
+                message: data.message,
+                iconType: 'success',
+                confirmText: 'OK',
+                onConfirm: () => window.location.reload()
+              });
+            } else {
+              showCustomModal({ title: 'Failed', message: data.message || 'An error occurred.', iconType: 'error', confirmText: 'OK' });
+            }
+          } catch (e) {
+            showCustomModal({ title: 'Error', message: 'An unexpected error occurred.', iconType: 'error', confirmText: 'OK' });
+          }
+        }
+      });
+    }
+
+    // ── Date dropdown ──────────────────────────────────
+    function toggleDropdown(e, optionsId) {
+      e.stopPropagation();
+      const options = document.getElementById(optionsId);
+      const isVisible = options.style.display === 'block';
+      document.querySelectorAll('.dropdown-options').forEach(opt => opt.style.display = 'none');
+      if (!isVisible) options.style.display = 'block';
+    }
+
+    function selectDate(value) {
+      document.getElementById('dateInput').value = value;
+      document.getElementById('selectedDateText').textContent = value;
+      document.querySelectorAll('#dateOptions .dropdown-option').forEach(opt => opt.classList.remove('active'));
+      event.target.classList.add('active');
+      document.getElementById('dateOptions').style.display = 'none';
+      document.getElementById('returnsFilterForm').submit();
+    }
+
+    document.addEventListener('click', e => {
+      if (!e.target.closest('.custom-dropdown-wrapper')) {
+        document.querySelectorAll('.dropdown-options').forEach(opt => opt.style.display = 'none');
+      }
+    });
+  </script>
+
+</body>
+</html>

@@ -49,10 +49,6 @@
                 </h2>
 
                 <div class="profile-meta">
-                  <span class="tier-badge">
-                    ⭐ <%= user.loyaltyTier || 'Bronze' %> Tier
-                  </span>
-
                   <span class="member-since">
                     MEMBER SINCE
                     <%= new Date(user.createdAt).toLocaleDateString('en-US', { month: 'long' , year: 'numeric'

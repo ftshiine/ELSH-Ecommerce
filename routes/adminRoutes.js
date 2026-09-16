@@ -13,6 +13,7 @@ import inventoryRoutes from './admin/inventoryRoutes.js';
 import couponRoutes from './admin/couponRoutes.js';
 import offerRoutes from './admin/offerRoutes.js';
 import salesReportRoutes from './admin/salesReportRoutes.js';
+import settingsRoutes from './admin/settingsRoutes.js';
 
 const router = express.Router();
 
@@ -32,5 +33,6 @@ router.use('/', inventoryRoutes);
 router.use('/', couponRoutes);
 router.use('/', offerRoutes);
 router.use('/', salesReportRoutes);
+router.use('/', settingsRoutes);
 
 export default router;

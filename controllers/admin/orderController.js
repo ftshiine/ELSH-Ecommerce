@@ -17,7 +17,8 @@ export const getOrders = async (req, res, next) => {
       allOrdersCount,
       pendingFulfillmentCount,
       outForDeliveryCount,
-      monthlyRevenue
+      monthlyRevenue,
+      pendingReturnsCount
     } = await orderService.getOrdersAdmin({ page, limit, status, search, dateFilter });
 
     res.render('admin/order/index', {
@@ -29,6 +30,7 @@ export const getOrders = async (req, res, next) => {
       pendingFulfillmentCount,
       outForDeliveryCount,
       monthlyRevenue,
+      pendingReturnsCount,
       currentStatusFilter: req.query.status || 'All Status',
       currentDateFilter: dateFilter,
       searchQuery: search || '',
@@ -81,6 +83,54 @@ export const processRefund = async (req, res) => {
     console.error('Error processing refund:', error);
     const statusCode = error.statusCode || STATUS_CODES.INTERNAL_SERVER_ERROR;
     res.status(statusCode).json({ success: false, message: error.message || ORDER_MESSAGES.REFUND_FAILED });
+  }
+};
+
+export const getReturnRequests = async (req, res, next) => {
+  try {
+    const page = parseInt(req.query.page) || 1;
+    const limit = 8;
+    const statusFilter = req.query.status || 'All';
+    const search = req.query.search;
+    const dateFilter = req.query.date || 'All Time';
+
+    const {
+      returnRequests,
+      totalPages,
+      totalCount,
+      pendingCount,
+      resolvedCount,
+      totalRefunded
+    } = await orderService.getReturnRequestsAdmin({ page, limit, statusFilter, search, dateFilter });
+
+    res.render('admin/order/returns', {
+      returnRequests,
+      currentPage: page,
+      totalPages,
+      totalCount,
+      pendingCount,
+      resolvedCount,
+      totalRefunded,
+      currentStatusFilter: statusFilter,
+      currentDateFilter: dateFilter,
+      searchQuery: search || '',
+      title: 'Return Requests',
+      activePage: 'orders'
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const rejectReturn = async (req, res) => {
+  try {
+    const { id } = req.params;
+    await orderService.rejectReturnAdmin(id);
+    res.status(STATUS_CODES.OK).json({ success: true, message: ORDER_MESSAGES.RETURN_REJECTED });
+  } catch (error) {
+    console.error('Error rejecting return:', error);
+    const statusCode = error.statusCode || STATUS_CODES.INTERNAL_SERVER_ERROR;
+    res.status(statusCode).json({ success: false, message: error.message || ORDER_MESSAGES.RETURN_REJECT_FAILED });
   }
 };
 

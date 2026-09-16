@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Admin | Settings</title>
+  <style>
+    body { visibility: hidden; }
+    .settings-container {
+      max-width: 600px;
+      margin: 30px;
+    }
+    .settings-card {
+      background: white;
+      border-radius: 12px;
+      padding: 30px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.03);
+    }
+    .settings-header {
+      margin-bottom: 25px;
+      border-bottom: 1px solid #f0f0f0;
+      padding-bottom: 15px;
+    }
+    .settings-header h2 {
+      font-size: 20px;
+      color: #333;
+      margin: 0;
+      font-weight: 600;
+    }
+    .settings-header p {
+      color: #777;
+      font-size: 14px;
+      margin-top: 5px;
+      margin-bottom: 0;
+    }
+    .form-group {
+      margin-bottom: 20px;
+    }
+    .form-group label {
+      display: block;
+      margin-bottom: 8px;
+      font-size: 14px;
+      color: #555;
+      font-weight: 500;
+    }
+    .form-group input, .form-group select {
+      width: 100%;
+      padding: 12px 15px;
+      border: 1px solid #ddd;
+      border-radius: 8px;
+      font-size: 15px;
+      transition: all 0.2s;
+      background: white;
+      box-sizing: border-box;
+    }
+    .form-group input:focus, .form-group select:focus {
+      outline: none;
+      border-color: #556B55;
+      box-shadow: 0 0 0 3px rgba(85, 107, 85, 0.1);
+    }
+    .btn-save {
+      background: #556B55;
+      color: white;
+      border: none;
+      padding: 12px 24px;
+      border-radius: 8px;
+      font-size: 15px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: background 0.2s;
+      width: 100%;
+      margin-top: 10px;
+    }
+    .btn-save:hover {
+      background: #3e4f3e;
+    }
+    .alert-success {
+      background: #eef5ee;
+      color: #2d5a2d;
+      border: 1px solid #c3dfc3;
+      padding: 12px 15px;
+      border-radius: 8px;
+      margin-bottom: 20px;
+      font-size: 14px;
+      display: none;
+    }
+
+    /* Coupon Selection UI */
+    .coupon-box {
+      border: 1px solid #ddd;
+      border-radius: 8px;
+      padding: 15px;
+      background: #fdfdfd;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-top: 5px;
+    }
+    .coupon-info strong {
+      display: block;
+      color: #333;
+      font-size: 15px;
+    }
+    .coupon-info span {
+      color: #777;
+      font-size: 13px;
+    }
+    .btn-select-coupon {
+      background: #eef5ee;
+      color: #556B55;
+      border: 1px solid #c3dfc3;
+      padding: 8px 16px;
+      border-radius: 6px;
+      font-size: 13px;
+      font-weight: 500;
+      cursor: pointer;
+    }
+    .btn-select-coupon:hover {
+      background: #dbeadb;
+    }
+
+
+  </style>
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+</head>
+
+<body>
+  <div class="layout">
+    <%- include('../partials/sidebar') %>
+
+    <main class="main-content">
+      <%- include('../partials/topbar') %>
+
+      <div class="content-body">
+        <div class="settings-container">
+          <div class="alert-success" id="successAlert">
+            Settings updated successfully!
+          </div>
+
+          <div class="settings-card">
+            <div class="settings-header">
+              <h2>Referral Program Settings</h2>
+              <p>Configure the rewards given to users for successful referrals.</p>
+            </div>
+
+            <form id="settingsForm" action="/admin/settings" method="POST">
+              <div class="form-group">
+                <label for="referralRewardType">Reward Distribution Method</label>
+                <select id="referralRewardType" name="referralRewardType" required>
+                  <option value="WALLET" <%= settings.referralRewardType !== 'COUPON' ? 'selected' : '' %>>Direct Wallet Cash</option>
+                  <option value="COUPON" <%= settings.referralRewardType === 'COUPON' ? 'selected' : '' %>>Discount Coupon</option>
+                </select>
+              </div>
+
+              <!-- WALLET FIELDS -->
+              <div id="walletSection" style="<%= settings.referralRewardType === 'COUPON' ? 'display:none;' : '' %>">
+                <div class="form-group">
+                  <label for="referralRewardReferrer">Referrer Cash Bonus (₹)</label>
+                  <input type="number" id="referralRewardReferrer" name="referralRewardReferrer" value="<%= settings.referralRewardReferrer || 100 %>" min="0">
+                </div>
+                <div class="form-group">
+                  <label for="referralRewardReferee">New User Cash Bonus (₹)</label>
+                  <input type="number" id="referralRewardReferee" name="referralRewardReferee" value="<%= settings.referralRewardReferee || 50 %>" min="0">
+                </div>
+              </div>
+
+              <!-- COUPON FIELDS -->
+              <div id="couponSection" style="<%= settings.referralRewardType === 'COUPON' ? '' : 'display:none;' %>">
+                <div class="form-group">
+                  <label>Referrer Coupon Template</label>
+                  <input type="hidden" id="referralCouponReferrer" name="referralCouponReferrer" value="<%= settings.referralCouponReferrer ? settings.referralCouponReferrer._id : '' %>">
+                  <div class="coupon-box">
+                    <div class="coupon-info" id="referrerCouponInfo">
+                      <% if(settings.referralCouponReferrer) { %>
+                        <strong><%= settings.referralCouponReferrer.code %></strong>
+                        <span><%= settings.referralCouponReferrer.discountType === 'fixed' ? '₹' : '' %><%= settings.referralCouponReferrer.discountValue %><%= settings.referralCouponReferrer.discountType === 'percentage' ? '%' : '' %> Off</span>
+                      <% } else { %>
+                        <span style="font-style:italic">No coupon selected</span>
+                      <% } %>
+                    </div>
+                    <a href="/admin/coupons?selectFor=referrer" class="btn-select-coupon" style="text-decoration:none; display: inline-block;">Select</a>
+                  </div>
+                </div>
+
+                <div class="form-group">
+                  <label>New User Coupon Template</label>
+                  <input type="hidden" id="referralCouponReferee" name="referralCouponReferee" value="<%= settings.referralCouponReferee ? settings.referralCouponReferee._id : '' %>">
+                  <div class="coupon-box">
+                    <div class="coupon-info" id="refereeCouponInfo">
+                      <% if(settings.referralCouponReferee) { %>
+                        <strong><%= settings.referralCouponReferee.code %></strong>
+                        <span><%= settings.referralCouponReferee.discountType === 'fixed' ? '₹' : '' %><%= settings.referralCouponReferee.discountValue %><%= settings.referralCouponReferee.discountType === 'percentage' ? '%' : '' %> Off</span>
+                      <% } else { %>
+                        <span style="font-style:italic">No coupon selected</span>
+                      <% } %>
+                    </div>
+                    <a href="/admin/coupons?selectFor=referee" class="btn-select-coupon" style="text-decoration:none; display: inline-block;">Select</a>
+                  </div>
+                </div>
+                <p style="font-size: 13px; color: #888; margin-top:-10px; margin-bottom: 15px;">The selected coupon will be cloned as a personalized single-use template.</p>
+              </div>
+
+              <button type="submit" class="btn-save">Save Configuration</button>
+            </form>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+
+
+
+  <script>
+    document.body.style.visibility = 'visible';
+
+    // Toggle UI based on Reward Type
+    const rewardTypeSelect = document.getElementById('referralRewardType');
+    const walletSection = document.getElementById('walletSection');
+    const couponSection = document.getElementById('couponSection');
+
+    rewardTypeSelect.addEventListener('change', function() {
+      if(this.value === 'COUPON') {
+        walletSection.style.display = 'none';
+        couponSection.style.display = 'block';
+      } else {
+        walletSection.style.display = 'block';
+        couponSection.style.display = 'none';
+      }
+    });
+
+
+
+    // Form Submission
+    document.getElementById('settingsForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      
+      const formData = new FormData(e.target);
+      const data = Object.fromEntries(formData.entries());
+
+      try {
+        const response = await fetch('/admin/settings', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Accept': 'application/json'
+          },
+          body: JSON.stringify(data)
+        });
+
+        const result = await response.json();
+        
+        if (result.success) {
+          const alert = document.getElementById('successAlert');
+          alert.style.display = 'block';
+          setTimeout(() => {
+            alert.style.display = 'none';
+          }, 3000);
+        } else {
+          Swal.fire('Error', result.message || 'Failed to save settings', 'error');
+        }
+      } catch (error) {
+        console.error(error);
+        Swal.fire('Error', 'An unexpected error occurred', 'error');
+      }
+    });
+  </script>
+</body>
+</html>

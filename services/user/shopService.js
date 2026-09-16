@@ -9,7 +9,7 @@ import { STATUS_CODES } from '../../constants/index.js';
 
 export const getShopProducts = async ({
     page = 1,
-    limit = 9,
+    limit = 3,
     search,
     category,
     skinType,
@@ -30,32 +30,42 @@ export const getShopProducts = async ({
 
     if (category) {
         const catArr = Array.isArray(category) ? category : [category];
-        query.category = { $in: catArr.map(id => new mongoose.Types.ObjectId(id)) };
+        const validIds = catArr.filter(id => mongoose.Types.ObjectId.isValid(id)).map(id => new mongoose.Types.ObjectId(id));
+        if (validIds.length > 0) {
+            query.category = { $in: validIds };
+        }
     }
 
     if (skinType) {
         const skinArr = Array.isArray(skinType) ? skinType : [skinType];
-        query.skinType = { $in: skinArr };
+        // Case-insensitive match — DB values may be stored in any casing
+        query.skinType = {
+            $elemMatch: {
+                $in: skinArr.map(s => new RegExp(`^${s.trim()}$`, 'i'))
+            }
+        };
     }
 
     if (minPrice || maxPrice) {
         const min = parseFloat(minPrice) || 0;
         const max = parseFloat(maxPrice) || Number.MAX_SAFE_INTEGER;
 
+
         query.variants = {
             $elemMatch: {
                 $or: [
-                    { offerPrice: { $gte: min, $lte: max, $type: 'number' } },
-                    { offerPrice: { $not: { $type: 'number' } }, salePrice: { $gte: min, $lte: max, $type: 'number' } },
-                    { offerPrice: { $not: { $type: 'number' } }, salePrice: { $not: { $type: 'number' } }, regularPrice: { $gte: min, $lte: max } }
+                    // Variant has a valid offer price within range
+                    { offerPrice: { $gt: 0, $gte: min, $lte: max } },
+                    // No valid offer price, but has a valid sale price within range
+                    { offerPrice: { $not: { $gt: 0 } }, salePrice: { $gt: 0, $gte: min, $lte: max } },
+                    // Neither offer nor sale price — fall back to regularPrice
+                    { offerPrice: { $not: { $gt: 0 } }, salePrice: { $not: { $gt: 0 } }, regularPrice: { $gte: min, $lte: max } }
                 ]
             }
         };
     }
 
-    if (sort === 'featured') {
-        query.isFeatured = true;
-    }
+
 
     let sortQuery = { isFeatured: -1, createdAt: -1 };
     if (sort) {
@@ -67,7 +77,8 @@ export const getShopProducts = async ({
                 sortQuery = { regularPrice: -1 };
                 break;
             case 'featured':
-                sortQuery = { createdAt: -1 };
+                // Featured first, then newest — no query filter applied
+                sortQuery = { isFeatured: -1, createdAt: -1 };
                 break;
             case 'name-asc':
                 sortQuery = { name: 1 };
@@ -78,47 +89,60 @@ export const getShopProducts = async ({
         }
     }
 
-    const totalProducts = await Product.countDocuments(query);
-    const totalPages = Math.ceil(totalProducts / limit);
 
+    const effectivePriceExpr = {
+        $min: {
+            $map: {
+                input: '$variants',
+                as: 'v',
+                in: {
+                    $cond: [
+                        { $gt: ['$$v.offerPrice', 0] },
+                        '$$v.offerPrice',
+                        {
+                            $cond: [
+                                { $gt: ['$$v.salePrice', 0] },
+                                '$$v.salePrice',
+                                '$$v.regularPrice'
+                            ]
+                        }
+                    ]
+                }
+            }
+        }
+    };
+
+    let totalProducts;
     let products;
+
     if (sort === 'price-asc' || sort === 'price-desc') {
         const sortDirection = sort === 'price-desc' ? -1 : 1;
+
+
+        const countResult = await Product.aggregate([
+            { $match: query },
+            { $count: 'total' }
+        ]);
+        totalProducts = countResult.length > 0 ? countResult[0].total : 0;
+
         products = await Product.aggregate([
             { $match: query },
-            {
-                $addFields: {
-                    effectivePrice: {
-                        $min: {
-                            $map: {
-                                input: "$variants",
-                                as: "variant",
-                                in: {
-                                    $min: [
-                                        "$$variant.regularPrice",
-                                        { $cond: [{ $gt: ["$$variant.salePrice", 0] }, "$$variant.salePrice", "$$variant.regularPrice"] },
-                                        { $cond: [{ $gt: ["$$variant.offerPrice", 0] }, "$$variant.offerPrice", "$$variant.regularPrice"] }
-                                    ]
-                                }
-                            }
-                        }
-                    }
-                }
-            },
+            { $addFields: { effectivePrice: effectivePriceExpr } },
             { $sort: { effectivePrice: sortDirection } },
             { $skip: skip },
             { $limit: limit },
             {
                 $lookup: {
-                    from: "categories",
-                    localField: "category",
-                    foreignField: "_id",
-                    as: "category"
+                    from: 'categories',
+                    localField: 'category',
+                    foreignField: '_id',
+                    as: 'category'
                 }
             },
-            { $unwind: { path: "$category", preserveNullAndEmptyArrays: true } }
+            { $unwind: { path: '$category', preserveNullAndEmptyArrays: true } }
         ]);
     } else {
+        totalProducts = await Product.countDocuments(query);
         products = await Product.find(query)
             .populate('category')
             .sort(sortQuery)
@@ -126,20 +150,8 @@ export const getShopProducts = async ({
             .limit(limit);
     }
 
-    let suggestions = [];
-    if (products.length > 0) {
-        const categoryIds = products.map(p => {
-            if (p.category && p.category._id) return p.category._id;
-            return p.category;
-        });
-        const productIds = products.map(p => p._id);
+    const totalPages = Math.ceil(totalProducts / limit);
 
-        suggestions = await Product.find({
-            category: { $nin: categoryIds },
-            _id: { $nin: productIds },
-            isListed: true
-        }).limit(4).populate('category');
-    }
 
     let wishlistProductIds = [];
     if (userId) {
@@ -153,7 +165,6 @@ export const getShopProducts = async ({
         products,
         categories,
         totalPages,
-        suggestions,
         wishlistProductIds
     };
 };

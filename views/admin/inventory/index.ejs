@@ -30,12 +30,7 @@
                 <h1>Inventory Management</h1>
                 <p>Oversee stock levels and reorder parameters across the product line.</p>
               </div>
-              <div class="header-actions">
-                <button class="btn-outline">Export CSV</button>
-                <button class="btn-solid">
-                  Bulk Actions
-                </button>
-              </div>
+
             </div>
 
             <!-- Metrics Cards -->
@@ -283,7 +278,7 @@
           const html = await response.text();
           const parser = new DOMParser();
           const doc = parser.parseFromString(html, 'text/html');
-          
+
           document.querySelector('.table-container').innerHTML = doc.querySelector('.table-container').innerHTML;
           window.history.pushState({}, '', url);
         } catch (error) {
@@ -299,13 +294,13 @@
         loadTableData('/admin/inventory?' + params.toString());
       }
 
-      document.getElementById('filtersForm').addEventListener('submit', function(e) {
+      document.getElementById('filtersForm').addEventListener('submit', function (e) {
         e.preventDefault();
         const params = new URLSearchParams(new FormData(this));
         loadTableData('/admin/inventory?' + params.toString());
       });
 
-      document.addEventListener('click', function(e) {
+      document.addEventListener('click', function (e) {
         const pageLink = e.target.closest('.page-num, .page-btn');
         if (pageLink && pageLink.tagName === 'A' && pageLink.href) {
           e.preventDefault();

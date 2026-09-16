@@ -7,8 +7,6 @@ import userRoutes from './routes/userRoutes.js';
 import passport from './config/passport.js';
 import { notFoundHandler, globalErrorHandler } from './middleware/errorMiddleware.js';
 import sessionConfig from './config/session.js';
-import { initReferralCron } from './cron/referralCron.js';
-
 const app = express();
 
 
@@ -42,7 +40,6 @@ app.use(globalErrorHandler);
 const PORT = process.env.PORT || 3000;
 
 connectDB().then(() => {
-  initReferralCron();
   app.listen(PORT, () => {
     console.log(`Server running on http://localhost:${PORT}`);
   });

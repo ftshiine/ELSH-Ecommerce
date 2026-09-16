@@ -72,6 +72,11 @@ const couponSchema = new mongoose.Schema({
   restoreOnCancel: {
     type: Boolean,
     default: true
+  },
+  targetUserId: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'User',
+    default: null
   }
 }, { timestamps: true });
 

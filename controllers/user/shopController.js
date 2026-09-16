@@ -4,14 +4,13 @@ import { STATUS_CODES, COMMON_MESSAGES } from '../../constants/index.js';
 export const loadShop = async (req, res) => {
     try {
         const page = parseInt(req.query.page) || 1;
-        const limit = 9;
+        const limit = 10;
         const userId = req.user ? req.user._id : (req.session && req.session.user ? (req.session.user.id || req.session.user._id) : null);
 
         const {
             products,
             categories,
             totalPages,
-            suggestions,
             wishlistProductIds
         } = await shopService.getShopProducts({
             page,
@@ -38,7 +37,6 @@ export const loadShop = async (req, res) => {
             totalPages,
             currentQuery: req.query,
             breadcrumbs,
-            suggestions,
             wishlistProductIds
         });
 

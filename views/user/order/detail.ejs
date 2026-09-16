@@ -15,8 +15,8 @@
 
       <% const datePlaced=new Date(order.createdAt).toLocaleDateString('en-US', { month: 'long' , day: 'numeric' ,
         year: 'numeric' }); let dateArriving=new Date(order.createdAt); dateArriving.setDate(dateArriving.getDate() +
-        4); dateArriving=dateArriving.toLocaleDateString('en-US', { month: 'long' , day: 'numeric' }); // Compute
-        timeline states let orderedActive=true; let processingActive=['PROCESSING', 'SHIPPED' , 'OUT FOR DELIVERY'
+        4); dateArriving=dateArriving.toLocaleDateString('en-US', { month: 'long' , day: 'numeric' }); // Compute timeline states
+        let orderedActive=true; let processingActive=['PROCESSING', 'SHIPPED' , 'OUT FOR DELIVERY'
         , 'DELIVERED' ].includes(order.orderStatus); let shippedActive=['SHIPPED', 'OUT FOR DELIVERY' , 'DELIVERED'
         ].includes(order.orderStatus); let outForDeliveryActive=['OUT FOR DELIVERY', 'DELIVERED'
         ].includes(order.orderStatus); let arrivedActive=order.orderStatus==='DELIVERED' ; let
@@ -537,7 +537,7 @@
             async function returnOrder(orderId) {
               showCustomModal({
                 title: 'Return Order',
-                message: '',
+                message: 'Are you sure you want to return this entire order? Please provide a reason below:',
                 iconType: 'warning',
                 confirmText: 'Submit Return',
                 showCancel: true,
@@ -586,46 +586,58 @@
               });
             }
 
-            async function returnSpecificItem(orderId, itemId) {
-              if (!confirm('Are you sure you want to return this specific item?')) return;
+            function returnSpecificItem(orderId, itemId) {
+              showCustomModal({
+                title: 'Return Item',
+                message: 'Are you sure you want to return this item? Please provide a reason below:',
+                iconType: 'warning',
+                confirmText: 'Submit Return',
+                showCancel: true,
+                showInput: true,
+                requireInput: true,
+                inputPlaceholder: 'Please tell us why you are returning this item (e.g. Damaged, Defective, Not as described)...',
+                onConfirm: async (reason) => {
+                  try {
+                    const response = await fetch(`/orders/${orderId}/return-item/${itemId}`, {
+                      method: 'POST',
+                      headers: {
+                        'Content-Type': 'application/json'
+                      },
+                      body: JSON.stringify({ reason })
+                    });
 
-              const reason = prompt('Please provide a reason for return (e.g. Damaged, Defective, Not as described):');
-              if (!reason) {
-                showCustomModal({ title: 'Validation', message: 'Return reason is required' });
-                return;
-              }
-
-              try {
-                const response = await fetch(`/orders/${orderId}/return-item/${itemId}`, {
-                  method: 'POST',
-                  headers: {
-                    'Content-Type': 'application/json'
-                  },
-                  body: JSON.stringify({ reason })
-                });
-
-                const data = await response.json();
-                if (data.success) {
-                  showCustomModal({
-                    title: 'Return Requested',
-                    message: 'Your return request for this item has been submitted.',
-                    type: 'success',
-                    onConfirm: () => window.location.reload()
-                  });
-                } else {
-                  showCustomModal({
-                    title: 'Return Failed',
-                    message: data.message || 'Failed to submit return request',
-                    type: 'error'
-                  });
+                    const data = await response.json();
+                    if (data.success) {
+                      showCustomModal({
+                        title: 'Return Requested',
+                        message: data.message || 'Your return request for this item has been submitted.',
+                        iconType: 'success',
+                        confirmText: 'OK',
+                        showCancel: false,
+                        onConfirm: () => window.location.reload()
+                      });
+                    } else {
+                      showCustomModal({
+                        title: 'Return Failed',
+                        message: data.message || 'Failed to submit return request',
+                        iconType: 'warning',
+                        confirmText: 'OK',
+                        showCancel: false,
+                        onConfirm: () => closeCustomModal()
+                      });
+                    }
+                  } catch (error) {
+                    showCustomModal({
+                      title: 'Error',
+                      message: 'An error occurred. Please try again.',
+                      iconType: 'warning',
+                      confirmText: 'OK',
+                      showCancel: false,
+                      onConfirm: () => closeCustomModal()
+                    });
+                  }
                 }
-              } catch (error) {
-                showCustomModal({
-                  title: 'Error',
-                  message: 'An error occurred. Please try again.',
-                  type: 'error'
-                });
-              }
+              });
             }
 
             async function downloadInvoice(orderId) {

@@ -27,48 +27,93 @@
 
         <div class="cart-items-list">
           <% if (cart && cart.items.length > 0) { %>
-            <% cart.items.forEach(item => { 
-                const variant = (item.product.variants && item.product.variants.length > 0) ? (item.product.variants.find(v => v.size === item.variantSize) || item.product.variants[0]) : { size: item.variantSize || 'Default', stock: item.product.stock || 0, images: item.product.images || [] };
+            <% cart.items.forEach(item => {
+                const isUnavailable = item.isUnavailable === true;
+                const productName  = item.product ? item.product.name : 'Product';
+                const productId    = item.product ? item.product._id  : '';
+                const categoryName = item.product && item.product.category ? item.product.category.name : 'N/A';
+
+                // Always resolve variant so we can get its image URL, even for unavailable items
+                const variant = (item.product && item.product.variants && item.product.variants.length > 0)
+                    ? (item.product.variants.find(v => v.size === item.variantSize) || item.product.variants[0])
+                    : { size: item.variantSize || 'Default', stock: 0, images: [], regularPrice: item.price || 0 };
                 const cImage = (variant.images && variant.images.length > 0) ? variant.images[0] : '';
             %>
-              <div class="cart-item" data-product-id="<%= item.product._id %>" data-variant-size="<%= item.variantSize || 'Default' %>">
-                <div class="item-product-info">
-                  <div class="item-image-container" style="position: relative;">
-                    <a href="/product/<%= item.product._id %>" style="display: block; height: 100%;">
-                      <img src="<%= cImage %>" alt="<%= item.product.name %>" <%- variant.stock === 0 ? 'style="opacity: 0.5;"' : '' %>>
-                      <% if (variant.stock === 0) { %>
-                        <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); background: rgba(0,0,0,0.7); color: white; padding: 4px 8px; font-weight: 600; font-size: 10px; text-transform: uppercase; letter-spacing: 1px; width: max-content; text-align: center;">Out of Stock</div>
-                      <% } %>
-                    </a>
+              <div class="cart-item <%= isUnavailable ? 'cart-item--unavailable' : '' %>"
+                   data-product-id="<%= productId %>"
+                   data-variant-size="<%= item.variantSize || 'Default' %>">
+
+                <% if (isUnavailable) { %>
+
+                  <%# ── Unavailable: only the image is greyed, text stays readable ── %>
+                  <div class="item-product-info">
+                    <div class="item-image-container">
+                      <%# CSS (.cart-item--unavailable .item-image-container img) applies grayscale %>
+                      <img src="<%= cImage %>" alt="<%= productName %>">
+                    </div>
+                    <div class="item-details">
+                      <h3 style="margin: 0;"><%= productName %></h3>
+                      <%
+                        let unavailDisplaySize = item.variantSize || 'Default';
+                        if (!isNaN(unavailDisplaySize) && unavailDisplaySize !== 'Default' && unavailDisplaySize.trim() !== '') {
+                            unavailDisplaySize = unavailDisplaySize + 'ml';
+                        }
+                      %>
+                      <p class="item-meta"><%= unavailDisplaySize %> | <%= categoryName %></p>
+                      <span class="unavailable-badge">Temporarily Unavailable</span>
+                    </div>
                   </div>
-                  <div class="item-details">
-                    <h3 style="margin: 0;"><a href="/product/<%= item.product._id %>" style="text-decoration: none; color: inherit;"><%= item.product.name %></a></h3>
-                    <% 
-                      let displaySize = item.variantSize || 'Default';
-                      if (!isNaN(displaySize) && displaySize !== 'Default' && displaySize.trim() !== '') {
-                          displaySize = displaySize + 'ml';
-                      }
-                    %>
-                    <p class="item-meta"><%= displaySize %> | <%= item.product.category ? item.product.category.name : 'N/A' %></p>
-                    <p class="item-unit-price">
-                      <% if (variant.regularPrice > item.price) { %>
-                        <span style="text-decoration: line-through; color: #999; font-size: 0.85em; margin-right: 4px;">₹<%= variant.regularPrice.toFixed(2) %></span>
-                      <% } %>
-                      ₹<%= item.price.toFixed(2) %>
-                    </p>
+
+                  <%# Hide quantity controls but preserve column space %>
+                  <div class="item-quantity-control unavailable-controls"></div>
+
+                  <div class="item-total-price">
+                    <span style="color: #bbb; font-size: 18px;">—</span>
+                    <button class="remove-btn" onclick="removeFromCart('<%= productId %>', '<%= item.variantSize %>')">✕</button>
                   </div>
-                </div>
-                
-                <div class="item-quantity-control">
-                  <button class="qty-btn" onclick="updateCartQuantity('<%= item.product._id %>', 'decrement', '<%= item.variantSize %>')" <%- variant.stock === 0 ? 'disabled style="background:#f5f5f5; cursor:not-allowed;"' : '' %>>−</button>
-                  <input type="text" value="<%= item.quantity %>" readonly class="qty-input" id="qty-<%= item.product._id %>-<%= (item.variantSize || 'Default').replace(/\s+/g, '') %>" <%- variant.stock === 0 ? 'style="background:#f5f5f5; color:#999;"' : '' %>>
-                  <button class="qty-btn" onclick="updateCartQuantity('<%= item.product._id %>', 'increment', '<%= item.variantSize %>')" <%= variant.stock === 0 ? 'disabled style="background:#f5f5f5; cursor:not-allowed;"' : '' %>>+</button>
-                </div>
-                
-                <div class="item-total-price">
-                  <span id="total-<%= item.product._id %>-<%= (item.variantSize || 'Default').replace(/\s+/g, '') %>">₹<%= item.totalPrice.toFixed(2) %></span>
-                  <button class="remove-btn" onclick="removeFromCart('<%= item.product._id %>', '<%= item.variantSize %>')">✕</button>
-                </div>
+
+                <% } else { %>
+
+                  <%# ── Normal listed item (existing layout, unchanged) ── %>
+                  <div class="item-product-info">
+                    <div class="item-image-container" style="position: relative;">
+                      <a href="/product/<%= item.product._id %>" style="display: block; height: 100%;">
+                        <img src="<%= cImage %>" alt="<%= item.product.name %>" <%- variant.stock === 0 ? 'style="opacity: 0.5;"' : '' %>>
+                        <% if (variant.stock === 0) { %>
+                          <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); background: rgba(0,0,0,0.7); color: white; padding: 4px 8px; font-weight: 600; font-size: 10px; text-transform: uppercase; letter-spacing: 1px; width: max-content; text-align: center;">Out of Stock</div>
+                        <% } %>
+                      </a>
+                    </div>
+                    <div class="item-details">
+                      <h3 style="margin: 0;"><a href="/product/<%= item.product._id %>" style="text-decoration: none; color: inherit;"><%= item.product.name %></a></h3>
+                      <% 
+                        let displaySize = item.variantSize || 'Default';
+                        if (!isNaN(displaySize) && displaySize !== 'Default' && displaySize.trim() !== '') {
+                            displaySize = displaySize + 'ml';
+                        }
+                      %>
+                      <p class="item-meta"><%= displaySize %> | <%= item.product.category ? item.product.category.name : 'N/A' %></p>
+                      <p class="item-unit-price">
+                        <% if (variant.regularPrice > item.price) { %>
+                          <span style="text-decoration: line-through; color: #999; font-size: 0.85em; margin-right: 4px;">₹<%= variant.regularPrice.toFixed(2) %></span>
+                        <% } %>
+                        ₹<%= item.price.toFixed(2) %>
+                      </p>
+                    </div>
+                  </div>
+                  
+                  <div class="item-quantity-control">
+                    <button class="qty-btn" onclick="updateCartQuantity('<%= item.product._id %>', 'decrement', '<%= item.variantSize %>')" <%- variant.stock === 0 ? 'disabled style="background:#f5f5f5; cursor:not-allowed;"' : '' %>>−</button>
+                    <input type="text" value="<%= item.quantity %>" readonly class="qty-input" id="qty-<%= item.product._id %>-<%= (item.variantSize || 'Default').replace(/\s+/g, '') %>" <%- variant.stock === 0 ? 'style="background:#f5f5f5; color:#999;"' : '' %>>
+                    <button class="qty-btn" onclick="updateCartQuantity('<%= item.product._id %>', 'increment', '<%= item.variantSize %>')" <%= variant.stock === 0 ? 'disabled style="background:#f5f5f5; cursor:not-allowed;"' : '' %>>+</button>
+                  </div>
+                  
+                  <div class="item-total-price">
+                    <span id="total-<%= item.product._id %>-<%= (item.variantSize || 'Default').replace(/\s+/g, '') %>">₹<%= item.totalPrice.toFixed(2) %></span>
+                    <button class="remove-btn" onclick="removeFromCart('<%= item.product._id %>', '<%= item.variantSize %>')">✕</button>
+                  </div>
+
+                <% } %>
               </div>
             <% }) %>
           <% } else { %>
@@ -102,26 +147,7 @@
             <span>₹0.00</span>
           </div>
 
-          <div class="promo-section">
-            <div class="promo-header" onclick="togglePromo()">
-              <span>PROMOTIONAL CODE</span>
-              <span id="promo-icon">▼</span>
-            </div>
-            <div class="promo-input-container" id="promo-container">
-              <% if (cart && cart.appliedCoupon) { %>
-                <div style="display: flex; justify-content: space-between; width: 100%; align-items: center; background: #eef5ee; padding: 8px 12px; border-radius: 4px; border: 1px dashed #556B55;">
-                  <div>
-                    <strong style="color: #556B55; font-size: 13px;"><%= cart.appliedCoupon.code %></strong>
-                    <span style="font-size: 11px; color: #666; margin-left: 8px;">Applied</span>
-                  </div>
-                  <button onclick="removeCoupon()" style="background: none; border: none; color: #d32f2f; font-size: 12px; cursor: pointer;">Remove</button>
-                </div>
-              <% } else { %>
-                <input type="text" id="couponInput" placeholder="Enter code">
-                <button onclick="applyCoupon()">APPLY</button>
-              <% } %>
-            </div>
-          </div>
+
 
           <div class="summary-totals" id="summaryTotals">
             <div class="summary-total-row" style="margin-bottom: 8px; font-weight: normal; font-size: 14px;">
@@ -141,12 +167,21 @@
           </div>
 
           <% const hasOutOfStock = cart && cart.items.some(item => {
-              const variant = (item.product.variants && item.product.variants.length > 0) ? (item.product.variants.find(v => v.size === item.variantSize) || item.product.variants[0]) : { stock: item.product.stock || 0 };
-              return variant.stock === 0;
-          }); %>
-          <button class="checkout-btn" <%= !cart || cart.items.length === 0 || hasOutOfStock ? 'disabled title="Remove out of stock items to checkout"' : '' %> onclick="window.location.href='/checkout'">
+              if (item.isUnavailable) return false; // handled by hasUnavailable
+              const v = (item.product.variants && item.product.variants.length > 0) ? (item.product.variants.find(v => v.size === item.variantSize) || item.product.variants[0]) : { stock: item.product.stock || 0 };
+              return v.stock === 0;
+          });
+          const hasUnavailable = cart && cart.items.some(item => item.isUnavailable === true);
+          const canCheckout = cart && cart.items.length > 0 && !hasOutOfStock && !hasUnavailable;
+          %>
+          <button class="checkout-btn" <%= !canCheckout ? 'disabled' : '' %> onclick="window.location.href='/checkout'">
             PROCEED TO CHECKOUT
           </button>
+          <% if (hasUnavailable) { %>
+            <div class="unavailable-checkout-notice">
+              Some items are temporarily unavailable — remove them to proceed.
+            </div>
+          <% } %>
           <% if (hasOutOfStock) { %>
             <div style="color: #d32f2f; font-size: 11px; margin-top: -10px; margin-bottom: 15px; text-align: center;">Remove out of stock items to proceed.</div>
           <% } %>
@@ -200,60 +235,6 @@
   <%- include('../partials/footer') %>
 
   <script>
-    function togglePromo() {
-      const container = document.getElementById('promo-container');
-      const icon = document.getElementById('promo-icon');
-      if (container.style.display === 'flex') {
-        container.style.display = 'none';
-        icon.textContent = '▼';
-      } else {
-        container.style.display = 'flex';
-        icon.textContent = '▲';
-      }
-    }
-
-    async function applyCoupon() {
-      const code = document.getElementById('couponInput').value;
-      if (!code) {
-        Swal.fire('Oops...', 'Please enter a coupon code.', 'error');
-        return;
-      }
-      try {
-        const response = await fetch('/cart/apply-coupon', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ code })
-        });
-        const data = await response.json();
-        if (data.success) {
-          Swal.fire('Success!', data.message, 'success').then(() => {
-            window.location.reload();
-          });
-        } else {
-          Swal.fire('Oops...', data.message, 'error');
-        }
-      } catch (err) {
-        Swal.fire('Error', 'Something went wrong', 'error');
-      }
-    }
-
-    async function removeCoupon() {
-      try {
-        const response = await fetch('/cart/remove-coupon', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' }
-        });
-        const data = await response.json();
-        if (data.success) {
-          Swal.fire('Removed', data.message, 'success').then(() => {
-            window.location.reload();
-          });
-        }
-      } catch (err) {
-        console.error(err);
-      }
-    }
-
     async function updateCartQuantity(productId, action, variantSize) {
       try {
         const response = await fetch(`/cart/update/${productId}`, {

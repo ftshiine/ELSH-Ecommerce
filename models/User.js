@@ -38,14 +38,6 @@ const userSchema = new mongoose.Schema(
     gender: {
       type: String,
     },
-    loyaltyPoints: {
-      type: Number,
-      default: 0,
-    },
-    loyaltyTier: {
-      type: String,
-      default: 'bronze',
-    },
     totalSpend: {
       type: Number,
       default: 0,

@@ -17,51 +17,66 @@ export const getCart = async (userId) => {
         return { cart: { items: [], cartTotal: 0 }, stockAdjustedMessages: [] };
     }
 
-    let cartModified = false;
+    let stockAdjusted = false;
     let newTotal = 0;
-    const validItems = [];
+    const listedItems = [];
+    const unavailableItems = [];
     const stockAdjustedMessages = [];
 
     for (const item of cart.items) {
-        if (item.product && item.product.isListed) {
-            const variant = (item.product.variants && item.product.variants.length > 0)
-                ? (item.product.variants.find(v => v.size === item.variantSize) || item.product.variants[0])
-                : { stock: item.product.stock || 0, salePrice: item.product.salePrice, regularPrice: item.product.regularPrice || 0 };
+        // Product deleted or unlisted — preserve in DB, track for the return below.
+        if (!item.product || !item.product.isListed) {
+            unavailableItems.push(item);
+            continue;
+        }
 
-            if (item.quantity > variant.stock) {
-                item.quantity = variant.stock;
-                cartModified = true;
-                if (item.quantity === 0) {
-                    stockAdjustedMessages.push(`'${item.product.name} (${item.variantSize || 'Default'})' is out of stock and was removed from your cart.`);
-                } else {
-                    stockAdjustedMessages.push(`Quantity for '${item.product.name} (${item.variantSize || 'Default'})' was reduced to ${item.quantity} due to limited stock.`);
-                }
+        const variant = (item.product.variants && item.product.variants.length > 0)
+            ? (item.product.variants.find(v => v.size === item.variantSize) || item.product.variants[0])
+            : { stock: item.product.stock || 0, salePrice: item.product.salePrice, regularPrice: item.product.regularPrice || 0 };
+
+        if (item.quantity > variant.stock) {
+            item.quantity = variant.stock;
+            stockAdjusted = true;
+            if (item.quantity === 0) {
+                stockAdjustedMessages.push(`'${item.product.name} (${item.variantSize || 'Default'})' is out of stock and was removed from your cart.`);
+            } else {
+                stockAdjustedMessages.push(`Quantity for '${item.product.name} (${item.variantSize || 'Default'})' was reduced to ${item.quantity} due to limited stock.`);
             }
+        }
 
-            if (item.quantity > 0) {
-                const effectivePrice = Math.min(
-                    variant.regularPrice,
-                    (variant.salePrice > 0 ? variant.salePrice : variant.regularPrice),
-                    (variant.offerPrice > 0 ? variant.offerPrice : variant.regularPrice)
-                );
+        if (item.quantity > 0) {
+            const effectivePrice = Math.min(
+                variant.regularPrice,
+                (variant.salePrice > 0 ? variant.salePrice : variant.regularPrice),
+                (variant.offerPrice > 0 ? variant.offerPrice : variant.regularPrice)
+            );
 
-                item.price = effectivePrice;
-                item.totalPrice = effectivePrice * item.quantity;
-                newTotal += item.totalPrice;
-                validItems.push(item);
-            }
-        } else {
-            cartModified = true;
+            item.price = effectivePrice;
+            item.totalPrice = effectivePrice * item.quantity;
+            newTotal += item.totalPrice;
+            listedItems.push(item);
         }
     }
 
-    if (cartModified || cart.cartTotal !== newTotal) {
-        cart.items = validItems;
+    // Only persist when stock quantities actually changed.
+    // Unlisted/unavailable items are always preserved in DB — never deleted here.
+    if (stockAdjusted || cart.cartTotal !== newTotal) {
+        cart.items = [...listedItems, ...unavailableItems];
         cart.cartTotal = newTotal;
         await cart.save();
     }
 
-    return { cart, stockAdjustedMessages };
+    // Mongoose strict mode blocks reading non-schema properties via normal
+    // property access (item.isUnavailable returns undefined even with _doc mutation).
+    // Converting to a plain JS object first means EJS reads all properties directly.
+    const unavailableIds = new Set(unavailableItems.map(i => i._id.toString()));
+    const cartPlain = cart.toObject({ virtuals: true });
+    cartPlain.items = cartPlain.items.map(item => ({
+        ...item,
+        isUnavailable: unavailableIds.has(item._id.toString())
+    }));
+
+    return { cart: cartPlain, stockAdjustedMessages };
 };
 
 export const getCartRelatedProducts = async () => {

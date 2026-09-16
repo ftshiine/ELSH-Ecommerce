@@ -67,6 +67,7 @@ export const getOrdersAdmin = async ({ page = 1, limit = 5, status, search, date
     const allOrdersCount = await Order.countDocuments();
     const pendingFulfillmentCount = await Order.countDocuments({ orderStatus: { $in: ['PENDING', 'PROCESSING'] } });
     const outForDeliveryCount = await Order.countDocuments({ orderStatus: 'SHIPPED' });
+    const pendingReturnsCount = await Order.countDocuments({ orderStatus: 'RETURN_REQUESTED' });
 
     const startOfMonth = new Date();
     startOfMonth.setDate(1);
@@ -95,8 +96,114 @@ export const getOrdersAdmin = async ({ page = 1, limit = 5, status, search, date
         allOrdersCount,
         pendingFulfillmentCount,
         outForDeliveryCount,
-        monthlyRevenue
+        monthlyRevenue,
+        pendingReturnsCount
     };
+};
+
+export const getReturnRequestsAdmin = async ({ page = 1, limit = 8, statusFilter, search, dateFilter }) => {
+    const skip = (page - 1) * limit;
+
+    const query = { orderStatus: { $in: ['RETURN_REQUESTED', 'RETURNED'] } };
+
+    if (statusFilter && statusFilter !== 'All') {
+        query.orderStatus = statusFilter;
+    }
+
+    if (search && search.trim() !== '') {
+        const searchTerm = search.trim();
+        const matchingUsers = await User.find({
+            $or: [
+                { firstName: { $regex: searchTerm, $options: 'i' } },
+                { lastName: { $regex: searchTerm, $options: 'i' } },
+                { email: { $regex: searchTerm, $options: 'i' } }
+            ]
+        }).select('_id');
+
+        const userIds = matchingUsers.map(u => u._id);
+
+        const searchCondition = [
+            { orderId: { $regex: searchTerm, $options: 'i' } },
+            { user: { $in: userIds } }
+        ];
+
+        if (query.$or) {
+            query.$and = [{ $or: query.$or }, { $or: searchCondition }];
+            delete query.$or;
+        } else {
+            query.$or = searchCondition;
+        }
+    }
+
+    if (dateFilter && dateFilter !== 'All Time') {
+        const now = new Date();
+        let startDate;
+        if (dateFilter === 'Last 7 Days') {
+            startDate = new Date();
+            startDate.setDate(startDate.getDate() - 7);
+            startDate.setHours(0, 0, 0, 0);
+        } else if (dateFilter === 'Last 30 Days') {
+            startDate = new Date();
+            startDate.setDate(startDate.getDate() - 30);
+            startDate.setHours(0, 0, 0, 0);
+        } else if (dateFilter === 'This Year') {
+            startDate = new Date(now.getFullYear(), 0, 1);
+            startDate.setHours(0, 0, 0, 0);
+        }
+        if (startDate) query.createdAt = { $gte: startDate };
+    }
+
+    const returnRequests = await Order.find(query)
+        .populate('user', 'fullName email createdAt totalSpend')
+        .sort({ createdAt: -1 })
+        .skip(skip)
+        .limit(limit);
+
+    const totalCount = await Order.countDocuments(query);
+    const totalPages = Math.ceil(totalCount / limit);
+
+    const pendingCount = await Order.countDocuments({ orderStatus: 'RETURN_REQUESTED' });
+    const resolvedCount = await Order.countDocuments({ orderStatus: 'RETURNED' });
+
+    const refundStats = await Order.aggregate([
+        { $match: { orderStatus: 'RETURNED', 'paymentInfo.status': 'REFUNDED' } },
+        { $group: { _id: null, total: { $sum: '$pricing.totalAmount' } } }
+    ]);
+    const totalRefunded = refundStats.length > 0 ? refundStats[0].total : 0;
+
+    return { returnRequests, totalPages, totalCount, pendingCount, resolvedCount, totalRefunded };
+};
+
+export const rejectReturnAdmin = async (id) => {
+    const order = await Order.findById(id);
+    if (!order) {
+        const error = new Error('Order not found');
+        error.statusCode = STATUS_CODES.NOT_FOUND;
+        throw error;
+    }
+
+    if (order.orderStatus !== 'RETURN_REQUESTED') {
+        const error = new Error('This order does not have a pending return request.');
+        error.statusCode = STATUS_CODES.BAD_REQUEST;
+        throw error;
+    }
+
+    if (order.paymentInfo.status === 'REFUNDED') {
+        const error = new Error('This order has already been refunded.');
+        error.statusCode = STATUS_CODES.BAD_REQUEST;
+        throw error;
+    }
+
+    order.orderStatus = 'DELIVERED';
+
+    // Revert item statuses back to DELIVERED where they were RETURN_REQUESTED
+    order.items.forEach(item => {
+        if (item.itemStatus === 'RETURN_REQUESTED') {
+            item.itemStatus = 'DELIVERED';
+        }
+    });
+
+    return await order.save();
 };
 
 export const getOrderDetailsAdmin = async (id) => {

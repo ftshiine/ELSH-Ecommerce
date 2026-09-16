@@ -32,21 +32,40 @@ export const getReportData = async (start, end) => {
         orderStatus: { $nin: ['CANCELLED', 'RETURNED'] }
     };
 
-    const orders = await Order.find(query).populate('user', 'fullName email').sort({ createdAt: -1 });
+    const orderDocs = await Order.find(query).populate('user', 'fullName email').sort({ createdAt: -1 });
 
     let totalRevenue = 0;
     let totalDiscounts = 0;
-    let totalCouponDeductions = 0;
 
-    orders.forEach(order => {
-        totalRevenue += order.pricing.totalAmount;
-        totalDiscounts += order.pricing.discountAmount || 0;
-        totalCouponDeductions += order.pricing.couponDiscount || 0;
+    const orders = orderDocs.map(orderDoc => {
+        const order = orderDoc.toObject();
+        let validItemTotal = 0;
+        
+        order.items.forEach(item => {
+            if (item.itemStatus !== 'CANCELLED' && item.itemStatus !== 'RETURNED') {
+                validItemTotal += item.itemTotal;
+            }
+        });
+        
+        let proportionalDiscount = 0;
+        if (order.pricing.discount && order.pricing.discount > 0 && order.pricing.subtotal > 0) {
+            proportionalDiscount = order.pricing.discount * (validItemTotal / order.pricing.subtotal);
+        }
+
+        const effectiveShipping = validItemTotal > 0 ? (order.pricing.shippingFee || 0) : 0;
+        const netOrderRevenue = validItemTotal + effectiveShipping - proportionalDiscount;
+        
+        order.netAmount = netOrderRevenue > 0 ? netOrderRevenue : 0;
+        order.netDiscount = proportionalDiscount > 0 ? proportionalDiscount : 0;
+        
+        totalRevenue += order.netAmount;
+        totalDiscounts += order.netDiscount;
+        
+        return order;
     });
 
     const totalOrdersCount = orders.length;
     const averageOrderValue = totalOrdersCount > 0 ? (totalRevenue / totalOrdersCount) : 0;
-    const overallDiscount = totalDiscounts + totalCouponDeductions;
 
     return {
         orders,
@@ -54,7 +73,7 @@ export const getReportData = async (start, end) => {
             totalRevenue,
             averageOrderValue,
             totalOrdersCount,
-            totalDiscounts: overallDiscount
+            totalDiscounts
         }
     };
 };
@@ -77,7 +96,7 @@ export const generatePdfDocument = ({ start, end, orders, summary }, stream) => 
     doc.moveDown();
 
     orders.forEach((order, index) => {
-        doc.fontSize(10).text(`${index + 1}. Order ID: ${order.orderId} | Date: ${new Date(order.createdAt).toLocaleDateString()} | Amount: Rs. ${order.pricing.totalAmount} | Status: ${order.orderStatus}`);
+        doc.fontSize(10).text(`${index + 1}. Order ID: ${order.orderId} | Date: ${new Date(order.createdAt).toLocaleDateString()} | Amount: Rs. ${order.netAmount.toFixed(2)} | Status: ${order.orderStatus}`);
         doc.moveDown(0.5);
     });
 
@@ -102,8 +121,8 @@ export const generateExcelWorkbook = async ({ orders, summary }, stream) => {
             orderId: order.orderId,
             date: new Date(order.createdAt).toLocaleDateString(),
             customer: order.user ? order.user.fullName : 'N/A',
-            amount: order.pricing.totalAmount,
-            discount: (order.pricing.discountAmount || 0) + (order.pricing.couponDiscount || 0),
+            amount: order.netAmount,
+            discount: order.netDiscount,
             status: order.orderStatus
         });
     });

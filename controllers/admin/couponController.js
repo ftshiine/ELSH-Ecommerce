@@ -13,6 +13,8 @@ export const loadCoupons = async (req, res) => {
             stats
         } = await couponService.getCouponsAdmin({ page, limit });
 
+        const selectFor = req.query.selectFor || null;
+
         res.render('admin/coupon/index', {
             title: 'Coupon Management',
             activePage: 'coupons',
@@ -20,7 +22,8 @@ export const loadCoupons = async (req, res) => {
             currentPage: page,
             totalPages,
             totalCoupons,
-            stats
+            stats,
+            selectFor
         });
     } catch (error) {
         console.error('Error loading coupons:', error);

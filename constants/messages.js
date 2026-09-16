@@ -77,7 +77,11 @@ export const ORDER_MESSAGES = Object.freeze({
   PAYMENT_VERIFY_FAILED: 'Server error during payment verification.',
   INVOICE_ERROR: 'Error generating invoice',
   CANNOT_CANCEL: 'Order cannot be cancelled at this stage.',
-  CANNOT_RETURN: 'Order cannot be returned at this stage.'
+  CANNOT_RETURN: 'Order cannot be returned at this stage.',
+  RETURN_REJECTED: 'Return request rejected. Order reverted to Delivered.',
+  RETURN_REJECT_FAILED: 'Failed to reject return request.',
+  ALREADY_REFUNDED: 'This order has already been refunded.',
+  NOT_RETURN_REQUESTED: 'This order does not have a pending return request.'
 });
 
 export const COUPON_MESSAGES = Object.freeze({

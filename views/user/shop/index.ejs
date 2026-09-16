@@ -31,8 +31,10 @@
               <input type="text" id="searchInput" placeholder="Search products..."
                 value="<%= currentQuery.search || '' %>" onkeypress="if(event.key === 'Enter') applyFilters()"
                 oninput="toggleClearSearch()">
-              <span class="clear-search-icon" id="clearSearchBtn"
-                <%- currentQuery.search ? 'style="display: flex; position: absolute; right: 12px; top: 50%; transform: translateY(-50%); cursor: pointer; color: #999; align-items: center; justify-content: center;"' : 'style="display: none; position: absolute; right: 12px; top: 50%; transform: translateY(-50%); cursor: pointer; color: #999; align-items: center; justify-content: center;"' %>
+              <span class="clear-search-icon" id="clearSearchBtn" <%- currentQuery.search
+                ? 'style="display: flex; position: absolute; right: 12px; top: 50%; transform: translateY(-50%); cursor: pointer; color: #999; align-items: center; justify-content: center;"'
+                : 'style="display: none; position: absolute; right: 12px; top: 50%; transform: translateY(-50%); cursor: pointer; color: #999; align-items: center; justify-content: center;"'
+                %>
                 onclick="clearSearch()">
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
                   stroke-linecap="round" stroke-linejoin="round">
@@ -52,7 +54,7 @@
                       <% } else if (currentQuery.sort==='name-asc' ) { %> Name: A to Z
                         <% } else if (currentQuery.sort==='name-desc' ) { %> Name: Z to A
                           <% } else if (currentQuery.sort==='featured' ) { %> Featured
-                          <% } else { %> Select filters <% } %>
+                            <% } else { %> Select filters <% } %>
                 </span>
                 <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none"
                   stroke="#222" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -60,10 +62,9 @@
                 </svg>
               </div>
               <div class="dropdown-options" id="sortDropdownOptions">
-                <div class="dropdown-option <%= !currentQuery.sort ? 'active' : '' %>"
-                  onclick="selectSort('')">Select filters</div>
-                <div
-                  class="dropdown-option <%= currentQuery.sort === 'featured' ? 'active' : '' %>"
+                <div class="dropdown-option <%= !currentQuery.sort ? 'active' : '' %>" onclick="selectSort('')">Select
+                  filters</div>
+                <div class="dropdown-option <%= currentQuery.sort === 'featured' ? 'active' : '' %>"
                   onclick="selectSort('featured')">Featured</div>
                 <div class="dropdown-option <%= currentQuery.sort === 'price-asc' ? 'active' : '' %>"
                   onclick="selectSort('price-asc')">Price: Low to High</div>
@@ -143,98 +144,110 @@
           <main class="shop-main">
             <% if (products.length> 0) { %>
               <div class="product-grid">
-                <% products.forEach(product=> { 
-                    let defaultVariant = { regularPrice: product.regularPrice || 0, salePrice: product.salePrice, stock: product.stock || 0, images: product.images || [] };
-                    if (product.variants && product.variants.length > 0) {
-                      defaultVariant = product.variants.reduce((prev, curr) => {
-                        const prevPrice = Math.ceil(Math.min(prev.regularPrice, (prev.salePrice > 0 ? prev.salePrice : prev.regularPrice), (prev.offerPrice > 0 ? prev.offerPrice : prev.regularPrice)));
-                        const currPrice = Math.ceil(Math.min(curr.regularPrice, (curr.salePrice > 0 ? curr.salePrice : curr.regularPrice), (curr.offerPrice > 0 ? curr.offerPrice : curr.regularPrice)));
-                        return (currPrice < prevPrice) ? curr : prev;
-                      });
-                    }
-                    const pImage = (defaultVariant.images && defaultVariant.images.length > 0) ? defaultVariant.images[0] : '';
-                %>
-                  <a href="/product/<%= product._id %>" class="product-card">
-                    <div class="product-image-container" style="position: relative;">
-                      <img src="<%= pImage %>" alt="<%= product.name %>" class="product-image"
-                        <%- defaultVariant.stock === 0 ? 'style="opacity: 0.5;"' : '' %>>
-                      
-                      <% 
-                        const effectivePriceCheck = Math.min(
-                          defaultVariant.regularPrice, 
-                          (defaultVariant.salePrice > 0 ? defaultVariant.salePrice : defaultVariant.regularPrice),
+                <% products.forEach(product=> {
+                  let defaultVariant = { regularPrice: product.regularPrice || 0, salePrice: product.salePrice, stock:
+                  product.stock || 0, images: product.images || [] };
+                  if (product.variants && product.variants.length > 0) {
+                  defaultVariant = product.variants.reduce((prev, curr) => {
+                  const prevPrice = Math.ceil(Math.min(prev.regularPrice, (prev.salePrice > 0 ? prev.salePrice :
+                  prev.regularPrice), (prev.offerPrice > 0 ? prev.offerPrice : prev.regularPrice)));
+                  const currPrice = Math.ceil(Math.min(curr.regularPrice, (curr.salePrice > 0 ? curr.salePrice :
+                  curr.regularPrice), (curr.offerPrice > 0 ? curr.offerPrice : curr.regularPrice)));
+                  return (currPrice < prevPrice) ? curr : prev; }); } const pImage=(defaultVariant.images &&
+                    defaultVariant.images.length> 0) ? defaultVariant.images[0] : '';
+                    %>
+                    <a href="/product/<%= product._id %>" class="product-card">
+                      <div class="product-image-container" style="position: relative;">
+                        <img src="<%= pImage %>" alt="<%= product.name %>" class="product-image" <%-
+                          defaultVariant.stock===0 ? 'style="opacity: 0.5;"' : '' %>>
+
+                        <% const effectivePriceCheck=Math.min( defaultVariant.regularPrice, (defaultVariant.salePrice> 0
+                          ? defaultVariant.salePrice : defaultVariant.regularPrice),
                           (defaultVariant.offerPrice > 0 ? defaultVariant.offerPrice : defaultVariant.regularPrice)
-                        );
-                        const isOfferBadge = effectivePriceCheck === defaultVariant.offerPrice && defaultVariant.offerPrice > 0 && (!defaultVariant.salePrice || defaultVariant.offerPrice <= defaultVariant.salePrice);
-                      %>
-                      <% if (isOfferBadge) { %>
-                        <div style="position: absolute; top: 12px; left: 12px; background: #556B55; color: white; padding: 4px 10px; font-weight: 600; font-size: 11px; text-transform: uppercase; letter-spacing: 1px; border-radius: 4px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
-                          Offer
-                        </div>
-                      <% } %>
-                      
-                      <% if (defaultVariant.stock===0) { %>
-                        <div
-                          style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); background: rgba(0,0,0,0.7); color: white; padding: 8px 16px; font-weight: 600; font-size: 14px; text-transform: uppercase; letter-spacing: 1px;">
-                          Out of Stock</div>
-                        <% } %>
-                        <button class="wishlist-toggle-btn <%= typeof wishlistProductIds !== 'undefined' && wishlistProductIds.includes(product._id.toString()) ? 'active' : '' %>" 
-                                onclick="toggleWishlist(event, '<%= product._id %>')" 
-                                data-product-id="<%= product._id %>">
-                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path>
-                            </svg>
-                        </button>
-                    </div>
-                    <div class="product-info">
-                      <div class="product-header">
-                        <h2 class="product-name">
-                          <%= product.name %>
-                        </h2>
-                        <div class="product-price-container">
-                          <% 
-                            const effectivePrice = Math.ceil(Math.min(
-                              defaultVariant.regularPrice, 
-                              (defaultVariant.salePrice > 0 ? defaultVariant.salePrice : defaultVariant.regularPrice),
+                          );
+                          const isOfferBadge = effectivePriceCheck === defaultVariant.offerPrice &&
+                          defaultVariant.offerPrice > 0 && (!defaultVariant.salePrice || defaultVariant.offerPrice <=
+                            defaultVariant.salePrice); %>
+                            <% if (isOfferBadge) { %>
+                              <div
+                                style="position: absolute; top: 12px; left: 12px; background: #556B55; color: white; padding: 4px 10px; font-weight: 600; font-size: 11px; text-transform: uppercase; letter-spacing: 1px; border-radius: 4px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+                                Offer
+                              </div>
+                              <% } %>
+
+                                <% if (defaultVariant.stock===0) { %>
+                                  <div
+                                    style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); background: rgba(0,0,0,0.7); color: white; padding: 8px 16px; font-weight: 600; font-size: 14px; text-transform: uppercase; letter-spacing: 1px;">
+                                    Out of Stock</div>
+                                  <% } %>
+                                    <button
+                                      class="wishlist-toggle-btn <%= typeof wishlistProductIds !== 'undefined' && wishlistProductIds.includes(product._id.toString()) ? 'active' : '' %>"
+                                      onclick="toggleWishlist(event, '<%= product._id %>')"
+                                      data-product-id="<%= product._id %>">
+                                      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none"
+                                        stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                        stroke-linejoin="round">
+                                        <path
+                                          d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z">
+                                        </path>
+                                      </svg>
+                                    </button>
+                      </div>
+                      <div class="product-info">
+                        <div class="product-header">
+                          <h2 class="product-name">
+                            <%= product.name %>
+                          </h2>
+                          <div class="product-price-container">
+                            <% const effectivePrice=Math.ceil(Math.min( defaultVariant.regularPrice,
+                              (defaultVariant.salePrice> 0 ? defaultVariant.salePrice : defaultVariant.regularPrice),
                               (defaultVariant.offerPrice > 0 ? defaultVariant.offerPrice : defaultVariant.regularPrice)
-                            ));
-                            const regPrice = Math.ceil(defaultVariant.regularPrice);
-                            const hasDiscount = effectivePrice < regPrice;
-                            const isOffer = effectivePrice === Math.ceil(defaultVariant.offerPrice) && defaultVariant.offerPrice > 0 && (!defaultVariant.salePrice || defaultVariant.offerPrice <= defaultVariant.salePrice);
-                          %>
-                          <% if (hasDiscount) { %>
-                            <% const discount = Math.round(((regPrice - effectivePrice) / regPrice) * 100); %>
-                              <span class="regular-price" style="text-decoration: line-through; color: #999; font-size: 0.9em; margin-right: 6px;">₹<%= regPrice %></span>
-                              <span class="product-price" style="font-weight: 600;">₹<%= effectivePrice %></span>
-                              <span class="discount-badge" style="color: #2e7d32; font-size: 0.85em; font-weight: 600; margin-left: 6px;">
-                                <%= discount %>% OFF <%= isOffer ? '(OFFER)' : '' %>
-                              </span>
-                          <% } else { %>
-                              <span class="product-price">₹<%= regPrice %></span>
-                          <% } %>
+                              ));
+                              const regPrice = Math.ceil(defaultVariant.regularPrice);
+                              const hasDiscount = effectivePrice < regPrice; const
+                                isOffer=effectivePrice===Math.ceil(defaultVariant.offerPrice) &&
+                                defaultVariant.offerPrice> 0 && (!defaultVariant.salePrice || defaultVariant.offerPrice
+                                <= defaultVariant.salePrice); %>
+                                  <% if (hasDiscount) { %>
+                                    <% const discount=Math.round(((regPrice - effectivePrice) / regPrice) * 100); %>
+                                      <span class="regular-price"
+                                        style="text-decoration: line-through; color: #999; font-size: 0.9em; margin-right: 6px;">₹
+                                        <%= regPrice %></span>
+                                      <span class="product-price" style="font-weight: 600;">₹<%= effectivePrice %>
+                                          </span>
+                                      <span class="discount-badge"
+                                        style="color: #2e7d32; font-size: 0.85em; font-weight: 600; margin-left: 6px;">
+                                        <%= discount %>% OFF <%= isOffer ? '(OFFER)' : '' %>
+                                      </span>
+                                      <% } else { %>
+                                        <span class="product-price">₹<%= regPrice %></span>
+                                        <% } %>
+                          </div>
+                        </div>
+                        <div class="product-rating">
+                          <span class="stars">★★★★★</span>
+                          <span class="reviews">(42)</span>
                         </div>
                       </div>
-                      <div class="product-rating">
-                        <span class="stars">★★★★★</span>
-                        <span class="reviews">(42)</span>
-                      </div>
-                    </div>
-                  </a>
-                  <% }) %>
+                    </a>
+                    <% }) %>
               </div>
 
               <!-- Pagination -->
               <% if (totalPages> 1) { %>
                 <div class="pagination">
-                  <button class="page-btn nav-btn" <%=currentPage===1 ? 'disabled' : '' %> <%- 'onclick="changePage(' + (currentPage - 1) + ')"' %>>&lt;</button>
+                  <button class="page-btn nav-btn" <%=currentPage===1 ? 'disabled' : '' %> <%- 'onclick="changePage(' +
+                      (currentPage - 1) + ')"' %>>&lt;</button>
                   <div class="page-numbers">
                     <% for (let i=1; i <=totalPages; i++) { %>
-                      <button class="page-btn <%= currentPage === i ? 'active' : '' %>" <%- 'onclick="changePage(' + i + ')"' %>>
+                      <button class="page-btn <%= currentPage === i ? 'active' : '' %>" <%- 'onclick="changePage(' + i
+                        + ')"' %>>
                         <%= i.toString().padStart(2, '0' ) %>
                       </button>
                       <% } %>
                   </div>
-                  <button class="page-btn nav-btn" <%=currentPage===totalPages ? 'disabled' : '' %> <%- 'onclick="changePage(' + (currentPage + 1) + ')"' %>>&gt;
+                  <button class="page-btn nav-btn" <%=currentPage===totalPages ? 'disabled' : '' %>
+                    <%- 'onclick="changePage(' + (currentPage + 1) + ')"' %>>&gt;
                   </button>
                 </div>
                 <% } %>
@@ -244,78 +257,6 @@
                       <button class="btn-clear" onclick="window.location.href='/shop'">Clear Filters</button>
                     </div>
                     <% } %>
-
-                      <% if (typeof suggestions !=='undefined' && suggestions.length>
-                        0) { %>
-                        <div class="suggestions-section"
-                          style="margin-top: 60px; padding-top: 40px; border-top: 1px solid #EBEBEB;">
-                          <h3
-                            style="font-family: 'Playfair Display', serif; font-size: 24px; color: #222; margin-bottom: 24px;">
-                            Recommended for You</h3>
-                          <div class="product-grid">
-                            <% suggestions.forEach(product=> { 
-                                let defaultVariant = { regularPrice: product.regularPrice || 0, salePrice: product.salePrice, stock: product.stock || 0, images: product.images || [] };
-                                if (product.variants && product.variants.length > 0) {
-                                  defaultVariant = product.variants.reduce((prev, curr) => {
-                                    const prevPrice = Math.min(prev.regularPrice, (prev.salePrice > 0 ? prev.salePrice : prev.regularPrice), (prev.offerPrice > 0 ? prev.offerPrice : prev.regularPrice));
-                                    const currPrice = Math.min(curr.regularPrice, (curr.salePrice > 0 ? curr.salePrice : curr.regularPrice), (curr.offerPrice > 0 ? curr.offerPrice : curr.regularPrice));
-                                    return (currPrice < prevPrice) ? curr : prev;
-                                  });
-                                }
-                                const pImage = (defaultVariant.images && defaultVariant.images.length > 0) ? defaultVariant.images[0] : '';
-                            %>
-                              <a href="/product/<%= product._id %>" class="product-card"
-                                style="text-decoration: none; color: inherit;">
-                                <div class="product-image-container" style="position: relative;">
-                                  <img src="<%= pImage %>" alt="<%= product.name %>" class="product-image">
-                                  <button class="wishlist-toggle-btn <%= typeof wishlistProductIds !== 'undefined' && wishlistProductIds.includes(product._id.toString()) ? 'active' : '' %>" 
-                                          onclick="toggleWishlist(event, '<%= product._id %>')" 
-                                          data-product-id="<%= product._id %>">
-                                      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                          <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path>
-                                      </svg>
-                                  </button>
-                                </div>
-                                <div class="product-info">
-                                  <div class="product-details">
-                                    <h3 class="product-name">
-                                      <%= product.name %>
-                                    </h3>
-                                    <p class="product-category">
-                                      <%= product.category ? product.category.name : '' %>
-                                    </p>
-                                    <div class="price-container">
-                                      <% 
-                                        const suggEffectivePrice = Math.min(
-                                          defaultVariant.regularPrice, 
-                                          (defaultVariant.salePrice > 0 ? defaultVariant.salePrice : defaultVariant.regularPrice),
-                                          (defaultVariant.offerPrice > 0 ? defaultVariant.offerPrice : defaultVariant.regularPrice)
-                                        );
-                                        const suggHasDiscount = suggEffectivePrice < defaultVariant.regularPrice;
-                                        const suggIsOffer = suggEffectivePrice === defaultVariant.offerPrice && defaultVariant.offerPrice > 0 && (!defaultVariant.salePrice || defaultVariant.offerPrice <= defaultVariant.salePrice);
-                                      %>
-                                      <% if (suggHasDiscount) { %>
-                                        <% const suggDiscount = Math.round(((defaultVariant.regularPrice - suggEffectivePrice) / defaultVariant.regularPrice) * 100); %>
-                                          <span class="product-price" style="text-decoration: line-through; color: #999; font-size: 0.9em; margin-right: 6px;">₹<%= defaultVariant.regularPrice %></span>
-                                          <span class="product-price" style="font-weight: 600;">₹<%= suggEffectivePrice %></span>
-                                          <span class="discount-badge" style="color: #2e7d32; font-size: 0.85em; font-weight: 600; margin-left: 6px;">
-                                            <%= suggDiscount %>% OFF <%= suggIsOffer ? '(OFFER)' : '' %>
-                                          </span>
-                                      <% } else { %>
-                                          <span class="product-price">₹<%= defaultVariant.regularPrice %></span>
-                                      <% } %>
-                                    </div>
-                                  </div>
-                                  <div class="product-rating">
-                                    <span class="stars">★★★★★</span>
-                                    <span class="reviews">(42)</span>
-                                  </div>
-                                </div>
-                              </a>
-                              <% }) %>
-                          </div>
-                        </div>
-                        <% } %>
           </main>
         </div>
       </div>
@@ -339,32 +280,12 @@
             applyFilters();
           }
 
-          async function fetchAndUpdate(urlStr) {
-            try {
-              const res = await fetch(urlStr);
-              const text = await res.text();
-
-              // Parse the new HTML
-              const parser = new DOMParser();
-              const doc = parser.parseFromString(text, 'text/html');
-
-              // Extract the new main section
-              const newMain = doc.querySelector('.shop-main');
-
-              // Replace current main section
-              if (newMain) {
-                document.querySelector('.shop-main').innerHTML = newMain.innerHTML;
-              }
-
-              // Update the browser URL without reloading
-              window.history.pushState({}, '', urlStr);
-            } catch (err) {
-              console.error('Error fetching filtered products:', err);
-            }
+          function fetchAndUpdate(urlStr) {
+            window.location.href = urlStr;
           }
 
           function applyFilters() {
-            const search = document.getElementById('searchInput').value;
+            const search = document.getElementById('searchInput').value.trim();
             const sort = document.getElementById('sortSelect').value;
             const maxPrice = document.getElementById('priceRange').value;
 
@@ -375,7 +296,8 @@
 
             if (search) params.append('search', search);
             if (sort) params.append('sort', sort);
-            if (maxPrice < 5000) params.append('maxPrice', maxPrice);
+            // Explicit parseInt so the comparison is always numeric — never rely on implicit coercion
+            if (parseInt(maxPrice, 10) < 5000) params.append('maxPrice', maxPrice);
 
             categories.forEach(c => params.append('category', c));
             skinTypes.forEach(s => params.append('skinType', s));
@@ -384,9 +306,29 @@
           }
 
           function changePage(page) {
-            const url = new URL(window.location.href);
-            url.searchParams.set('page', page);
-            fetchAndUpdate(url.toString());
+            // Always read active filter state from live DOM controls — never trust
+            // window.location which may be stale if pushState and DOM are out of sync
+            const search = document.getElementById('searchInput').value.trim();
+            const sort = document.getElementById('sortSelect').value;
+            const maxPrice = document.getElementById('priceRange').value;
+
+            const categories = Array.from(
+              document.querySelectorAll('input[name="category"]:checked')
+            ).map(cb => cb.value);
+
+            const skinTypes = Array.from(
+              document.querySelectorAll('input[name="skinType"]:checked')
+            ).map(cb => cb.value);
+
+            const params = new URLSearchParams();
+            if (search) params.append('search', search);
+            if (sort) params.append('sort', sort);
+            if (parseInt(maxPrice, 10) < 5000) params.append('maxPrice', maxPrice);
+            categories.forEach(c => params.append('category', c));
+            skinTypes.forEach(s => params.append('skinType', s));
+            params.set('page', page);
+
+            fetchAndUpdate(`/shop?${params.toString()}`);
           }
 
           function toggleSortDropdown(e) {
@@ -397,10 +339,10 @@
           function selectSort(value) {
             document.getElementById('sortSelect').value = value;
 
-            // Update the UI text manually before fetching
+            // Update the UI text — trim to remove any whitespace from EJS indentation
             const selectedOption = document.querySelector(`div[onclick="selectSort('${value}')"]`);
             if (selectedOption) {
-              document.getElementById('selectedSortText').innerText = selectedOption.innerText;
+              document.getElementById('selectedSortText').innerText = selectedOption.innerText.trim();
 
               // Update active class
               document.querySelectorAll('.dropdown-option').forEach(el => el.classList.remove('active'));
@@ -418,60 +360,60 @@
             }
           });
         </script>
-      <script>
-        async function toggleWishlist(event, productId) {
+        <script>
+          async function toggleWishlist(event, productId) {
             event.preventDefault(); // Prevent navigating to product page
             event.stopPropagation();
 
             try {
-                const response = await fetch('/wishlist/toggle', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ productId })
+              const response = await fetch('/wishlist/toggle', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ productId })
+              });
+
+              if (response.status === 401) {
+                // Not logged in
+                window.location.href = '/login';
+                return;
+              }
+
+              const data = await response.json();
+              if (data.success) {
+                // Update all buttons for this product
+                const buttons = document.querySelectorAll(`.wishlist-toggle-btn[data-product-id="${productId}"]`);
+                buttons.forEach(btn => {
+                  if (data.inWishlist) {
+                    btn.classList.add('active');
+                  } else {
+                    btn.classList.remove('active');
+                  }
                 });
 
-                if (response.status === 401) {
-                    // Not logged in
-                    window.location.href = '/login';
-                    return;
+                if (window.showToast) {
+                  window.showToast(data.message);
                 }
 
-                const data = await response.json();
-                if (data.success) {
-                    // Update all buttons for this product
-                    const buttons = document.querySelectorAll(`.wishlist-toggle-btn[data-product-id="${productId}"]`);
-                    buttons.forEach(btn => {
-                        if (data.inWishlist) {
-                            btn.classList.add('active');
-                        } else {
-                            btn.classList.remove('active');
-                        }
-                    });
-                    
-                    if (window.showToast) {
-                        window.showToast(data.message);
-                    }
-
-                    // Update navbar badge
-                    const badge = document.querySelector('.wishlist-badge');
-                    if (badge) {
-                        let currentCount = parseInt(badge.textContent) || 0;
-                        if (data.inWishlist) {
-                            currentCount += 1;
-                        } else {
-                            currentCount = Math.max(0, currentCount - 1);
-                        }
-                        badge.textContent = currentCount;
-                        badge.style.display = currentCount > 0 ? 'flex' : 'none';
-                    }
-                } else {
-                    console.error('Failed to toggle wishlist:', data.message);
+                // Update navbar badge
+                const badge = document.querySelector('.wishlist-badge');
+                if (badge) {
+                  let currentCount = parseInt(badge.textContent) || 0;
+                  if (data.inWishlist) {
+                    currentCount += 1;
+                  } else {
+                    currentCount = Math.max(0, currentCount - 1);
+                  }
+                  badge.textContent = currentCount;
+                  badge.style.display = currentCount > 0 ? 'flex' : 'none';
                 }
+              } else {
+                console.error('Failed to toggle wishlist:', data.message);
+              }
             } catch (error) {
-                console.error('Error toggling wishlist:', error);
+              console.error('Error toggling wishlist:', error);
             }
-        }
-      </script>
+          }
+        </script>
 </body>
 
 </html>

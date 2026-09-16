@@ -276,8 +276,17 @@
                   </div>
 
                   <div class="danger-actions">
-                    <% if (order.orderStatus === 'RETURN_REQUESTED' && order.paymentInfo.status !== 'REFUNDED') { %>
-                      <button class="btn-refund" onclick="processRefund('<%= order._id %>')">Refund</button>
+                    <% if (order.orderStatus === 'RETURN_REQUESTED') { %>
+                      <a href="/admin/orders/returns" style="display:flex;align-items:center;gap:7px;padding:10px 14px;background:#FFF8EE;border:1px solid #F6D599;border-radius:8px;color:#8a5a00;font-size:13px;font-weight:500;text-decoration:none;transition:background 0.2s;" onmouseover="this.style.background='#FFF0D0'" onmouseout="this.style.background='#FFF8EE'">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 14 4 9l5-5"/><path d="M4 9h10.5a5.5 5.5 0 0 1 5.5 5.5a5.5 5.5 0 0 1-5.5 5.5H11"/></svg>
+                        Manage in Return Requests
+                      </a>
+                    <% } %>
+                    <% if (order.orderStatus === 'RETURNED' && order.paymentInfo.status === 'REFUNDED') { %>
+                      <div style="display:flex;align-items:center;gap:7px;padding:10px 14px;background:#EAF2EA;border:1px solid #c3dfc3;border-radius:8px;color:#2d5a2d;font-size:13px;font-weight:500;">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+                        Refund already processed
+                      </div>
                     <% } %>
                     <% if (!['DELIVERED', 'CANCELLED', 'RETURN_REQUESTED', 'RETURNED'].includes(order.orderStatus)) { %>
                       <button class="btn-cancel" onclick="selectStatus('CANCELLED')">Cancel Order</button>
@@ -303,9 +312,9 @@
                     </div>
 
                     <div
-                      class="timeline-item <%= ['PROCESSING', 'SHIPPED', 'OUT FOR DELIVERY', 'DELIVERED'].includes(order.orderStatus) ? 'completed' : 'pending' %>">
+                      class="timeline-item <%= ['PROCESSING', 'SHIPPED', 'OUT FOR DELIVERY', 'DELIVERED', 'RETURN_REQUESTED', 'RETURNED'].includes(order.orderStatus) ? 'completed' : 'pending' %>">
                       <div class="indicator">
-                        <% if (['PROCESSING', 'SHIPPED', 'OUT FOR DELIVERY', 'DELIVERED'].includes(order.orderStatus)) { %>
+                        <% if (['PROCESSING', 'SHIPPED', 'OUT FOR DELIVERY', 'DELIVERED', 'RETURN_REQUESTED', 'RETURNED'].includes(order.orderStatus)) { %>
                           <img src="/images/icons/admin/check-circle.svg" alt="Check">
                           <% } else { %>
                             <div class="circle"></div>
@@ -314,16 +323,16 @@
                       <div class="content">
                         <h4>Processing</h4>
                         <span class="time">
-                          <%= ['PROCESSING', 'SHIPPED', 'OUT FOR DELIVERY', 'DELIVERED'].includes(order.orderStatus)
+                          <%= ['PROCESSING', 'SHIPPED', 'OUT FOR DELIVERY', 'DELIVERED', 'RETURN_REQUESTED', 'RETURNED'].includes(order.orderStatus)
                             ? 'Picking & Packing in progress' : 'Pending' %>
                         </span>
                       </div>
                     </div>
 
                     <div
-                      class="timeline-item <%= ['SHIPPED', 'OUT FOR DELIVERY', 'DELIVERED'].includes(order.orderStatus) ? 'completed' : 'pending' %>">
+                      class="timeline-item <%= ['SHIPPED', 'OUT FOR DELIVERY', 'DELIVERED', 'RETURN_REQUESTED', 'RETURNED'].includes(order.orderStatus) ? 'completed' : 'pending' %>">
                       <div class="indicator">
-                        <% if (['SHIPPED', 'OUT FOR DELIVERY', 'DELIVERED'].includes(order.orderStatus)) { %>
+                        <% if (['SHIPPED', 'OUT FOR DELIVERY', 'DELIVERED', 'RETURN_REQUESTED', 'RETURNED'].includes(order.orderStatus)) { %>
                           <img src="/images/icons/admin/check-circle.svg" alt="Check">
                           <% } else { %>
                             <div class="circle"></div>
@@ -332,15 +341,15 @@
                       <div class="content">
                         <h4>Shipped</h4>
                         <span class="time">
-                          <%= ['SHIPPED', 'OUT FOR DELIVERY', 'DELIVERED'].includes(order.orderStatus) ? 'In transit' : 'Expected soon' %>
+                          <%= ['SHIPPED', 'OUT FOR DELIVERY', 'DELIVERED', 'RETURN_REQUESTED', 'RETURNED'].includes(order.orderStatus) ? 'In transit' : 'Expected soon' %>
                         </span>
                       </div>
                     </div>
 
                     <div
-                      class="timeline-item <%= ['OUT FOR DELIVERY', 'DELIVERED'].includes(order.orderStatus) ? 'completed' : 'pending' %>">
+                      class="timeline-item <%= ['OUT FOR DELIVERY', 'DELIVERED', 'RETURN_REQUESTED', 'RETURNED'].includes(order.orderStatus) ? 'completed' : 'pending' %>">
                       <div class="indicator">
-                        <% if (['OUT FOR DELIVERY', 'DELIVERED'].includes(order.orderStatus)) { %>
+                        <% if (['OUT FOR DELIVERY', 'DELIVERED', 'RETURN_REQUESTED', 'RETURNED'].includes(order.orderStatus)) { %>
                           <img src="/images/icons/admin/check-circle.svg" alt="Check">
                         <% } else { %>
                           <div class="circle"></div>
@@ -349,14 +358,14 @@
                       <div class="content">
                         <h4>Out for Delivery</h4>
                         <span class="time">
-                          <%= ['OUT FOR DELIVERY', 'DELIVERED'].includes(order.orderStatus) ? 'Out for delivery' : 'Pending' %>
+                          <%= ['OUT FOR DELIVERY', 'DELIVERED', 'RETURN_REQUESTED', 'RETURNED'].includes(order.orderStatus) ? 'Out for delivery' : 'Pending' %>
                         </span>
                       </div>
                     </div>
 
-                    <div class="timeline-item <%= order.orderStatus === 'DELIVERED' ? 'completed' : 'pending' %>">
+                    <div class="timeline-item <%= ['DELIVERED', 'RETURN_REQUESTED', 'RETURNED'].includes(order.orderStatus) ? 'completed' : 'pending' %>">
                       <div class="indicator">
-                        <% if (order.orderStatus==='DELIVERED' ) { %>
+                        <% if (['DELIVERED', 'RETURN_REQUESTED', 'RETURNED'].includes(order.orderStatus)) { %>
                           <img src="/images/icons/admin/check-circle.svg" alt="Check">
                           <% } else { %>
                             <div class="circle"></div>
@@ -365,10 +374,40 @@
                       <div class="content">
                         <h4>Delivered</h4>
                         <span class="time">
-                          <%= order.orderStatus==='DELIVERED' ? 'Delivered successfully' : 'Pending delivery' %>
+                          <%= ['DELIVERED', 'RETURN_REQUESTED', 'RETURNED'].includes(order.orderStatus) 
+                            ? (order.deliveredAt ? order.deliveredAt.toLocaleString('en-US', { month: 'short', day: 'numeric', year: 'numeric', hour: '2-digit', minute: '2-digit' }) : 'Delivered successfully') 
+                            : 'Pending delivery' %>
                         </span>
                       </div>
                     </div>
+
+                    <% if (['RETURN_REQUESTED', 'RETURNED'].includes(order.orderStatus)) { %>
+                    <div class="timeline-item <%= order.orderStatus === 'RETURNED' ? 'completed' : 'active' %>" <%= order.orderStatus === 'RETURN_REQUESTED' ? 'style="border-left-color: #F6D599;"' : '' %>>
+                      <div class="indicator">
+                        <% if (order.orderStatus === 'RETURNED') { %>
+                          <img src="/images/icons/admin/check-circle.svg" alt="Check">
+                        <% } else { %>
+                          <div class="circle" style="background-color: #F6A623; border-color: #F6D599;"></div>
+                        <% } %>
+                      </div>
+                      <div class="content">
+                        <h4 <%= order.orderStatus === 'RETURN_REQUESTED' ? 'style="color: #8a5a00;"' : '' %>>Return Requested</h4>
+                        <span class="time">Return submitted by customer</span>
+                      </div>
+                    </div>
+                    <% } %>
+
+                    <% if (order.orderStatus === 'RETURNED') { %>
+                    <div class="timeline-item completed">
+                      <div class="indicator">
+                        <img src="/images/icons/admin/check-circle.svg" alt="Check">
+                      </div>
+                      <div class="content">
+                        <h4>Returned</h4>
+                        <span class="time">Return approved & refunded</span>
+                      </div>
+                    </div>
+                    <% } %>
                   </div>
                 </div>
 
@@ -533,52 +572,7 @@
       }
     }
 
-    function processRefund(orderId) {
-      showCustomModal({
-        title: 'Process Refund?',
-        message: 'Are you sure you want to process the refund? This will credit the user\'s wallet.',
-        iconType: 'warning',
-        confirmText: 'Yes, Refund',
-        showCancel: true,
-        onConfirm: async () => {
-          try {
-            const response = await fetch(`/admin/orders/${orderId}/refund`, {
-              method: 'POST',
-              headers: {
-                'Content-Type': 'application/json'
-              }
-            });
-
-            const data = await response.json();
-
-            if (data.success) {
-              showCustomModal({
-                title: 'Refund Processed',
-                message: data.message,
-                iconType: 'success',
-                confirmText: 'Awesome',
-                onConfirm: () => window.location.reload()
-              });
-            } else {
-              showCustomModal({
-                title: 'Refund Failed',
-                message: data.message || 'Error processing refund.',
-                iconType: 'error',
-                confirmText: 'OK'
-              });
-            }
-          } catch (error) {
-            console.error('Error:', error);
-            showCustomModal({
-              title: 'Refund Failed',
-              message: 'An unexpected error occurred.',
-              iconType: 'error',
-              confirmText: 'OK'
-            });
-          }
-        }
-      });
-    }
+    // Refund is now handled exclusively from the Return Requests page (/admin/orders/returns)
   </script>
 </body>
 

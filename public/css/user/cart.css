@@ -36,9 +36,19 @@
     padding-bottom: 10px;
 }
 
-.header-product { flex: 2; }
-.header-quantity { flex: 1; text-align: center; }
-.header-total { flex: 1; text-align: right; }
+.header-product {
+    flex: 2;
+}
+
+.header-quantity {
+    flex: 1;
+    text-align: center;
+}
+
+.header-total {
+    flex: 1;
+    text-align: right;
+}
 
 .cart-item {
     display: flex;
@@ -46,7 +56,8 @@
     padding: 30px 0;
     border-top: 1px solid #eee;
     border-bottom: 1px solid #eee;
-    margin-top: -1px; /* collapse borders */
+    margin-top: -1px;
+    /* collapse borders */
 }
 
 .item-product-info {
@@ -197,7 +208,8 @@
 }
 
 .promo-input-container {
-    display: none; /* hidden by default */
+    display: none;
+    /* hidden by default */
     margin-top: 15px;
     display: flex;
     gap: 10px;
@@ -357,12 +369,63 @@
     .cart-main-content {
         flex-direction: column;
     }
+
     .cts-grid {
         grid-template-columns: repeat(2, 1fr);
     }
+
     .cts-header {
         flex-direction: column;
         align-items: flex-start;
         gap: 20px;
     }
 }
+
+
+
+.cart-item--unavailable {
+    background: #fafafa;
+    border-color: #f0ede8;
+}
+
+/* Only the product image gets greyed — name, badge, and remove button stay readable */
+.cart-item--unavailable .item-image-container img {
+    filter: grayscale(1);
+    opacity: 0.55;
+    transition: filter 0.2s, opacity 0.2s;
+}
+
+/* Quantity column is hidden but keeps its space so layout doesn't shift */
+.unavailable-controls {
+    visibility: hidden;
+    pointer-events: none;
+}
+
+/* Warm amber "Temporarily Unavailable" badge */
+.unavailable-badge {
+    display: inline-block;
+    background: #fdf3e3;
+    color: #8a6a2a;
+    border: 1px solid #e8c97a;
+    border-radius: 3px;
+    font-size: 9px;
+    font-weight: 700;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    padding: 3px 10px;
+    margin-top: 10px;
+}
+
+/* Amber notice banner above the checkout note */
+.unavailable-checkout-notice {
+    color: #7a5c1e;
+    font-size: 11px;
+    margin-top: -10px;
+    margin-bottom: 15px;
+    text-align: center;
+    background: #fdf8ee;
+    border: 1px solid #e8d5a0;
+    padding: 9px 14px;
+    border-radius: 2px;
+    line-height: 1.5;
+}

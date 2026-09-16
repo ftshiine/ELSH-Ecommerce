@@ -22,6 +22,41 @@ export const getDashboardMetrics = async () => {
     // Pending Orders
     const pendingOrders = await Order.countDocuments({ orderStatus: 'PENDING' });
 
+    // Performance & Deductions Metrics
+    const allOrders = await Order.find();
+    const totalAllOrders = allOrders.length;
+    let totalCancellations = 0;
+    let totalReturns = 0;
+    let totalDiscounts = 0;
+    let grossRevenue = 0;
+
+    allOrders.forEach(order => {
+        if (order.orderStatus === 'CANCELLED') {
+            totalCancellations++;
+        } else if (order.orderStatus === 'RETURNED') {
+            totalReturns++;
+        } else {
+            // Count partial cancellations/returns
+            if (order.items.some(item => item.itemStatus === 'CANCELLED')) totalCancellations++;
+            if (order.items.some(item => item.itemStatus === 'RETURNED')) totalReturns++;
+            
+            totalDiscounts += order.pricing.discount || 0;
+            grossRevenue += (order.pricing.totalAmount + (order.pricing.discount || 0));
+        }
+    });
+    
+    let deductionRate = 0;
+    if (grossRevenue > 0) {
+        deductionRate = ((totalDiscounts / grossRevenue) * 100).toFixed(1);
+    }
+    
+    let cancellationRate = 0;
+    let returnRate = 0;
+    if (totalAllOrders > 0) {
+        cancellationRate = ((totalCancellations / totalAllOrders) * 100).toFixed(1);
+        returnRate = ((totalReturns / totalAllOrders) * 100).toFixed(1);
+    }
+
     // Monthly Sales
     const currentMonth = new Date().getMonth();
     const currentYear = new Date().getFullYear();
@@ -116,7 +151,13 @@ export const getDashboardMetrics = async () => {
         topProducts,
         topCategories,
         topBrands,
-        lowStockItems
+        lowStockItems,
+        totalCancellations,
+        cancellationRate,
+        totalReturns,
+        returnRate,
+        totalDiscounts,
+        deductionRate
     };
 };
 

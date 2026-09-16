@@ -237,17 +237,17 @@ const loadUserCoupons = async (req, res) => {
         const activeCoupons = await Coupon.find({
             isActive: true,
             startDate: { $lte: now },
-            $or: [
-                { endDate: null },
-                { endDate: { $gt: now } }
+            $and: [
+                { $or: [{ endDate: null }, { endDate: { $gt: now } }] },
+                { $or: [{ targetUserId: null }, { targetUserId: userId }] }
             ]
         }).sort({ createdAt: -1 });
 
         // 2. Fetch expired/inactive coupons
         const expiredCoupons = await Coupon.find({
-            $or: [
-                { isActive: false },
-                { endDate: { $lte: now } }
+            $and: [
+                { $or: [{ isActive: false }, { endDate: { $lte: now } }] },
+                { $or: [{ targetUserId: null }, { targetUserId: userId }] }
             ]
         }).sort({ endDate: -1 });
 
