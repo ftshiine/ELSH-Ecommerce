@@ -409,3 +409,20 @@ body {
     position: static;
   }
 }
+
+@media (max-width: 768px) {
+  .checkout-wrapper {
+    margin: 20px auto;
+  }
+  
+  .checkout-header {
+    flex-direction: column;
+    gap: 16px;
+    padding: 20px;
+  }
+  
+  .section-header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+}

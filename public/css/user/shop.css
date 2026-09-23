@@ -449,6 +449,10 @@ body {
 }
 
 @media (max-width: 768px) {
+  .shop-container {
+    padding: 20px;
+  }
+  
   .shop-layout {
     flex-direction: column;
   }
@@ -461,6 +465,12 @@ body {
     flex-direction: column;
     align-items: flex-start;
     gap: 20px;
+  }
+}
+
+@media (max-width: 480px) {
+  .product-grid {
+    grid-template-columns: 1fr;
   }
 }
 

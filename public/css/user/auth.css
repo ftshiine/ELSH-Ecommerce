@@ -327,3 +327,18 @@
 .forgot-link:hover {
   opacity: 0.7;
 } 
+
+/* ── RESPONSIVE ── */
+@media (max-width: 768px) {
+  .auth-wrapper, .login-wrapper {
+    padding: 30px 15px;
+  }
+  
+  .auth-card, .login-card {
+    padding: 30px 20px;
+  }
+  
+  .form-row {
+    grid-template-columns: 1fr;
+  }
+}

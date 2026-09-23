@@ -44,6 +44,52 @@
     .slider:before { position: absolute; content: ""; height: 18px; width: 18px; left: 3px; bottom: 3px; background-color: white; transition: .4s; border-radius: 50%; }
     input:checked + .slider { background-color: #556B55; }
     input:checked + .slider:before { transform: translateX(20px); }
+
+    .filter-overlay {
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(0,0,0,0.4);
+      z-index: 999;
+      opacity: 0;
+      visibility: hidden;
+      transition: all 0.3s ease;
+    }
+    .filter-overlay.active {
+      opacity: 1;
+      visibility: visible;
+    }
+    /* ── RESPONSIVE ── */
+    @media (max-width: 992px) {
+      .stats-container, .stats-grid { grid-template-columns: 1fr 1fr !important; }
+    }
+    @media (max-width: 768px) {
+      .content-header { flex-direction: column; gap: 16px; }
+      .header-actions { width: 100%; display: flex; flex-direction: column; }
+      .header-actions .btn-primary { justify-content: center; width: 100%; }
+      .stats-container, .stats-grid { grid-template-columns: 1fr !important; }
+      .card-header { flex-direction: column; align-items: flex-start !important; gap: 16px; }
+      .pagination { flex-direction: column; gap: 16px; align-items: center !important; }
+      
+      .btn-mobile-filter { display: flex !important; }
+      #headerFiltersSidebar {
+        position: fixed;
+        top: 0;
+        right: 0;
+        transform: translateX(100%);
+        width: 280px;
+        height: 100vh;
+        background: white;
+        z-index: 1000;
+        padding: 40px 20px;
+        flex-direction: column;
+        box-shadow: -4px 0 24px rgba(0,0,0,0.1);
+        transition: transform 0.3s ease;
+      }
+      #headerFiltersSidebar.active {
+        transform: translateX(0);
+      }
+      #headerFiltersSidebar select { width: 100%; }
+    }
   </style>
 </head>
 <body>
@@ -116,16 +162,22 @@
   <div class="content-card" style="background: white; border-radius: 12px; border: 1px solid #eaeaea;">
     <div class="card-header" style="padding: 24px; border-bottom: 1px solid #eaeaea; display: flex; justify-content: space-between; align-items: center;">
       <h2 style="font-size: 20px; font-weight: 500; color: #333; margin: 0;">Active Campaigns</h2>
-      <div class="header-filters" style="display: flex; gap: 12px;">
-        <select class="form-select" style="padding: 8px 16px; border-radius: 20px; border: 1px solid #ddd; outline: none;">
-          <option>All Status</option>
-          <option>Active</option>
-          <option>Inactive</option>
-        </select>
-        <select class="form-select" style="padding: 8px 16px; border-radius: 20px; border: 1px solid #ddd; outline: none;">
-          <option>Recent First</option>
-          <option>Oldest First</option>
-        </select>
+      <div class="mobile-filter-container" style="display: flex; gap: 12px; width: 100%;">
+        <button class="btn-mobile-filter" id="btnMobileFilter" style="display: none; padding: 8px 16px; border-radius: 20px; border: 1px solid #ddd; background: white; font-weight: 500; font-size: 13px; align-items: center; justify-content: center; gap: 8px; width: 100%;">
+          <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"></polygon></svg>
+          Filters
+        </button>
+        <div class="header-filters" id="headerFiltersSidebar" style="display: flex; gap: 12px;">
+          <select class="form-select" style="padding: 8px 16px; border-radius: 20px; border: 1px solid #ddd; outline: none;">
+            <option>All Status</option>
+            <option>Active</option>
+            <option>Inactive</option>
+          </select>
+          <select class="form-select" style="padding: 8px 16px; border-radius: 20px; border: 1px solid #ddd; outline: none;">
+            <option>Recent First</option>
+            <option>Oldest First</option>
+          </select>
+        </div>
       </div>
     </div>
 
@@ -245,6 +297,7 @@
   </div>
 </div>
 
+<div class="filter-overlay" id="filterOverlay"></div>
 <!-- Custom Modal -->
 <div class="modal-overlay" id="customModal">
   <div class="modal-box">
@@ -339,6 +392,62 @@
       }
     };
   }
+
+  // Mobile Filter Sidebar Logic
+  const btnMobileFilter = document.getElementById('btnMobileFilter');
+  const headerFiltersSidebar = document.getElementById('headerFiltersSidebar');
+  const filterOverlay = document.getElementById('filterOverlay');
+  let startX = 0;
+  let currentX = 0;
+
+  function openSidebar() {
+    headerFiltersSidebar.classList.add('active');
+    filterOverlay.classList.add('active');
+    document.body.style.overflow = 'hidden'; // Prevent background scrolling
+  }
+
+  function closeSidebar() {
+    headerFiltersSidebar.classList.remove('active');
+    filterOverlay.classList.remove('active');
+    document.body.style.overflow = '';
+  }
+
+  if (btnMobileFilter) {
+    btnMobileFilter.addEventListener('click', openSidebar);
+  }
+
+  if (filterOverlay) {
+    filterOverlay.addEventListener('click', closeSidebar);
+  }
+
+  // Swipe Gestures
+  document.addEventListener('touchstart', (e) => {
+    startX = e.touches[0].clientX;
+  }, { passive: true });
+
+  document.addEventListener('touchmove', (e) => {
+    currentX = e.touches[0].clientX;
+  }, { passive: true });
+
+  document.addEventListener('touchend', (e) => {
+    if (!startX || !currentX) return;
+    const diffX = startX - currentX;
+
+    // Swipe Left (Open Sidebar) - Threshold 50px
+    if (diffX > 50 && !headerFiltersSidebar.classList.contains('active') && startX > window.innerWidth - 100) {
+      // Only open if swipe starts near the right edge to avoid accidental opens
+      openSidebar();
+    }
+
+    // Swipe Right (Close Sidebar) - Threshold 50px
+    if (diffX < -50 && headerFiltersSidebar.classList.contains('active')) {
+      closeSidebar();
+    }
+
+    startX = 0;
+    currentX = 0;
+  });
+
 </script>
 
         </div>

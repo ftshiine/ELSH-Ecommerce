@@ -247,3 +247,18 @@ img#imagePreview[src] {
 .image-upload-area:hover .upload-overlay {
   opacity: 1;
 }
+
+/* ── RESPONSIVE ── */
+@media (max-width: 992px) {
+  .form-layout {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 768px) {
+  .page-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+  }
+}

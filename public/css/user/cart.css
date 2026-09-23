@@ -369,6 +369,30 @@
     .cart-main-content {
         flex-direction: column;
     }
+    
+    .cart-table-header {
+        display: none;
+    }
+    
+    .cart-item {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 16px;
+    }
+    
+    .item-product-info {
+        width: 100%;
+    }
+    
+    .item-quantity-control {
+        width: 100%;
+        justify-content: flex-start;
+    }
+    
+    .item-total-price {
+        width: 100%;
+        justify-content: space-between;
+    }
 
     .cts-grid {
         grid-template-columns: repeat(2, 1fr);
