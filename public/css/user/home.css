@@ -248,3 +248,37 @@ body {
 .set-link:hover {
   opacity: 0.6;
 }
+
+/* ── RESPONSIVE ── */
+@media (max-width: 768px) {
+  .hero-banner {
+    min-height: 70vh;
+  }
+
+  .hero-banner-content h1 {
+    font-size: 36px;
+  }
+
+  .curated {
+    padding: 60px 20px;
+  }
+
+  .curated-header h2 {
+    font-size: 28px;
+  }
+
+  .curated-grid {
+    grid-template-columns: 1fr;
+    gap: 32px;
+  }
+
+  .concern-image {
+    height: 240px;
+  }
+
+  .featured-sets {
+    grid-template-columns: 1fr;
+    padding: 0 20px 60px;
+    gap: 40px;
+  }
+}

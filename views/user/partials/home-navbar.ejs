@@ -77,6 +77,14 @@
                   <span class="nav-badge cart-badge" style="display: none;">0</span>
                   <% } %>
             </a>
+            
+            <button class="nav-icon-btn hamburger-btn" id="hamburgerBtn" aria-label="Menu">
+              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color: #2c2c2c;">
+                <line x1="3" y1="12" x2="21" y2="12"></line>
+                <line x1="3" y1="6" x2="21" y2="6"></line>
+                <line x1="3" y1="18" x2="21" y2="18"></line>
+              </svg>
+            </button>
           </div>
         </div>
       </nav>
@@ -84,14 +92,26 @@
       <script>
         const userDropdownBtn = document.getElementById('userDropdownBtn');
         const userDropdown = document.getElementById('userDropdown');
+        const hamburgerBtn = document.getElementById('hamburgerBtn');
+        const homeNavbarLinks = document.querySelector('.home-navbar-links');
 
         userDropdownBtn.addEventListener('click', (e) => {
           e.stopPropagation();
           userDropdown.classList.toggle('active');
         });
 
+        if (hamburgerBtn) {
+          hamburgerBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            homeNavbarLinks.classList.toggle('active');
+          });
+        }
+
         document.addEventListener('click', () => {
           userDropdown.classList.remove('active');
+          if (homeNavbarLinks && homeNavbarLinks.classList.contains('active')) {
+            homeNavbarLinks.classList.remove('active');
+          }
         });
 
         // Bfcache (Back/Forward Cache) Busting

@@ -97,3 +97,29 @@
 .navbar-signup:hover {
   background-color: #3a4230;
 }
+
+/* ── RESPONSIVE ── */
+@media (max-width: 768px) {
+  .navbar-container {
+    padding: 0 20px;
+    display: flex;
+    justify-content: space-between;
+  }
+  
+  .navbar-logo {
+    font-size: 18px;
+  }
+  
+  .navbar-actions {
+    gap: 12px;
+  }
+  
+  .navbar-login {
+    font-size: 10px;
+  }
+  
+  .navbar-signup {
+    padding: 10px 16px;
+    font-size: 10px;
+  }
+}

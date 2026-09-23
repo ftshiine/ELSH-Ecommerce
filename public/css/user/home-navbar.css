@@ -165,3 +165,64 @@
 .dropdown-logout img {
   filter: invert(27%) sepia(51%) saturate(2878%) hue-rotate(346deg) brightness(104%) contrast(97%);
 }
+
+.hamburger-btn {
+  display: none;
+}
+
+/* ── RESPONSIVE ── */
+@media (max-width: 768px) {
+  .home-navbar-container {
+    padding: 0 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .home-navbar-logo {
+    font-size: 24px;
+    justify-self: auto;
+  }
+
+  .home-navbar-actions {
+    justify-self: auto;
+    gap: 12px;
+  }
+
+  .hamburger-btn {
+    display: flex;
+  }
+
+  .home-navbar-links {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    width: 100%;
+    background-color: #ffffff;
+    flex-direction: column;
+    gap: 0;
+    box-shadow: 0 8px 16px rgba(0,0,0,0.05);
+    padding: 0;
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.3s ease-out;
+  }
+
+  .home-navbar-links.active {
+    max-height: 300px;
+  }
+
+  .home-navbar-links li {
+    border-bottom: 1px solid #f0f0e8;
+  }
+
+  .home-navbar-links li:last-child {
+    border-bottom: none;
+  }
+
+  .home-navbar-links a {
+    display: block;
+    padding: 16px 20px;
+    font-size: 13px;
+  }
+}

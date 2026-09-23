@@ -431,3 +431,41 @@
 .dropdown-option.active {
   background-color: #ead6c3;
 }
+
+/* ── RESPONSIVE ── */
+@media (max-width: 992px) {
+  .summary-cards {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 768px) {
+  .report-header {
+    flex-direction: column;
+    gap: 16px;
+  }
+  
+  .report-header-right {
+    width: 100%;
+    flex-direction: column;
+    align-items: stretch;
+  }
+  
+  .date-filter-group {
+    justify-content: space-between;
+  }
+  
+  .summary-cards {
+    grid-template-columns: 1fr;
+  }
+  
+  .transactions-section {
+    overflow-x: auto;
+    white-space: nowrap;
+  }
+  
+  .pagination-controls {
+    flex-direction: column;
+    gap: 16px;
+  }
+}

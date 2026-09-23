@@ -211,3 +211,35 @@ td {
   color: white;
   border-color: #556b44;
 }
+
+/* ── RESPONSIVE ── */
+@media (max-width: 768px) {
+  .page-header {
+    flex-direction: column;
+    gap: 16px;
+  }
+  
+  .controls-bar {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 16px;
+  }
+  
+  .search-input {
+    width: 100%;
+  }
+
+  .search-filter form {
+    width: 100%;
+  }
+  
+  .table-container {
+    overflow-x: auto;
+    white-space: nowrap;
+  }
+  
+  .pagination {
+    flex-direction: column;
+    gap: 16px;
+  }
+}

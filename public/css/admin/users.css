@@ -240,3 +240,15 @@
   pointer-events: none;
   opacity: 0.3;
 }
+
+/* ── RESPONSIVE ── */
+@media (max-width: 768px) {
+  .search-bar form {
+    max-width: 100%;
+  }
+
+  .users-table-card {
+    overflow-x: auto;
+    white-space: nowrap;
+  }
+}
