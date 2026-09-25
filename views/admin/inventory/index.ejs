@@ -211,7 +211,7 @@
 
               <!-- Pagination -->
               <% if (totalPages> 1) { %>
-                <div class="pagination">
+                <div class="pagination pagination-responsive">
                   <span class="showing-text">Showing <%= ((currentPage - 1) * 10) + 1 %> to <%= Math.min(currentPage *
                         10, totalItems) %> of <%= totalItems %> products</span>
                   <div class="page-controls">

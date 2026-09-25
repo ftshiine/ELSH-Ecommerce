@@ -130,17 +130,21 @@
                             <div class="form-group">
                               <label>Gender</label>
                               <% const selectedGender=locals.formData?.gender || user.gender || '' %>
-                                <div class="input-wrapper">
-                                  <select name="gender">
-                                    <option value="">Select Gender</option>
-                                    <option value="Male" <%=selectedGender==='Male' ? 'selected' : '' %>>Male</option>
-                                    <option value="Female" <%=selectedGender==='Female' ? 'selected' : '' %>>Female
-                                    </option>
-                                    <option value="Other" <%=selectedGender==='Other' ? 'selected' : '' %>>Other
-                                    </option>
-                                    <option value="Prefer not to say" <%=selectedGender==='Prefer not to say'
-                                      ? 'selected' : '' %>>Prefer not to say</option>
-                                  </select>
+                                <div class="custom-dropdown-wrapper" id="genderDropdownWrapper">
+                                  <input type="hidden" name="gender" id="genderInput" value="<%= selectedGender %>" />
+                                  <div class="custom-dropdown-trigger" onclick="toggleProfileDropdown(event, 'genderDropdownOptions')">
+                                    <span id="genderSelectedText"><%= selectedGender || 'Select Gender' %></span>
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none"
+                                      stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                      <polyline points="6 9 12 15 18 9"></polyline>
+                                    </svg>
+                                  </div>
+                                  <div class="custom-dropdown-options" id="genderDropdownOptions">
+                                    <div class="custom-dropdown-option <%= selectedGender === 'Male' ? 'active' : '' %>" onclick="selectGender('Male')">Male</div>
+                                    <div class="custom-dropdown-option <%= selectedGender === 'Female' ? 'active' : '' %>" onclick="selectGender('Female')">Female</div>
+                                    <div class="custom-dropdown-option <%= selectedGender === 'Other' ? 'active' : '' %>" onclick="selectGender('Other')">Other</div>
+                                    <div class="custom-dropdown-option <%= selectedGender === 'Prefer not to say' ? 'active' : '' %>" onclick="selectGender('Prefer not to say')">Prefer not to say</div>
+                                  </div>
                                 </div>
                             </div>
                     </div>
@@ -150,8 +154,68 @@
                         <label>Date of Birth</label>
                         <% const dobValue=locals.formData?.dateOfBirth || (user.dateOfBirth ? new
                           Date(user.dateOfBirth).toISOString().split('T')[0] : '' ) %>
-                          <div class="input-wrapper">
-                            <input type="date" name="dateOfBirth" value="<%= dobValue %>" />
+                        <% 
+                          let dobDay = '';
+                          let dobMonth = '';
+                          let dobYear = '';
+                          if (dobValue) {
+                            const parts = dobValue.split('-');
+                            dobYear = parts[0];
+                            dobMonth = parts[1];
+                            dobDay = parts[2];
+                          }
+                        %>
+                          <input type="hidden" name="dateOfBirth" id="dobHiddenInput" value="<%= dobValue %>" />
+                          <div class="dob-picker-row">
+                            <!-- Day -->
+                            <div class="custom-dropdown-wrapper dob-field" id="dobDayWrapper">
+                              <div class="custom-dropdown-trigger" onclick="toggleProfileDropdown(event, 'dobDayOptions')">
+                                <span id="dobDayText"><%= dobDay || 'Day' %></span>
+                                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none"
+                                  stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                  <polyline points="6 9 12 15 18 9"></polyline>
+                                </svg>
+                              </div>
+                              <div class="custom-dropdown-options dob-dropdown-options" id="dobDayOptions">
+                                <% for (let d = 1; d <= 31; d++) { %>
+                                  <% const dStr = String(d).padStart(2, '0'); %>
+                                  <div class="custom-dropdown-option <%= dobDay === dStr ? 'active' : '' %>" onclick="selectDob('day', '<%= dStr %>')"><%= d %></div>
+                                <% } %>
+                              </div>
+                            </div>
+                            <!-- Month -->
+                            <div class="custom-dropdown-wrapper dob-field" id="dobMonthWrapper">
+                              <div class="custom-dropdown-trigger" onclick="toggleProfileDropdown(event, 'dobMonthOptions')">
+                                <span id="dobMonthText"><%= dobMonth ? ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'][parseInt(dobMonth)-1] : 'Month' %></span>
+                                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none"
+                                  stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                  <polyline points="6 9 12 15 18 9"></polyline>
+                                </svg>
+                              </div>
+                              <div class="custom-dropdown-options dob-dropdown-options" id="dobMonthOptions">
+                                <% const monthNames = ['January','February','March','April','May','June','July','August','September','October','November','December']; %>
+                                <% for (let m = 1; m <= 12; m++) { %>
+                                  <% const mStr = String(m).padStart(2, '0'); %>
+                                  <div class="custom-dropdown-option <%= dobMonth === mStr ? 'active' : '' %>" onclick="selectDob('month', '<%= mStr %>')"><%= monthNames[m-1] %></div>
+                                <% } %>
+                              </div>
+                            </div>
+                            <!-- Year -->
+                            <div class="custom-dropdown-wrapper dob-field" id="dobYearWrapper">
+                              <div class="custom-dropdown-trigger" onclick="toggleProfileDropdown(event, 'dobYearOptions')">
+                                <span id="dobYearText"><%= dobYear || 'Year' %></span>
+                                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none"
+                                  stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                  <polyline points="6 9 12 15 18 9"></polyline>
+                                </svg>
+                              </div>
+                              <div class="custom-dropdown-options dob-dropdown-options" id="dobYearOptions">
+                                <% const currentYear = new Date().getFullYear(); %>
+                                <% for (let y = currentYear; y >= currentYear - 100; y--) { %>
+                                  <div class="custom-dropdown-option <%= dobYear === String(y) ? 'active' : '' %>" onclick="selectDob('year', '<%= y %>')"><%= y %></div>
+                                <% } %>
+                              </div>
+                            </div>
                           </div>
                       </div>
                     </div>
@@ -169,6 +233,95 @@
     </div>
 
     <%- include('../partials/footer') %>
+
+      <script>
+        // ── Custom Dropdown Logic ──
+        function toggleProfileDropdown(e, optionsId) {
+          e.stopPropagation();
+          // Close all other open dropdowns first
+          document.querySelectorAll('.custom-dropdown-options').forEach(opt => {
+            if (opt.id !== optionsId) opt.classList.remove('show');
+          });
+          const options = document.getElementById(optionsId);
+          options.classList.toggle('show');
+
+          // Scroll active item into view
+          const activeItem = options.querySelector('.custom-dropdown-option.active');
+          if (activeItem && options.classList.contains('show')) {
+            setTimeout(() => activeItem.scrollIntoView({ block: 'nearest' }), 50);
+          }
+        }
+
+        // Close dropdowns on outside click
+        document.addEventListener('click', (e) => {
+          if (!e.target.closest('.custom-dropdown-wrapper')) {
+            document.querySelectorAll('.custom-dropdown-options').forEach(opt => {
+              opt.classList.remove('show');
+            });
+          }
+        });
+
+        // ── Gender Selection ──
+        function selectGender(value) {
+          document.getElementById('genderInput').value = value;
+          document.getElementById('genderSelectedText').textContent = value;
+          document.getElementById('genderDropdownOptions').classList.remove('show');
+
+          // Update active state
+          document.querySelectorAll('#genderDropdownOptions .custom-dropdown-option').forEach(opt => {
+            opt.classList.remove('active');
+            if (opt.textContent.trim() === value) opt.classList.add('active');
+          });
+        }
+
+        // ── DOB Selection ──
+        const dobState = {
+          day: document.getElementById('dobDayText').textContent.trim(),
+          month: document.getElementById('dobMonthText').textContent.trim(),
+          year: document.getElementById('dobYearText').textContent.trim()
+        };
+        // Initialize from existing values
+        if (dobState.day === 'Day') dobState.day = '';
+        if (dobState.month === 'Month') dobState.month = '';
+        if (dobState.year === 'Year') dobState.year = '';
+
+        const monthShortNames = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+
+        function selectDob(field, value) {
+          if (field === 'day') {
+            dobState.day = value;
+            document.getElementById('dobDayText').textContent = parseInt(value);
+            document.getElementById('dobDayOptions').classList.remove('show');
+            // Update active state
+            document.querySelectorAll('#dobDayOptions .custom-dropdown-option').forEach(opt => {
+              opt.classList.toggle('active', opt.textContent.trim() === String(parseInt(value)));
+            });
+          } else if (field === 'month') {
+            dobState.month = value;
+            document.getElementById('dobMonthText').textContent = monthShortNames[parseInt(value) - 1];
+            document.getElementById('dobMonthOptions').classList.remove('show');
+            // Update active state
+            const monthFullNames = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+            const selectedMonthName = monthFullNames[parseInt(value) - 1];
+            document.querySelectorAll('#dobMonthOptions .custom-dropdown-option').forEach(opt => {
+              opt.classList.toggle('active', opt.textContent.trim() === selectedMonthName);
+            });
+          } else if (field === 'year') {
+            dobState.year = value;
+            document.getElementById('dobYearText').textContent = value;
+            document.getElementById('dobYearOptions').classList.remove('show');
+            // Update active state
+            document.querySelectorAll('#dobYearOptions .custom-dropdown-option').forEach(opt => {
+              opt.classList.toggle('active', opt.textContent.trim() === String(value));
+            });
+          }
+
+          // Sync hidden input
+          if (dobState.day && dobState.month && dobState.year) {
+            document.getElementById('dobHiddenInput').value = `${dobState.year}-${dobState.month}-${dobState.day}`;
+          }
+        }
+      </script>
 
       <script>
         const profileImageInput = document.getElementById('profileImage');

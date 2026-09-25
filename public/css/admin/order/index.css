@@ -111,8 +111,8 @@ body {
 /* Summary Cards */
 .summary-cards {
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 20px;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: 16px;
   margin-bottom: 30px;
 }
 
@@ -635,24 +635,26 @@ body {
 
 /* ── RESPONSIVE ── */
 @media (max-width: 992px) {
-  .summary-cards {
-    grid-template-columns: repeat(2, 1fr);
-  }
+  /* Removed rigid summary-cards override */
 }
 
 @media (max-width: 768px) {
   .page-container {
-    padding: 20px;
+    padding: 16px;
+  }
+  
+  .card {
+    padding: 16px;
+  }
+  
+  .card-value {
+    font-size: 20px;
   }
   
   .page-header {
     flex-direction: column;
     align-items: flex-start;
     gap: 16px;
-  }
-  
-  .summary-cards {
-    grid-template-columns: 1fr;
   }
   
   .filters-section {

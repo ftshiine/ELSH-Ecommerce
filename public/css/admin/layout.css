@@ -201,7 +201,7 @@ body {
   flex: 1;
   display: flex;
   flex-direction: column;
-}
+  min-width: 0;`n}
 
 .topbar {
   height: 60px;
@@ -370,7 +370,7 @@ body {
 
   .main-content {
     margin-left: 0;
-  }
+    min-width: 0;`n}
   
   .topbar {
     justify-content: flex-end;
@@ -380,3 +380,64 @@ body {
     padding: 20px 16px;
   }
 }
+
+/* -- UNIVERSAL RESPONSIVE UTILITIES -- */
+.table-responsive {
+  width: 100%;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  white-space: nowrap;
+}
+
+.table-responsive table {
+  width: 100%;
+  min-width: 800px;
+}
+
+@media (max-width: 768px) {
+  .topbar-search {
+    width: 200px;
+  }
+  .page-content {
+    padding: 16px;
+  }
+}
+
+@media (max-width: 480px) {
+  .topbar-search {
+    display: none;
+  }
+}
+
+/* -- ADDITIONAL RESPONSIVE & PREMIUM UTILITIES -- */
+.sticky-header th {
+  position: sticky;
+  top: 0;
+  z-index: 5;
+  background-color: #fafafa;
+}
+
+.text-truncate {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 250px;
+}
+
+.table-hover tbody tr:hover {
+  background-color: #fcfcfc;
+  transition: background-color 0.2s ease;
+}
+
+.pagination-responsive {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  justify-content: center;
+}
+
+.pagination-responsive .page-controls {
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
