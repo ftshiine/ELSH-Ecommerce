@@ -201,7 +201,8 @@ body {
   flex: 1;
   display: flex;
   flex-direction: column;
-  min-width: 0;`n}
+  min-width: 0;
+}
 
 .topbar {
   height: 60px;
@@ -370,7 +371,8 @@ body {
 
   .main-content {
     margin-left: 0;
-    min-width: 0;`n}
+    min-width: 0;
+  }
   
   .topbar {
     justify-content: flex-end;

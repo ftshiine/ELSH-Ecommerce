@@ -195,9 +195,15 @@
 
   const cards = document.querySelectorAll('.product-card');
   const totalCards = cards.length;
-  const visibleCards = 3;
   let currentIndex = 0;
   let autoScrollInterval;
+
+  function getVisibleCards() {
+    const w = window.innerWidth;
+    if (w <= 768) return 1;
+    if (w <= 1024) return 2;
+    return 3;
+  }
 
   function getCardWidth() {
     const card = cards[0];
@@ -206,7 +212,8 @@
   }
 
   function goToIndex(index) {
-    const maxIndex = totalCards - visibleCards;
+    const visibleCards = getVisibleCards();
+    const maxIndex = Math.max(0, totalCards - visibleCards);
     if (index < 0) index = maxIndex;
     if (index > maxIndex) index = 0;
     currentIndex = index;
@@ -233,6 +240,37 @@
     goToIndex(currentIndex - 1);
     resetAutoScroll();
   });
+
+  // Recalculate on resize
+  let resizeTimer;
+  window.addEventListener('resize', () => {
+    clearTimeout(resizeTimer);
+    resizeTimer = setTimeout(() => {
+      const visibleCards = getVisibleCards();
+      const maxIndex = Math.max(0, totalCards - visibleCards);
+      if (currentIndex > maxIndex) currentIndex = maxIndex;
+      goToIndex(currentIndex);
+    }, 150);
+  });
+
+  // Touch / swipe support for mobile
+  let touchStartX = 0;
+  let touchEndX = 0;
+  const wrapper = document.querySelector('.carousel-wrapper');
+
+  wrapper.addEventListener('touchstart', (e) => {
+    touchStartX = e.changedTouches[0].screenX;
+  }, { passive: true });
+
+  wrapper.addEventListener('touchend', (e) => {
+    touchEndX = e.changedTouches[0].screenX;
+    const diff = touchStartX - touchEndX;
+    if (Math.abs(diff) > 50) {
+      if (diff > 0) goToIndex(currentIndex + 1);
+      else goToIndex(currentIndex - 1);
+      resetAutoScroll();
+    }
+  }, { passive: true });
 
   // Start auto scroll
   startAutoScroll();

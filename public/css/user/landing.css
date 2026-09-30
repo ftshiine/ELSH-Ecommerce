@@ -468,3 +468,284 @@ body {
   color: #aaa;
 }
 
+/* ══════════════════════════════════════════
+   RESPONSIVE BREAKPOINTS
+   ══════════════════════════════════════════ */
+
+/* ── TABLET (≤ 1024px) ── */
+@media (max-width: 1024px) {
+  .hero {
+    padding: 0 60px;
+  }
+
+  .hero-content {
+    padding-left: 0;
+  }
+
+  .hero-content h1 {
+    font-size: 44px;
+  }
+
+  .features {
+    padding: 60px 40px;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 32px;
+  }
+
+  .ritual-journey {
+    padding: 60px 40px;
+  }
+
+  .journey-steps {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .heritage {
+    padding: 60px 40px;
+    gap: 40px;
+  }
+
+  .heritage-image {
+    flex: 0 0 300px;
+  }
+
+  .heritage-image img {
+    height: 400px;
+  }
+
+  .core-essentials {
+    padding: 60px 40px;
+  }
+
+  .product-card {
+    min-width: calc((100% - 28px) / 2);
+  }
+
+  .community {
+    padding: 60px 40px;
+  }
+}
+
+/* ── MOBILE (≤ 768px) ── */
+@media (max-width: 768px) {
+  .hero {
+    flex-direction: column-reverse;
+    padding: 40px 24px;
+    min-height: auto;
+    text-align: center;
+    gap: 32px;
+  }
+
+  .hero-content {
+    padding-left: 0;
+    max-width: 100%;
+  }
+
+  .hero-content h1 {
+    font-size: 32px;
+  }
+
+  .hero-content p {
+    max-width: 100%;
+    margin-left: auto;
+    margin-right: auto;
+    margin-bottom: 28px;
+  }
+
+  .hero-actions {
+    justify-content: center;
+  }
+
+  .hero-image {
+    padding: 0;
+  }
+
+  .hero-image img {
+    max-width: 320px;
+  }
+
+  .features {
+    grid-template-columns: 1fr;
+    padding: 48px 24px;
+    gap: 32px;
+  }
+
+  .feature-card {
+    text-align: center;
+  }
+
+  .feature-icon {
+    margin-left: auto;
+    margin-right: auto;
+  }
+
+  .ritual-journey {
+    padding: 48px 24px;
+  }
+
+  .ritual-journey h2 {
+    font-size: 28px;
+  }
+
+  .journey-steps {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 24px;
+  }
+
+  .heritage {
+    flex-direction: column;
+    padding: 48px 24px;
+    gap: 32px;
+  }
+
+  .heritage-image {
+    flex: none;
+    width: 100%;
+  }
+
+  .heritage-image img {
+    width: 100%;
+    height: 300px;
+    max-width: 100%;
+  }
+
+  .heritage-content {
+    max-width: 100%;
+    text-align: center;
+  }
+
+  .heritage-link {
+    display: inline-block;
+  }
+
+  .core-essentials {
+    padding: 48px 24px;
+  }
+
+  .essentials-header {
+    flex-direction: column;
+    gap: 16px;
+    align-items: flex-start;
+  }
+
+  .essentials-header h2 {
+    font-size: 28px;
+  }
+
+  .product-card {
+    min-width: calc(100% - 16px);
+  }
+
+  .product-image {
+    height: 200px;
+  }
+
+  .community {
+    padding: 48px 24px;
+  }
+
+  .community h2 {
+    font-size: 28px;
+  }
+
+  .testimonials-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .testimonial-card {
+    padding: 24px;
+  }
+}
+
+/* ── SMALL MOBILE (≤ 480px) ── */
+@media (max-width: 480px) {
+  .hero {
+    padding: 32px 16px;
+  }
+
+  .hero-content h1 {
+    font-size: 26px;
+    margin-bottom: 16px;
+  }
+
+  .hero-content p {
+    font-size: 14px;
+    line-height: 1.7;
+  }
+
+  .hero-actions {
+    flex-direction: column;
+    gap: 12px;
+    width: 100%;
+  }
+
+  .btn-primary {
+    width: 100%;
+    text-align: center;
+    padding: 14px 24px;
+  }
+
+  .btn-secondary {
+    width: 100%;
+    text-align: center;
+    padding: 10px 0;
+  }
+
+  .hero-image img {
+    max-width: 260px;
+  }
+
+  .features {
+    padding: 40px 16px;
+    gap: 28px;
+  }
+
+  .feature-card h3 {
+    font-size: 18px;
+  }
+
+  .ritual-journey {
+    padding: 40px 16px;
+  }
+
+  .ritual-journey h2 {
+    font-size: 24px;
+  }
+
+  .journey-steps {
+    grid-template-columns: 1fr;
+    gap: 20px;
+  }
+
+  .heritage {
+    padding: 40px 16px;
+  }
+
+  .heritage-content h2 {
+    font-size: 28px;
+  }
+
+  .heritage-image img {
+    height: 220px;
+  }
+
+  .core-essentials {
+    padding: 40px 16px;
+  }
+
+  .essentials-header h2 {
+    font-size: 24px;
+  }
+
+  .community {
+    padding: 40px 16px;
+  }
+
+  .community h2 {
+    font-size: 24px;
+  }
+
+  .community-subtitle {
+    margin-bottom: 32px;
+  }
+}

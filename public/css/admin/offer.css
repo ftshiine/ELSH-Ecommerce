@@ -553,7 +553,9 @@ input[type="text"], input[type="date"], input[type="number"], select {
   object-fit: cover;
 }
 
-.product-details flex: 1;
+.product-details {
+  flex: 1;
+}
 
 .product-details h4 {
   margin: 0 0 5px 0;
