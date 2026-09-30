@@ -436,11 +436,117 @@ body {
 }
 
 @media (max-width: 768px) {
+  .order-detail-wrapper {
+    padding: 0 16px;
+    margin: 20px auto;
+  }
+
+  .header-section {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 16px;
+  }
+  
+  .header-titles h1 {
+    font-size: 24px;
+    word-break: break-word;
+  }
+
+  /* Fix the Timeline Box from stretching */
+  .timeline-box {
+    width: 100%;
+    box-sizing: border-box;
+    padding: 20px 16px;
+    overflow: hidden;
+  }
+
+  .timeline-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+  }
+
+  /* Create the swipeable container */
+  .timeline-container {
+    display: flex;
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    justify-content: flex-start;
+    padding-bottom: 20px;
+    
+    /* Native App-like Swipe Physics */
+    -webkit-overflow-scrolling: touch;
+    scroll-snap-type: x mandatory;
+    scroll-behavior: smooth;
+    
+    width: 100%;
+    box-sizing: border-box;
+  }
+
+  /* Prevent steps from shrinking and add snap points */
+  .timeline-step {
+    flex-shrink: 0;
+    width: 110px;
+    min-width: 110px;
+    scroll-snap-align: center;
+  }
+
+  /* Prevent lines from shrinking */
+  .timeline-line {
+    flex-shrink: 0;
+    width: 40px;
+    min-width: 40px;
+    margin: -40px 0 0 0;
+  }
+  
+  /* Smooth scrollbar styling */
+  .timeline-container::-webkit-scrollbar {
+    height: 4px;
+  }
+  .timeline-container::-webkit-scrollbar-thumb {
+    background: #dcdcdc;
+    border-radius: 10px;
+  }
+  .timeline-container::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
   .main-grid {
     grid-template-columns: 1fr;
   }
   
   .bottom-split {
     grid-template-columns: 1fr;
+  }
+
+  .timeline-box, .info-box, .action-card {
+    padding: 16px;
+  }
+
+  .item-row {
+    gap: 12px;
+  }
+
+  .item-img {
+    width: 80px;
+    height: 80px;
+  }
+
+  .item-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 4px;
+  }
+
+  .item-title {
+    font-size: 16px;
+  }
+
+  .item-tags {
+    flex-wrap: wrap;
+  }
+
+  .total-price {
+    font-size: 22px;
   }
 }

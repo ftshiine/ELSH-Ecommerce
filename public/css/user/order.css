@@ -1,3 +1,4 @@
+* { box-sizing: border-box; }
 /* Order List Styles */
 body {
   background-color: #fcfbf9;
@@ -227,3 +228,92 @@ body {
   color: #666;
   margin-bottom: 20px;
 }
+
+@media (max-width: 768px) {
+  .orders-wrapper { width: 100%;  overflow-x: hidden; padding: 0 16px; box-sizing: border-box;
+    margin: 20px auto;
+  }
+
+  .orders-page-header {
+    flex-direction: column !important;
+    align-items: stretch !important;
+    gap: 16px !important;
+  }
+
+  .order-search-form {
+    width: 100%;
+  }
+
+  .order-search-form input {
+    width: auto !important;
+    flex: 1 1 auto !important;
+    min-width: 0 !important;
+    box-sizing: border-box;
+  }
+
+  .order-tabs { width: 100%;  flex-wrap: nowrap; box-sizing: border-box;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    padding-bottom: 10px;
+    gap: 20px;
+  }
+
+  .tab-link {
+    white-space: nowrap;
+  }
+  
+  .order-tabs::-webkit-scrollbar {
+    height: 2px;
+  }
+  .order-tabs::-webkit-scrollbar-thumb {
+    background: #eaeaea;
+  }
+
+  .order-card {
+    padding: 16px;
+  }
+
+  .order-card-inner {
+    flex-wrap: wrap;
+    gap: 16px;
+  }
+
+  .order-image {
+    width: 80px;
+    height: 80px;
+  }
+
+  .order-details {
+    width: calc(100% - 96px);
+    min-width: 0 !important;
+  }
+
+  .order-title {
+    font-size: 16px;
+    word-break: break-word;
+  }
+
+  .order-actions {
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  .btn-solid, .btn-outline {
+    font-size: 12px;
+    padding: 8px 12px;
+    flex: 1 1 auto;
+    text-align: center;
+  }
+
+  .order-price {
+    width: 100%;
+    margin-top: 8px;
+    padding-top: 16px;
+    border-top: 1px dashed #eaeaea;
+    text-align: right;
+    font-size: 18px;
+  }
+}
+
+
+@media (max-width: 768px) { html, body { overflow-x: hidden; width: 100%;  margin: 0; padding: 0; } }

@@ -92,6 +92,7 @@
   </div>
 </section>
 
+<% if (typeof featuredProducts !== 'undefined' && featuredProducts.length > 0) { %>
 <!-- Core Essentials Section -->
 <section class="core-essentials">
   <div class="essentials-header">
@@ -107,55 +108,30 @@
 
   <div class="carousel-wrapper">
     <div class="carousel-track" id="carouselTrack">
-
-      <div class="product-card">
-        <div class="product-image">
-          <img src="/images/user/serum.png" alt="Botanical Serum" />
+      <% featuredProducts.forEach(product => { 
+          const defaultVariant = (product.variants && product.variants.length > 0) 
+              ? product.variants[0] : null;
+          const productImage = (defaultVariant && defaultVariant.images && defaultVariant.images.length > 0) 
+              ? defaultVariant.images[0] : '/images/user/placeholder.png';
+          const shortDesc = product.description 
+              ? (product.description.length > 100 
+                  ? product.description.substring(0, 100) + '...' 
+                  : product.description)
+              : '';
+      %>
+        <div class="product-card">
+          <div class="product-image">
+            <img src="<%= productImage %>" alt="<%= product.name %>" />
+          </div>
+          <h4><%= product.name %></h4>
+          <p><%= shortDesc %></p>
+          <a href="/login" class="product-btn">🔒 AVAILABLE AFTER LOGIN</a>
         </div>
-        <h4>Botanical Serum</h4>
-        <p>A high-potency infusion of alpine herbs and hyaluronic acid for deep cellular hydration and...</p>
-        <a href="/login" class="product-btn">🔒 AVAILABLE AFTER LOGIN</a>
-      </div>
-
-      <div class="product-card">
-        <div class="product-image">
-          <img src="/images/user/balm.png" alt="Night Recovery Balm" />
-        </div>
-        <h4>Night Recovery Balm</h4>
-        <p>A rich, lipid-replenishing balm that works with your skin's circadian rhythm to repair the dermal...</p>
-        <a href="/login" class="product-btn">🔒 AVAILABLE AFTER LOGIN</a>
-      </div>
-
-      <div class="product-card">
-        <div class="product-image">
-          <img src="/images/user/oil.png" alt="Gentle Cleansing Oil" />
-        </div>
-        <h4>Gentle Cleansing Oil</h4>
-        <p>A transforming oil-to-milk cleanser that lifts impurities while maintaining the skin's natural...</p>
-        <a href="/login" class="product-btn">🔒 AVAILABLE AFTER LOGIN</a>
-      </div>
-
-      <div class="product-card">
-        <div class="product-image">
-          <img src="/images/user/Bio-Active Moisturizer.png" alt="Bio-Active Moisturizer" />
-        </div>
-        <h4>Bio-Active Moisturizer</h4>
-        <p>Hydration that works beneath the surface for healthier, more resilient skin.</p>
-        <a href="/login" class="product-btn">🔒 AVAILABLE AFTER LOGIN</a>
-      </div>
-
-      <div class="product-card">
-        <div class="product-image">
-          <img src="/images/user/Silk Purifying Cleanser.png" alt="Silk Purifying Cleanser" />
-        </div>
-        <h4>Silk Purifying Cleanser</h4>
-        <p>A luxurious silk-infused cleanser that purifies, hydrates, and reveals a radiant complexion.</p>
-        <a href="/login" class="product-btn">🔒 AVAILABLE AFTER LOGIN</a>
-      </div>
-
+      <% }) %>
     </div>
   </div>
 </section>
+<% } %>
 
 <!-- Community Section -->
 <section class="community">
@@ -190,90 +166,92 @@
 
 <script>
   const track = document.getElementById('carouselTrack');
-  const prevBtn = document.getElementById('prevBtn');
-  const nextBtn = document.getElementById('nextBtn');
+  if (track) {
+    const prevBtn = document.getElementById('prevBtn');
+    const nextBtn = document.getElementById('nextBtn');
 
-  const cards = document.querySelectorAll('.product-card');
-  const totalCards = cards.length;
-  let currentIndex = 0;
-  let autoScrollInterval;
+    const cards = document.querySelectorAll('.product-card');
+    const totalCards = cards.length;
+    let currentIndex = 0;
+    let autoScrollInterval;
 
-  function getVisibleCards() {
-    const w = window.innerWidth;
-    if (w <= 768) return 1;
-    if (w <= 1024) return 2;
-    return 3;
-  }
+    function getVisibleCards() {
+      const w = window.innerWidth;
+      if (w <= 768) return 1;
+      if (w <= 1024) return 2;
+      return 3;
+    }
 
-  function getCardWidth() {
-    const card = cards[0];
-    const gap = 28;
-    return card.offsetWidth + gap;
-  }
+    function getCardWidth() {
+      const card = cards[0];
+      const gap = 28;
+      return card.offsetWidth + gap;
+    }
 
-  function goToIndex(index) {
-    const visibleCards = getVisibleCards();
-    const maxIndex = Math.max(0, totalCards - visibleCards);
-    if (index < 0) index = maxIndex;
-    if (index > maxIndex) index = 0;
-    currentIndex = index;
-    track.style.transform = `translateX(-${currentIndex * getCardWidth()}px)`;
-  }
-
-  function startAutoScroll() {
-    autoScrollInterval = setInterval(() => {
-      goToIndex(currentIndex + 1);
-    }, 3000);
-  }
-
-  function resetAutoScroll() {
-    clearInterval(autoScrollInterval);
-    startAutoScroll();
-  }
-
-  nextBtn.addEventListener('click', () => {
-    goToIndex(currentIndex + 1);
-    resetAutoScroll();
-  });
-
-  prevBtn.addEventListener('click', () => {
-    goToIndex(currentIndex - 1);
-    resetAutoScroll();
-  });
-
-  // Recalculate on resize
-  let resizeTimer;
-  window.addEventListener('resize', () => {
-    clearTimeout(resizeTimer);
-    resizeTimer = setTimeout(() => {
+    function goToIndex(index) {
       const visibleCards = getVisibleCards();
       const maxIndex = Math.max(0, totalCards - visibleCards);
-      if (currentIndex > maxIndex) currentIndex = maxIndex;
-      goToIndex(currentIndex);
-    }, 150);
-  });
-
-  // Touch / swipe support for mobile
-  let touchStartX = 0;
-  let touchEndX = 0;
-  const wrapper = document.querySelector('.carousel-wrapper');
-
-  wrapper.addEventListener('touchstart', (e) => {
-    touchStartX = e.changedTouches[0].screenX;
-  }, { passive: true });
-
-  wrapper.addEventListener('touchend', (e) => {
-    touchEndX = e.changedTouches[0].screenX;
-    const diff = touchStartX - touchEndX;
-    if (Math.abs(diff) > 50) {
-      if (diff > 0) goToIndex(currentIndex + 1);
-      else goToIndex(currentIndex - 1);
-      resetAutoScroll();
+      if (index < 0) index = maxIndex;
+      if (index > maxIndex) index = 0;
+      currentIndex = index;
+      track.style.transform = `translateX(-${currentIndex * getCardWidth()}px)`;
     }
-  }, { passive: true });
 
-  // Start auto scroll
-  startAutoScroll();
+    function startAutoScroll() {
+      autoScrollInterval = setInterval(() => {
+        goToIndex(currentIndex + 1);
+      }, 3000);
+    }
+
+    function resetAutoScroll() {
+      clearInterval(autoScrollInterval);
+      startAutoScroll();
+    }
+
+    nextBtn.addEventListener('click', () => {
+      goToIndex(currentIndex + 1);
+      resetAutoScroll();
+    });
+
+    prevBtn.addEventListener('click', () => {
+      goToIndex(currentIndex - 1);
+      resetAutoScroll();
+    });
+
+    // Recalculate on resize
+    let resizeTimer;
+    window.addEventListener('resize', () => {
+      clearTimeout(resizeTimer);
+      resizeTimer = setTimeout(() => {
+        const visibleCards = getVisibleCards();
+        const maxIndex = Math.max(0, totalCards - visibleCards);
+        if (currentIndex > maxIndex) currentIndex = maxIndex;
+        goToIndex(currentIndex);
+      }, 150);
+    });
+
+    // Touch / swipe support for mobile
+    let touchStartX = 0;
+    let touchEndX = 0;
+    const wrapper = document.querySelector('.carousel-wrapper');
+
+    wrapper.addEventListener('touchstart', (e) => {
+      touchStartX = e.changedTouches[0].screenX;
+    }, { passive: true });
+
+    wrapper.addEventListener('touchend', (e) => {
+      touchEndX = e.changedTouches[0].screenX;
+      const diff = touchStartX - touchEndX;
+      if (Math.abs(diff) > 50) {
+        if (diff > 0) goToIndex(currentIndex + 1);
+        else goToIndex(currentIndex - 1);
+        resetAutoScroll();
+      }
+    }, { passive: true });
+
+    // Start auto scroll
+    startAutoScroll();
+  }
 </script>
 
 </body>
