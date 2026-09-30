@@ -1,3 +1,4 @@
+* { box-sizing: border-box; }
 /* Order Detail Styles */
 body {
   background-color: #fcfbf9;
@@ -436,8 +437,7 @@ body {
 }
 
 @media (max-width: 768px) {
-  .order-detail-wrapper {
-    padding: 0 16px;
+  .order-detail-wrapper { width: 100%; overflow-x: hidden; padding: 0 16px;
     margin: 20px auto;
   }
 
@@ -550,3 +550,6 @@ body {
     font-size: 22px;
   }
 }
+
+
+@media (max-width: 768px) { html, body { overflow-x: hidden !important; width: 100%; margin: 0; padding: 0; } }
