@@ -45,12 +45,13 @@
               </span>
             </div>
           </div>
-          <div class="mobile-filter-toggle" onclick="openFilterDrawer()">
+          <div class="shop-controls-container">
+            <div class="mobile-filter-toggle" onclick="openFilterDrawer()">
             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"></polygon></svg>
-            FILTERS
+            ADVANCED FILTERS
           </div>
           <div class="shop-sort-section">
-            <label>SORT BY</label>
+            <label class="desktop-sort-label">SORT BY</label>
             <div class="custom-dropdown" id="sortDropdown">
               <div class="dropdown-selected" onclick="toggleSortDropdown(event)">
                 <span id="selectedSortText">
@@ -355,6 +356,19 @@
             }
 
             applyFilters();
+          }
+
+          
+          function openFilterDrawer() {
+            document.querySelector('.shop-sidebar').classList.add('active');
+            document.querySelector('.filter-overlay').classList.add('active');
+            document.body.style.overflow = 'hidden';
+          }
+
+          function closeFilterDrawer() {
+            document.querySelector('.shop-sidebar').classList.remove('active');
+            document.querySelector('.filter-overlay').classList.remove('active');
+            document.body.style.overflow = '';
           }
 
           // Close dropdown if clicking outside
