@@ -1,3 +1,4 @@
+* { box-sizing: border-box; }
 /* ── ADDRESS WRAPPER ── */
 .address-wrapper {
   max-width: 860px;
@@ -612,4 +613,57 @@ input:checked+.slider:before {
 .btn-remove-modal:disabled {
   background-color: #e0e0d8;
   cursor: not-allowed;
+}
+
+
+
+/* ── MOBILE RESPONSIVENESS ── */
+@media (max-width: 768px) {
+  html, body {
+    overflow-x: hidden !important;
+    width: 100%;
+    margin: 0;
+    padding: 0;
+  }
+  
+  .address-wrapper {
+    padding: 32px 16px;
+    width: 100%;
+    overflow-x: hidden;
+  }
+
+  .page-header h1 {
+    font-size: 32px;
+  }
+
+  .address-grid {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+
+  .form-row {
+    grid-template-columns: 1fr;
+    gap: 20px;
+  }
+
+  .btn-add-new {
+    display: block;
+    width: 100%;
+    text-align: center;
+    box-sizing: border-box;
+  }
+
+  .delete-modal {
+    width: 90%;
+    padding: 24px;
+  }
+  
+  .delete-modal-actions {
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .btn-cancel, .btn-remove-modal {
+    width: 100%;
+  }
 }

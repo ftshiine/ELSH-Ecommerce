@@ -18,6 +18,15 @@ export const getWallet = async (req, res) => {
       currentPage
     } = await walletService.getWalletWithPaginatedTransactions(userId, page, limit);
 
+    if (req.xhr || req.headers.accept.indexOf('json') > -1) {
+      return res.json({
+        success: true,
+        transactions,
+        currentPage,
+        totalPages
+      });
+    }
+
     res.render('user/wallet/index', {
       title: 'My Wallet',
       wallet,

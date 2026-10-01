@@ -107,6 +107,11 @@
   pointer-events: none;
 }
 
+/* ── MOBILE NAVBAR LINKS ── */
+.mobile-only-link {
+  display: none;
+}
+
 /* ── USER DROPDOWN ── */
 .user-dropdown-wrapper {
   position: relative;
@@ -191,6 +196,14 @@
 
   .hamburger-btn {
     display: flex;
+  }
+
+  .user-dropdown-wrapper {
+    display: none !important;
+  }
+
+  .mobile-only-link {
+    display: block;
   }
 
   .home-navbar-links {

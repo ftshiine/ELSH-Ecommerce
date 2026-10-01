@@ -251,8 +251,7 @@
 .wishlist-btn {
   width: 48px;
   height: 48px;
-  border-radius: 50%;
-  border: 1px solid #EAEAEA;
+  border: none;
   background: transparent;
   display: flex;
   align-items: center;
@@ -263,7 +262,6 @@
 }
 
 .wishlist-btn:hover {
-  border-color: #222;
   color: #222;
 }
 
@@ -476,8 +474,7 @@
 .nav-btn {
   width: 40px;
   height: 40px;
-  border-radius: 50%;
-  border: 1px solid #EAEAEA;
+  border: none;
   background: transparent;
   display: flex;
   align-items: center;
@@ -576,7 +573,7 @@
   }
   
   .action-row {
-    flex-direction: column;
+    flex-direction: row;
   }
   
   .review-cards {

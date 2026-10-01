@@ -12,6 +12,7 @@
   <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/toastify-js/src/toastify.min.css">
   
   <style>
+    * { box-sizing: border-box; }
     .coupons-wrapper {
       max-width: 1000px;
       margin: 0 auto;
@@ -355,6 +356,89 @@
       color: #999;
     }
 
+
+    /* Mobile Responsiveness */
+    @media (max-width: 768px) {
+      html, body {
+        overflow-x: hidden !important;
+        width: 100%;
+        margin: 0;
+        padding: 0;
+      }
+      
+      .coupons-wrapper {
+        padding: 20px 16px;
+        width: 100%;
+        overflow-x: hidden;
+      }
+
+      /* Stats row swipeable */
+      .stats-grid {
+        display: flex;
+        flex-wrap: nowrap;
+        overflow-x: auto;
+        gap: 16px;
+        padding-bottom: 12px;
+        -webkit-overflow-scrolling: touch;
+      }
+      .stats-grid::-webkit-scrollbar {
+        height: 2px;
+      }
+      .stats-grid::-webkit-scrollbar-thumb {
+        background: #eaeaea;
+      }
+      .stat-card {
+        min-width: 160px;
+        padding: 24px 16px;
+        flex: 0 0 auto;
+      }
+
+      /* Actions and Guidelines */
+      .top-actions-grid {
+        grid-template-columns: 1fr;
+        gap: 16px;
+        margin-bottom: 32px;
+      }
+      .redeem-card, .guidelines-card {
+        padding: 24px 16px;
+      }
+      .redeem-input-group {
+        flex-direction: column;
+      }
+      .redeem-input-group input {
+        width: 100%;
+        min-width: 0 !important;
+      }
+      .btn-redeem {
+        width: 100%;
+        padding: 14px;
+      }
+
+      /* Coupon Cards */
+      .coupon-card {
+        flex-direction: column;
+      }
+      .coupon-value-box {
+        width: 100%;
+        border-right: none;
+        border-bottom: 1px dashed #eaeaea;
+        padding: 16px;
+      }
+      .coupon-details {
+        padding: 16px;
+        min-width: 0 !important;
+      }
+      .coupon-desc {
+        word-break: break-word;
+      }
+      .coupon-action {
+        padding: 16px;
+        padding-top: 0;
+      }
+      .btn-apply {
+        width: 100%;
+      }
+    }
   </style>
 </head>
 

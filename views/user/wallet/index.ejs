@@ -125,7 +125,14 @@
                 <a href="/wallet?page=<%= currentPage - 1 %>" class="page-btn">Prev</a>
                 <% } %>
 
-                  <% for(let i=1; i <=totalPages; i++) { %>
+                  <% 
+                    let startPage = Math.max(1, currentPage - 1);
+                    let endPage = Math.min(totalPages, startPage + 2);
+                    if (endPage === totalPages) {
+                      startPage = Math.max(1, totalPages - 2);
+                    }
+                  %>
+                  <% for(let i=startPage; i <= endPage; i++) { %>
                     <a href="/wallet?page=<%= i %>" class="page-btn <%= currentPage === i ? 'active' : '' %>">
                       <%= i %>
                     </a>
@@ -155,6 +162,89 @@
             showCancel: false,
             onConfirm: () => closeCustomModal()
           });
+        }
+
+        document.addEventListener('click', async function(e) {
+          if (e.target.matches('.page-btn')) {
+            e.preventDefault();
+            const url = e.target.href;
+            
+            try {
+              const response = await fetch(url, {
+                headers: {
+                  'X-Requested-With': 'XMLHttpRequest',
+                  'Accept': 'application/json'
+                }
+              });
+              
+              const data = await response.json();
+              
+              if (data.success) {
+                renderTransactions(data.transactions, data.currentPage, data.totalPages);
+              }
+            } catch(err) {
+              console.error('Pagination error:', err);
+            }
+          }
+        });
+
+        function renderTransactions(transactions, currentPage, totalPages) {
+          const container = document.querySelector('.transactions-section');
+          
+          if (!transactions || transactions.length === 0) {
+            container.innerHTML = '<h2>Transaction History</h2><p style=\"color: #888; font-size: 14px;\">No transactions found.</p>';
+            return;
+          }
+          
+          let html = '<h2>Transaction History</h2><div class=\"transaction-list\">';
+          
+          transactions.forEach(txn => {
+            const dateObj = new Date(txn.date);
+            const dateStr = dateObj.toLocaleDateString('en-US', {
+              year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit'
+            });
+            const typeClass = txn.type.toLowerCase();
+            const sign = txn.type === 'CREDIT' ? '+' : '-';
+            const amount = Number(txn.amount).toFixed(2);
+            
+            html += `
+              <div class=\"transaction-item\">
+                <div class=\"txn-info\">
+                  <h4>${txn.description}</h4>
+                  <p>${dateStr}</p>
+                </div>
+                <div class=\"txn-amount ${typeClass}\">
+                  ${sign}₹${amount}
+                </div>
+              </div>
+            `;
+          });
+          
+          html += '</div>';
+          
+          if (totalPages > 1) {
+            html += '<div class=\"pagination\">';
+            if (currentPage > 1) {
+              html += `<a href=\"/wallet?page=${currentPage - 1}\" class=\"page-btn\">Prev</a>`;
+            }
+            
+            let startPage = Math.max(1, currentPage - 1);
+            let endPage = Math.min(totalPages, startPage + 2);
+            if (endPage === totalPages) {
+              startPage = Math.max(1, totalPages - 2);
+            }
+            
+            for (let i = startPage; i <= endPage; i++) {
+              html += `<a href=\"/wallet?page=${i}\" class=\"page-btn ${currentPage === i ? 'active' : ''}\">${i}</a>`;
+            }
+            
+            if (currentPage < totalPages) {
+              html += `<a href=\"/wallet?page=${currentPage + 1}\" class=\"page-btn\">Next</a>`;
+            }
+            html += '</div>';
+          }
+          
+          container.innerHTML = html;
         }
       </script>
 </body>
