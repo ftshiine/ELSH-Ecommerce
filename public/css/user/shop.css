@@ -653,3 +653,32 @@ body {
   height: 16px;
   transition: fill 0.2s, stroke 0.2s;
 }
+
+/* Apply Filters Button */
+.apply-filters-btn {
+  width: 100%;
+  padding: 14px;
+  background-color: #556B44;
+  color: white;
+  border: none;
+  font-weight: 600;
+  font-size: 14px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  cursor: pointer;
+  margin-top: 30px;
+  transition: background 0.2s ease;
+}
+
+.apply-filters-btn:hover {
+  background-color: #4a5d3b;
+}
+
+@media (max-width: 768px) {
+  .apply-filters-btn {
+    position: sticky;
+    bottom: 0;
+    margin-top: 20px;
+    box-shadow: 0 -4px 10px rgba(0,0,0,0.05);
+  }
+}

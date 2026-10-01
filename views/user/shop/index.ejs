@@ -97,7 +97,7 @@
                   <label class="custom-checkbox">
                     <input type="checkbox" name="category" value="<%= cat._id %>" <%=currentQuery.category &&
                       (Array.isArray(currentQuery.category) ? currentQuery.category.includes(cat._id.toString()) :
-                      currentQuery.category===cat._id.toString()) ? 'checked' : '' %> onchange="applyFilters()">
+                      currentQuery.category===cat._id.toString()) ? 'checked' : '' %> >
                     <span class="checkmark"></span>
                     <span class="label-text">
                       <%= cat.name.toUpperCase() %>
@@ -117,7 +117,7 @@
                   </span>
                 </div>
                 <input type="range" id="priceRange" min="0" max="5000" value="<%= currentQuery.maxPrice || 5000 %>"
-                  onchange="applyFilters()"
+                  
                   oninput="document.getElementById('priceValueDisplay').innerText = this.value">
                 <div class="price-labels">
                   <span>₹0</span>
@@ -134,7 +134,7 @@
                     <label class="tag-label">
                       <input type="checkbox" name="skinType" value="<%= type.toLowerCase() %>" <%=currentQuery.skinType
                         && (Array.isArray(currentQuery.skinType) ? currentQuery.skinType.includes(type.toLowerCase()) :
-                        currentQuery.skinType===type.toLowerCase()) ? 'checked' : '' %> onchange="applyFilters()"
+                        currentQuery.skinType===type.toLowerCase()) ? 'checked' : '' %> 
                       style="display:none;">
                       <span
                         class="tag <%= currentQuery.skinType && (Array.isArray(currentQuery.skinType) ? currentQuery.skinType.includes(type.toLowerCase()) : currentQuery.skinType === type.toLowerCase()) ? 'active' : '' %>">
@@ -144,6 +144,7 @@
                     <% }) %>
               </div>
             </div>
+            <button class="apply-filters-btn" onclick="applyFilters()">APPLY FILTERS</button>
           </aside>
 
           <!-- Main Product Grid -->
