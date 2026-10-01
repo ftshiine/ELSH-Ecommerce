@@ -14,6 +14,7 @@
   <%- include('../partials/home-navbar') %>
     <%- include('../partials/breadcrumbs') %>
 
+      <div class="filter-overlay" onclick="closeFilterDrawer()"></div>
       <div class="shop-container">
         <div class="shop-header">
           <div class="shop-title-section">
@@ -43,6 +44,10 @@
                 </svg>
               </span>
             </div>
+          </div>
+          <div class="mobile-filter-toggle" onclick="openFilterDrawer()">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"></polygon></svg>
+            FILTERS
           </div>
           <div class="shop-sort-section">
             <label>SORT BY</label>
