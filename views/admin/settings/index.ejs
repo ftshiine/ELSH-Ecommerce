@@ -120,6 +120,54 @@
       background: #dbeadb;
     }
 
+    /* Custom Dropdown Styles */
+    .custom-dropdown {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      width: 100%;
+      padding: 12px 15px;
+      border: 1px solid #ddd;
+      border-radius: 8px;
+      background: #fff;
+      cursor: pointer;
+      font-size: 15px;
+      color: #333;
+      transition: all 0.2s;
+      box-sizing: border-box;
+    }
+    .custom-dropdown:hover {
+      border-color: #556B55;
+    }
+    .dropdown-panel {
+      display: none;
+      position: absolute;
+      top: 100%;
+      left: 0;
+      right: 0;
+      background: #fff;
+      border: 1px solid #ddd;
+      border-radius: 8px;
+      margin-top: 4px;
+      max-height: 250px;
+      overflow-y: auto;
+      z-index: 100;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    }
+    .dropdown-item {
+      padding: 12px 15px;
+      cursor: pointer;
+      transition: background 0.2s;
+      border-bottom: 1px solid #f4f4f4;
+      font-size: 15px;
+      color: #333;
+    }
+    .dropdown-item:last-child {
+      border-bottom: none;
+    }
+    .dropdown-item:hover {
+      background: #f9f9f9;
+    }
 
   </style>
   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
@@ -145,12 +193,28 @@
             </div>
 
             <form id="settingsForm" action="/admin/settings" method="POST">
-              <div class="form-group">
-                <label for="referralRewardType">Reward Distribution Method</label>
-                <select id="referralRewardType" name="referralRewardType" required>
-                  <option value="WALLET" <%= settings.referralRewardType !== 'COUPON' ? 'selected' : '' %>>Direct Wallet Cash</option>
-                  <option value="COUPON" <%= settings.referralRewardType === 'COUPON' ? 'selected' : '' %>>Discount Coupon</option>
-                </select>
+              <div class="form-group" style="position: relative;">
+                <label>Reward Distribution Method</label>
+                <div class="custom-dropdown" id="rewardDropdown" onclick="toggleDropdown(event, 'rewardOptions')">
+                  <span id="rewardDropdownText">
+                    <%= settings.referralRewardType === 'COUPON' ? 'Discount Coupon' : 'Direct Wallet Cash' %>
+                  </span>
+                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
+                    stroke="#666" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <polyline points="6 9 12 15 18 9"></polyline>
+                  </svg>
+                </div>
+                
+                <div class="dropdown-panel" id="rewardOptions">
+                  <div class="dropdown-item" onclick="selectReward('WALLET', 'Direct Wallet Cash')">
+                    Direct Wallet Cash
+                  </div>
+                  <div class="dropdown-item" onclick="selectReward('COUPON', 'Discount Coupon')">
+                    Discount Coupon
+                  </div>
+                </div>
+                
+                <input type="hidden" id="referralRewardType" name="referralRewardType" value="<%= settings.referralRewardType || 'WALLET' %>">
               </div>
 
               <!-- WALLET FIELDS -->
@@ -215,19 +279,36 @@
     document.body.style.visibility = 'visible';
 
     // Toggle UI based on Reward Type
-    const rewardTypeSelect = document.getElementById('referralRewardType');
+    const rewardTypeInput = document.getElementById('referralRewardType');
     const walletSection = document.getElementById('walletSection');
     const couponSection = document.getElementById('couponSection');
 
-    rewardTypeSelect.addEventListener('change', function() {
-      if(this.value === 'COUPON') {
+    function toggleDropdown(event, id) {
+      event.stopPropagation();
+      const panel = document.getElementById(id);
+      panel.style.display = panel.style.display === 'block' ? 'none' : 'block';
+    }
+
+    document.addEventListener('click', function(event) {
+      if (!event.target.closest('.custom-dropdown')) {
+        const options = document.getElementById('rewardOptions');
+        if (options) options.style.display = 'none';
+      }
+    });
+
+    function selectReward(value, text) {
+      document.getElementById('referralRewardType').value = value;
+      document.getElementById('rewardDropdownText').textContent = text;
+      document.getElementById('rewardOptions').style.display = 'none';
+      
+      if(value === 'COUPON') {
         walletSection.style.display = 'none';
         couponSection.style.display = 'block';
       } else {
         walletSection.style.display = 'block';
         couponSection.style.display = 'none';
       }
-    });
+    }
 
 
 

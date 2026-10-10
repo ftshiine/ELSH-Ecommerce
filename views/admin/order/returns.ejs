@@ -153,7 +153,6 @@
                       <th>Customer</th>
                       <th>Date</th>
                       <th>Items</th>
-                      <th>Reason</th>
                       <th>Status</th>
                       <th>Total</th>
                     </tr>
@@ -161,6 +160,9 @@
                   <tbody>
                     <% returnRequests.forEach((order, idx) => { 
                          let itemsToRefund = order.items.filter(i => i.itemStatus === 'RETURN_REQUESTED');
+                         if (itemsToRefund.length === 0) {
+                           itemsToRefund = order.items.filter(i => i.itemStatus === 'RETURNED');
+                         }
                          if (itemsToRefund.length === 0) {
                            itemsToRefund = order.items.filter(i => i.itemStatus === 'DELIVERED');
                          }
@@ -211,7 +213,7 @@
                         data-customer-email="<%= order.user ? order.user.email : '' %>"
                         data-customer-since="<%= order.user ? order.user.createdAt.toLocaleString('en-US', { month: 'short', year: 'numeric' }) : 'N/A' %>"
                         data-customer-spend="<%= order.user && order.user.totalSpend !== undefined ? order.user.totalSpend.toLocaleString(undefined, {minimumFractionDigits: 2}) : '0.00' %>"
-                        data-reason="<%= itemsToRefund[0] && itemsToRefund[0].cancellationReason ? itemsToRefund[0].cancellationReason : '' %>"
+                        data-reason="<%= order.notes || '' %>"
                         data-items='<%= JSON.stringify(itemsToRefund.map(i => ({ name: i.productName, variant: i.variantName, qty: i.quantity, price: i.price, thumbnail: i.thumbnail || "/images/placeholder.jpg" }))) %>'>
 
                         <td class="col-id">#<%= order.orderId %></td>
@@ -235,11 +237,6 @@
                               <div class="more-items">+<%= order.items.length - 2 %></div>
                             <% } %>
                           </div>
-                        </td>
-                        <td>
-                          <span class="return-reason">
-                            <%= order.items[0] && order.items[0].cancellationReason ? order.items[0].cancellationReason : '—' %>
-                          </span>
                         </td>
                         <td>
                           <% if (order.orderStatus === 'RETURN_REQUESTED') { %>

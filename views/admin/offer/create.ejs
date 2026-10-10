@@ -597,7 +597,9 @@
           const price = parseFloat(checkbox.dataset.price || 0);
           detailText = `₹${price.toFixed(2)}`;
           if (checkbox.dataset.image && checkbox.dataset.image !== '') {
-            image = checkbox.dataset.image.startsWith('/') ? checkbox.dataset.image : '/' + checkbox.dataset.image;
+            image = (checkbox.dataset.image.startsWith('/') || checkbox.dataset.image.startsWith('http')) 
+                    ? checkbox.dataset.image 
+                    : '/' + checkbox.dataset.image;
           }
         } else {
           detailText = 'Entire Category';
