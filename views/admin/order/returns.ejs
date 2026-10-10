@@ -159,7 +159,41 @@
                     </tr>
                   </thead>
                   <tbody>
-                    <% returnRequests.forEach((order, idx) => { %>
+                    <% returnRequests.forEach((order, idx) => { 
+                         let itemsToRefund = order.items.filter(i => i.itemStatus === 'RETURN_REQUESTED');
+                         if (itemsToRefund.length === 0) {
+                           itemsToRefund = order.items.filter(i => i.itemStatus === 'DELIVERED');
+                         }
+                         
+                         const isPartial = itemsToRefund.length < order.items.filter(i => i.itemStatus !== 'RETURNED' && i.itemStatus !== 'CANCELLED').length;
+                         
+                         let refundSubtotal = 0;
+                         let refundDiscount = 0;
+                         let refundShipping = 0;
+                         let totalRefundable = 0;
+
+                         if (order.paymentInfo.status === 'PAID') {
+                           if (!isPartial) {
+                             refundSubtotal = order.pricing.subtotal;
+                             refundDiscount = order.pricing.discount;
+                             refundShipping = order.pricing.shippingFee;
+                             totalRefundable = order.pricing.totalAmount;
+                           } else {
+                             for (const item of itemsToRefund) {
+                               refundSubtotal += item.itemTotal;
+                               if (order.pricing.discount > 0 && order.pricing.subtotal > 0) {
+                                 refundDiscount += (order.pricing.discount * (item.itemTotal / order.pricing.subtotal));
+                               }
+                             }
+                             refundShipping = 0;
+                             totalRefundable = Math.max(0, refundSubtotal - refundDiscount);
+                             totalRefundable = Math.round(totalRefundable * 100) / 100;
+                           }
+                         } else if (order.paymentInfo.walletAmountUsed && order.paymentInfo.walletAmountUsed > 0) {
+                           totalRefundable = order.paymentInfo.walletAmountUsed;
+                           refundSubtotal = totalRefundable;
+                         }
+                    %>
                       <tr id="row-<%= order._id %>"
                         onclick="openPanel('<%= order._id %>')"
                         data-id="<%= order._id %>"
@@ -168,17 +202,17 @@
                         data-status="<%= order.orderStatus %>"
                         data-payment-status="<%= order.paymentInfo.status %>"
                         data-payment-method="<%= order.paymentInfo.method %>"
-                        data-subtotal="<%= order.pricing.subtotal %>"
-                        data-discount="<%= order.pricing.discount %>"
+                        data-subtotal="<%= refundSubtotal %>"
+                        data-discount="<%= refundDiscount %>"
                         data-coupon="<%= order.pricing.couponCode || '' %>"
-                        data-shipping="<%= order.pricing.shippingFee %>"
-                        data-total="<%= order.pricing.totalAmount %>"
+                        data-shipping="<%= refundShipping %>"
+                        data-total="<%= totalRefundable %>"
                         data-customer-name="<%= order.user ? order.user.fullName : 'Guest' %>"
                         data-customer-email="<%= order.user ? order.user.email : '' %>"
                         data-customer-since="<%= order.user ? order.user.createdAt.toLocaleString('en-US', { month: 'short', year: 'numeric' }) : 'N/A' %>"
                         data-customer-spend="<%= order.user && order.user.totalSpend !== undefined ? order.user.totalSpend.toLocaleString(undefined, {minimumFractionDigits: 2}) : '0.00' %>"
-                        data-reason="<%= order.items[0] && order.items[0].cancellationReason ? order.items[0].cancellationReason : '' %>"
-                        data-items='<%= JSON.stringify(order.items.map(i => ({ name: i.productName, variant: i.variantName, qty: i.quantity, price: i.price, thumbnail: i.thumbnail || "/images/placeholder.jpg" }))) %>'>
+                        data-reason="<%= itemsToRefund[0] && itemsToRefund[0].cancellationReason ? itemsToRefund[0].cancellationReason : '' %>"
+                        data-items='<%= JSON.stringify(itemsToRefund.map(i => ({ name: i.productName, variant: i.variantName, qty: i.quantity, price: i.price, thumbnail: i.thumbnail || "/images/placeholder.jpg" }))) %>'>
 
                         <td class="col-id">#<%= order.orderId %></td>
                         <td>
@@ -214,7 +248,7 @@
                             <span class="badge returned"><span class="dot"></span> Returned</span>
                           <% } %>
                         </td>
-                        <td>₹<%= order.pricing.totalAmount.toLocaleString(undefined, {minimumFractionDigits: 2}) %></td>
+                        <td>₹<%= totalRefundable.toLocaleString(undefined, {minimumFractionDigits: 2}) %></td>
                       </tr>
                     <% }); %>
                   </tbody>

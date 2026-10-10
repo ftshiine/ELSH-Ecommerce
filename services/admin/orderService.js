@@ -402,18 +402,35 @@ export const processRefundAdmin = async (id) => {
     });
   }
 
+  let itemsToRefund = [];
+  if (order.orderStatus === 'RETURN_REQUESTED') {
+    itemsToRefund = order.items.filter((item) => item.itemStatus === 'RETURN_REQUESTED');
+    if (itemsToRefund.length === 0) {
+      itemsToRefund = order.items.filter((item) => item.itemStatus === 'DELIVERED');
+    }
+  } else if (order.orderStatus === 'CANCELLED') {
+    itemsToRefund = order.items;
+  }
+
   let refundAmount = 0;
-  if (
-    ['Razorpay', 'Wallet', 'Wallet + Razorpay'].includes(
-      order.paymentInfo.method
-    ) &&
-    order.paymentInfo.status === 'PAID'
-  ) {
-    refundAmount = order.pricing.totalAmount;
-  } else if (
-    order.paymentInfo.walletAmountUsed &&
-    order.paymentInfo.walletAmountUsed > 0
-  ) {
+  const isPartial = order.orderStatus === 'RETURN_REQUESTED' && itemsToRefund.length < order.items.filter(i => i.itemStatus !== 'RETURNED' && i.itemStatus !== 'CANCELLED').length;
+
+  if (order.paymentInfo.status === 'PAID') {
+    if (!isPartial) {
+      refundAmount = order.pricing.totalAmount;
+    } else {
+      for (const item of itemsToRefund) {
+        let itemRefund = item.itemTotal;
+        if (order.pricing.discount && order.pricing.discount > 0 && order.pricing.subtotal > 0) {
+          const itemFraction = item.itemTotal / order.pricing.subtotal;
+          const itemDiscount = order.pricing.discount * itemFraction;
+          itemRefund = Math.max(0, item.itemTotal - itemDiscount);
+        }
+        refundAmount += itemRefund;
+      }
+      refundAmount = Math.round(refundAmount * 100) / 100;
+    }
+  } else if (order.paymentInfo.walletAmountUsed && order.paymentInfo.walletAmountUsed > 0) {
     refundAmount = order.paymentInfo.walletAmountUsed;
   }
 
@@ -428,16 +445,27 @@ export const processRefundAdmin = async (id) => {
     await wallet.save();
   }
 
-  order.paymentInfo.status = 'REFUNDED';
+  if (!isPartial) {
+    order.paymentInfo.status = 'REFUNDED';
+  }
 
   if (order.orderStatus === 'RETURN_REQUESTED') {
-    order.orderStatus = 'RETURNED';
-
-    for (const item of order.items) {
+    for (const item of itemsToRefund) {
+      item.itemStatus = 'RETURNED';
       await Product.updateOne(
         { _id: item.product._id, 'variants._id': item.variant },
         { $inc: { 'variants.$.stock': item.quantity } }
       );
+    }
+
+    const allReturnedOrCancelled = order.items.every(
+      (i) => i.itemStatus === 'RETURNED' || i.itemStatus === 'CANCELLED'
+    );
+
+    if (allReturnedOrCancelled) {
+      order.orderStatus = 'RETURNED';
+    } else {
+      order.orderStatus = 'DELIVERED';
     }
   }
 

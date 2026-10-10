@@ -313,6 +313,17 @@
                       </div>
                     </div>
 
+                    <% if (order.orderStatus === 'CANCELLED') { %>
+                    <div class="timeline-item completed">
+                      <div class="indicator">
+                        <div class="circle" style="background-color: #dc3545; border-color: #f8d7da;"></div>
+                      </div>
+                      <div class="content">
+                        <h4 style="color: #dc3545;">Cancelled</h4>
+                        <span class="time">Order was cancelled</span>
+                      </div>
+                    </div>
+                    <% } else { %>
                     <div
                       class="timeline-item <%= ['PROCESSING', 'SHIPPED', 'OUT FOR DELIVERY', 'DELIVERED', 'RETURN_REQUESTED', 'RETURNED'].includes(order.orderStatus) ? 'completed' : 'pending' %>">
                       <div class="indicator">
@@ -382,6 +393,7 @@
                         </span>
                       </div>
                     </div>
+                    <% } %>
 
                     <% if (['RETURN_REQUESTED', 'RETURNED'].includes(order.orderStatus)) { %>
                     <div class="timeline-item <%= order.orderStatus === 'RETURNED' ? 'completed' : 'active' %>" <%= order.orderStatus === 'RETURN_REQUESTED' ? 'style="border-left-color: #F6D599;"' : '' %>>
