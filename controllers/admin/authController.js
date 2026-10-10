@@ -1,4 +1,7 @@
-import { findAdminByEmail, verifyPassword } from '../../services/admin/authService.js';
+import {
+  findAdminByEmail,
+  verifyPassword,
+} from '../../services/admin/authService.js';
 import { validate } from '../../utils/validation.js';
 import { COMMON_MESSAGES } from '../../constants/index.js';
 
@@ -18,17 +21,23 @@ const login = async (req, res) => {
     }
 
     if (!validationRes.isValid) {
-      return res.redirectWithState('/admin/login', { fieldErrors: validationRes.errors });
+      return res.redirectWithState('/admin/login', {
+        fieldErrors: validationRes.errors,
+      });
     }
 
     const admin = await findAdminByEmail(email);
     if (!admin) {
-      return res.redirectWithState('/admin/login', { error: 'Invalid email or password' });
+      return res.redirectWithState('/admin/login', {
+        error: 'Invalid email or password',
+      });
     }
 
     const isMatch = await verifyPassword(password, admin.password);
     if (!isMatch) {
-      return res.redirectWithState('/admin/login', { error: 'Invalid email or password' });
+      return res.redirectWithState('/admin/login', {
+        error: 'Invalid email or password',
+      });
     }
 
     req.session.admin = {
@@ -41,24 +50,24 @@ const login = async (req, res) => {
     res.redirect('/admin/dashboard');
   } catch (error) {
     console.error('Admin login error:', error);
-    res.redirectWithState('/admin/login', { error: COMMON_MESSAGES.SOMETHING_WENT_WRONG });
+    res.redirectWithState('/admin/login', {
+      error: COMMON_MESSAGES.SOMETHING_WENT_WRONG,
+    });
   }
 };
 
 const logout = (req, res) => {
   if (req.session) {
-   
     delete req.session.admin;
 
-   
     if (!req.session.user && !req.session.passport) {
       req.session.destroy((err) => {
-        if (err) console.error('Session destroy error during admin logout:', err);
+        if (err)
+          console.error('Session destroy error during admin logout:', err);
         res.clearCookie('connect.sid');
         return res.redirect('/admin/login');
       });
     } else {
-      
       req.session.save(() => {
         return res.redirect('/admin/login');
       });
@@ -68,4 +77,4 @@ const logout = (req, res) => {
   }
 };
 
-export { loadLogin,login, logout };
+export { loadLogin, login, logout };

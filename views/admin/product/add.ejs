@@ -180,7 +180,7 @@
                           <% for(let i=0; i<6; i++) { %>
                             <div class="image-upload-area">
                               <span class="upload-overlay-text">+</span>
-                              <input type="file" id="imgInput_0_<%= i %>" accept="image/*">
+                              <input type="file" id="imgInput_0_<%= i %>" accept="image/jpeg, image/png, image/webp">
                               <img id="preview_0_<%= i %>" class="preview-img">
                             </div>
                             <% } %>
@@ -296,7 +296,7 @@
               ${Array(6).fill(0).map((_, i) => `
                 <div class="image-upload-area">
                   <span class="upload-overlay-text">+</span>
-                  <input type="file" id="imgInput_${idx}_${i}" accept="image/*">
+                  <input type="file" id="imgInput_${idx}_${i}" accept="image/jpeg, image/png, image/webp">
                   <img id="preview_${idx}_${i}" class="preview-img">
                 </div>
               `).join('')}

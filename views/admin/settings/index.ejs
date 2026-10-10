@@ -154,7 +154,7 @@
               </div>
 
               <!-- WALLET FIELDS -->
-              <div id="walletSection" style="<%= settings.referralRewardType === 'COUPON' ? 'display:none;' : '' %>">
+              <div id="walletSection" <%- settings.referralRewardType === 'COUPON' ? 'style="display:none;"' : '' %>>
                 <div class="form-group">
                   <label for="referralRewardReferrer">Referrer Cash Bonus (₹)</label>
                   <input type="number" id="referralRewardReferrer" name="referralRewardReferrer" value="<%= settings.referralRewardReferrer || 100 %>" min="0">
@@ -166,7 +166,7 @@
               </div>
 
               <!-- COUPON FIELDS -->
-              <div id="couponSection" style="<%= settings.referralRewardType === 'COUPON' ? '' : 'display:none;' %>">
+              <div id="couponSection" <%- settings.referralRewardType === 'COUPON' ? '' : 'style="display:none;"' %>>
                 <div class="form-group">
                   <label>Referrer Coupon Template</label>
                   <input type="hidden" id="referralCouponReferrer" name="referralCouponReferrer" value="<%= settings.referralCouponReferrer ? settings.referralCouponReferrer._id : '' %>">

@@ -1,6 +1,14 @@
 /* General Layout */
 body {
-  font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  font-family:
+    'Inter',
+    -apple-system,
+    BlinkMacSystemFont,
+    'Segoe UI',
+    Roboto,
+    Helvetica,
+    Arial,
+    sans-serif;
   background-color: #f8f8f8;
   color: #333;
 }
@@ -174,15 +182,24 @@ h2 {
 }
 
 .badge.flash-sale {
-  background: rgba(255,255,255,0.2);
+  background: rgba(255, 255, 255, 0.2);
   backdrop-filter: blur(4px);
   color: white;
-  border: 1px solid rgba(255,255,255,0.4);
+  border: 1px solid rgba(255, 255, 255, 0.4);
 }
 
-.badge.status-active { background: #e6f4ea; color: #1e8e3e; }
-.badge.status-scheduled { background: #fef7e0; color: #b06000; }
-.badge.status-draft { background: #f1f3f4; color: #5f6368; }
+.badge.status-active {
+  background: #e6f4ea;
+  color: #1e8e3e;
+}
+.badge.status-scheduled {
+  background: #fef7e0;
+  color: #b06000;
+}
+.badge.status-draft {
+  background: #f1f3f4;
+  color: #5f6368;
+}
 
 /* Active Campaign Card */
 .featured-campaign-card {
@@ -190,7 +207,7 @@ h2 {
   background: #fff;
   border-radius: 16px;
   overflow: hidden;
-  box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
 }
 
 .campaign-info {
@@ -288,8 +305,15 @@ h2 {
 
 .visual-overlay {
   position: absolute;
-  top: 0; left: 0; right: 0; bottom: 0;
-  background: linear-gradient(to bottom, rgba(0,0,0,0.1), rgba(0,0,0,0.7));
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(
+    to bottom,
+    rgba(0, 0, 0, 0.1),
+    rgba(0, 0, 0, 0.7)
+  );
   border-radius: 16px;
   padding: 40px;
   display: flex;
@@ -316,7 +340,7 @@ h2 {
 }
 
 .visual-body p {
-  color: rgba(255,255,255,0.8);
+  color: rgba(255, 255, 255, 0.8);
   font-size: 15px;
   line-height: 1.5;
 }
@@ -324,7 +348,7 @@ h2 {
 .visual-footer {
   display: flex;
   justify-content: space-between;
-  border-top: 1px solid rgba(255,255,255,0.2);
+  border-top: 1px solid rgba(255, 255, 255, 0.2);
   padding-top: 20px;
   margin-bottom: 20px;
 }
@@ -334,11 +358,12 @@ h2 {
   font-size: 10px;
   text-transform: uppercase;
   letter-spacing: 1px;
-  color: rgba(255,255,255,0.6);
+  color: rgba(255, 255, 255, 0.6);
   margin-bottom: 5px;
 }
 
-.visual-footer .time, .visual-footer .amount {
+.visual-footer .time,
+.visual-footer .amount {
   font-size: 16px;
   font-weight: 500;
 }
@@ -456,7 +481,6 @@ h2 {
   margin-bottom: 15px;
 }
 
-
 /* Create View specific */
 .top-bar-create {
   margin-bottom: 0;
@@ -499,7 +523,10 @@ h2 {
   margin-bottom: 8px;
 }
 
-input[type="text"], input[type="date"], input[type="number"], select {
+input[type='text'],
+input[type='date'],
+input[type='number'],
+select {
   width: 100%;
   padding: 12px;
   border: 1px solid #ddd;
@@ -512,8 +539,12 @@ input[type="text"], input[type="date"], input[type="number"], select {
   display: flex;
   gap: 20px;
 }
-.form-row .form-group { flex: 1; }
-.align-end { align-items: flex-end; }
+.form-row .form-group {
+  flex: 1;
+}
+.align-end {
+  align-items: flex-end;
+}
 
 .section-header-inline {
   display: flex;
@@ -521,7 +552,9 @@ input[type="text"], input[type="date"], input[type="number"], select {
   align-items: center;
   margin-bottom: 20px;
 }
-.section-header-inline h2 { margin: 0; }
+.section-header-inline h2 {
+  margin: 0;
+}
 
 .btn-text-small {
   background: none;
@@ -592,7 +625,9 @@ input[type="text"], input[type="date"], input[type="number"], select {
   flex: 1;
   cursor: pointer;
 }
-.toggle-btn input { display: none; }
+.toggle-btn input {
+  display: none;
+}
 .toggle-btn span {
   display: block;
   text-align: center;
@@ -621,7 +656,9 @@ input[type="text"], input[type="date"], input[type="number"], select {
   color: #888;
 }
 
-.hidden-input { display: none; }
+.hidden-input {
+  display: none;
+}
 
 .upload-label {
   display: flex;
@@ -636,7 +673,9 @@ input[type="text"], input[type="date"], input[type="number"], select {
   background: #faf8f5;
   transition: 0.2s;
 }
-.upload-label:hover { background: #f0ece3; }
+.upload-label:hover {
+  background: #f0ece3;
+}
 
 .upload-icon {
   width: 50px;
@@ -650,8 +689,16 @@ input[type="text"], input[type="date"], input[type="number"], select {
   margin-bottom: 15px;
 }
 
-.upload-label h3 { margin: 0 0 5px 0; font-size: 16px; color: #333; }
-.upload-label p { margin: 0; font-size: 12px; color: #888; }
+.upload-label h3 {
+  margin: 0 0 5px 0;
+  font-size: 16px;
+  color: #333;
+}
+.upload-label p {
+  margin: 0;
+  font-size: 12px;
+  color: #888;
+}
 
 .info-box {
   display: flex;
@@ -662,15 +709,21 @@ input[type="text"], input[type="date"], input[type="number"], select {
   margin-top: 20px;
 }
 .info-icon {
-  width: 24px; height: 24px;
+  width: 24px;
+  height: 24px;
   border: 1px solid #666;
   border-radius: 50%;
-  display: flex; align-items: center; justify-content: center;
-  font-size: 12px; color: #666;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  color: #666;
   flex-shrink: 0;
 }
 .info-box p {
-  margin: 0; font-size: 13px; color: #555;
+  margin: 0;
+  font-size: 13px;
+  color: #555;
   line-height: 1.5;
 }
 
@@ -679,17 +732,17 @@ input[type="text"], input[type="date"], input[type="number"], select {
   .featured-campaign-card {
     flex-direction: column-reverse;
   }
-  
+
   .campaign-info {
     padding: 30px;
   }
-  
+
   .campaign-visual {
     min-height: 250px;
     margin: 0;
     border-radius: 16px 16px 0 0;
   }
-  
+
   .create-form-layout {
     grid-template-columns: 1fr;
   }
@@ -701,21 +754,19 @@ input[type="text"], input[type="date"], input[type="number"], select {
     align-items: flex-start;
     gap: 16px;
   }
-  
+
   .header-actions {
     width: 100%;
     justify-content: space-between;
   }
-  
+
   .campaign-stats {
     flex-direction: column;
     gap: 10px;
   }
-  
+
   .form-row {
     flex-direction: column;
     gap: 15px;
   }
 }
-
-

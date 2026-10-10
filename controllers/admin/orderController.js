@@ -1,6 +1,10 @@
 import * as orderService from '../../services/admin/orderService.js';
 import { generateInvoicePDF } from '../../utils/pdfGenerator.js';
-import { STATUS_CODES, COMMON_MESSAGES, ORDER_MESSAGES } from '../../constants/index.js';
+import {
+  STATUS_CODES,
+  COMMON_MESSAGES,
+  ORDER_MESSAGES,
+} from '../../constants/index.js';
 
 export const getOrders = async (req, res, next) => {
   try {
@@ -18,8 +22,14 @@ export const getOrders = async (req, res, next) => {
       pendingFulfillmentCount,
       outForDeliveryCount,
       monthlyRevenue,
-      pendingReturnsCount
-    } = await orderService.getOrdersAdmin({ page, limit, status, search, dateFilter });
+      pendingReturnsCount,
+    } = await orderService.getOrdersAdmin({
+      page,
+      limit,
+      status,
+      search,
+      dateFilter,
+    });
 
     res.render('admin/order/index', {
       orders,
@@ -35,7 +45,7 @@ export const getOrders = async (req, res, next) => {
       currentDateFilter: dateFilter,
       searchQuery: search || '',
       title: 'Orders',
-      activePage: 'orders'
+      activePage: 'orders',
     });
   } catch (error) {
     next(error);
@@ -47,13 +57,18 @@ export const getOrderDetails = async (req, res, next) => {
     const order = await orderService.getOrderDetailsAdmin(req.params.id);
 
     if (!order) {
-      return res.status(STATUS_CODES.NOT_FOUND).render('admin/404', { title: ORDER_MESSAGES.NOT_FOUND, activePage: 'orders' });
+      return res
+        .status(STATUS_CODES.NOT_FOUND)
+        .render('admin/404', {
+          title: ORDER_MESSAGES.NOT_FOUND,
+          activePage: 'orders',
+        });
     }
 
     res.render('admin/order/details', {
       order,
       title: `Order #${order.orderId}`,
-      activePage: 'orders'
+      activePage: 'orders',
     });
   } catch (error) {
     next(error);
@@ -65,11 +80,18 @@ export const updateOrderStatus = async (req, res) => {
     const { status } = req.body;
     await orderService.updateOrderStatusAdmin(req.params.id, status);
 
-    res.status(STATUS_CODES.OK).json({ success: true, message: ORDER_MESSAGES.STATUS_UPDATED });
+    res
+      .status(STATUS_CODES.OK)
+      .json({ success: true, message: ORDER_MESSAGES.STATUS_UPDATED });
   } catch (error) {
     console.error('Error updating order status:', error);
     const statusCode = error.statusCode || STATUS_CODES.INTERNAL_SERVER_ERROR;
-    res.status(statusCode).json({ success: false, message: error.message || ORDER_MESSAGES.STATUS_UPDATE_FAILED });
+    res
+      .status(statusCode)
+      .json({
+        success: false,
+        message: error.message || ORDER_MESSAGES.STATUS_UPDATE_FAILED,
+      });
   }
 };
 
@@ -78,11 +100,18 @@ export const processRefund = async (req, res) => {
     const { id } = req.params;
     await orderService.processRefundAdmin(id);
 
-    res.status(STATUS_CODES.OK).json({ success: true, message: ORDER_MESSAGES.REFUND_SUCCESS });
+    res
+      .status(STATUS_CODES.OK)
+      .json({ success: true, message: ORDER_MESSAGES.REFUND_SUCCESS });
   } catch (error) {
     console.error('Error processing refund:', error);
     const statusCode = error.statusCode || STATUS_CODES.INTERNAL_SERVER_ERROR;
-    res.status(statusCode).json({ success: false, message: error.message || ORDER_MESSAGES.REFUND_FAILED });
+    res
+      .status(statusCode)
+      .json({
+        success: false,
+        message: error.message || ORDER_MESSAGES.REFUND_FAILED,
+      });
   }
 };
 
@@ -100,8 +129,14 @@ export const getReturnRequests = async (req, res, next) => {
       totalCount,
       pendingCount,
       resolvedCount,
-      totalRefunded
-    } = await orderService.getReturnRequestsAdmin({ page, limit, statusFilter, search, dateFilter });
+      totalRefunded,
+    } = await orderService.getReturnRequestsAdmin({
+      page,
+      limit,
+      statusFilter,
+      search,
+      dateFilter,
+    });
 
     res.render('admin/order/returns', {
       returnRequests,
@@ -115,7 +150,7 @@ export const getReturnRequests = async (req, res, next) => {
       currentDateFilter: dateFilter,
       searchQuery: search || '',
       title: 'Return Requests',
-      activePage: 'orders'
+      activePage: 'orders',
     });
   } catch (error) {
     next(error);
@@ -126,11 +161,18 @@ export const rejectReturn = async (req, res) => {
   try {
     const { id } = req.params;
     await orderService.rejectReturnAdmin(id);
-    res.status(STATUS_CODES.OK).json({ success: true, message: ORDER_MESSAGES.RETURN_REJECTED });
+    res
+      .status(STATUS_CODES.OK)
+      .json({ success: true, message: ORDER_MESSAGES.RETURN_REJECTED });
   } catch (error) {
     console.error('Error rejecting return:', error);
     const statusCode = error.statusCode || STATUS_CODES.INTERNAL_SERVER_ERROR;
-    res.status(statusCode).json({ success: false, message: error.message || ORDER_MESSAGES.RETURN_REJECT_FAILED });
+    res
+      .status(statusCode)
+      .json({
+        success: false,
+        message: error.message || ORDER_MESSAGES.RETURN_REJECT_FAILED,
+      });
   }
 };
 
@@ -143,11 +185,16 @@ export const downloadInvoice = async (req, res) => {
     }
 
     res.setHeader('Content-Type', 'application/pdf');
-    res.setHeader('Content-Disposition', `attachment; filename=invoice-${order.orderId || order._id}.pdf`);
+    res.setHeader(
+      'Content-Disposition',
+      `attachment; filename=invoice-${order.orderId || order._id}.pdf`
+    );
 
     generateInvoicePDF(order, res);
   } catch (error) {
     console.error('Error generating invoice:', error);
-    res.status(STATUS_CODES.INTERNAL_SERVER_ERROR).send(ORDER_MESSAGES.INVOICE_ERROR);
+    res
+      .status(STATUS_CODES.INTERNAL_SERVER_ERROR)
+      .send(ORDER_MESSAGES.INVOICE_ERROR);
   }
 };

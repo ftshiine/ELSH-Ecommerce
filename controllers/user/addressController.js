@@ -1,16 +1,27 @@
-import { getAddressesByUser, getAddressById, createAddress, updateAddress, deleteAddress, setPrimaryAddress } from '../../services/user/addressService.js';
+import {
+  getAddressesByUser,
+  getAddressById,
+  createAddress,
+  updateAddress,
+  deleteAddress,
+  setPrimaryAddress,
+} from '../../services/user/addressService.js';
 import { validate } from '../../utils/validation.js';
 
 export const loadAddresses = async (req, res) => {
   try {
     const page = parseInt(req.query.page) || 1;
     const limit = 4;
-    const { addresses, totalAddresses, totalPages } = await getAddressesByUser(req.session.user.id, page, limit);
+    const { addresses, totalAddresses, totalPages } = await getAddressesByUser(
+      req.session.user.id,
+      page,
+      limit
+    );
 
     const breadcrumbs = [
       { name: 'Home', url: '/home' },
       { name: 'My Profile', url: '/profile' },
-      { name: 'Ritual Sites', url: '/profile/addresses' }
+      { name: 'Ritual Sites', url: '/profile/addresses' },
     ];
 
     res.render('user/profile/addresses/index', {
@@ -20,7 +31,7 @@ export const loadAddresses = async (req, res) => {
       totalAddresses,
       breadcrumbs,
       returnTo: req.query.returnTo,
-      checkoutType: req.query.type
+      checkoutType: req.query.type,
     });
   } catch (error) {
     console.error('Load addresses error:', error);
@@ -33,27 +44,61 @@ export const loadAddAddress = (req, res) => {
     { name: 'Home', url: '/home' },
     { name: 'My Profile', url: '/profile' },
     { name: 'Ritual Sites', url: '/profile/addresses' },
-    { name: 'Add New', url: '/profile/addresses/add' }
+    { name: 'Add New', url: '/profile/addresses/add' },
   ];
-  res.render('user/profile/addresses/form', { address: null, breadcrumbs, returnTo: req.query.returnTo });
+  res.render('user/profile/addresses/form', {
+    address: null,
+    breadcrumbs,
+    returnTo: req.query.returnTo,
+  });
 };
 
 export const addAddress = async (req, res) => {
   try {
-    const { fullName, phone, addressLine1, landmark, country, city, state, pincode, isPrimary } = req.body;
+    const {
+      fullName,
+      phone,
+      addressLine1,
+      landmark,
+      country,
+      city,
+      state,
+      pincode,
+      isPrimary,
+    } = req.body;
 
-    const validation = validate(req.body, ['fullName', 'username', 'phone', 'addressLine1', 'landmark', 'country', 'city', 'state', 'pincode']);
+    const validation = validate(req.body, [
+      'fullName',
+      'username',
+      'phone',
+      'addressLine1',
+      'landmark',
+      'country',
+      'city',
+      'state',
+      'pincode',
+    ]);
 
     if (!validation.isValid) {
-      const returnUrl = req.query.returnTo ? `?returnTo=${req.query.returnTo}` : '';
+      const returnUrl = req.query.returnTo
+        ? `?returnTo=${req.query.returnTo}`
+        : '';
       return res.redirectWithState('/profile/addresses/add' + returnUrl, {
         error: 'Please correct the highlighted fields.',
-        fieldErrors: validation.errors
+        fieldErrors: validation.errors,
       });
     }
 
     await createAddress(req.session.user.id, {
-      fullName, phone, addressLine1, landmark, country, city, state, pincode, isPrimary: isPrimary === 'on'
+      fullName,
+      phone,
+      addressLine1,
+      landmark,
+      country,
+      city,
+      state,
+      pincode,
+      isPrimary: isPrimary === 'on',
     });
 
     req.session.success = 'Address added successfully.';
@@ -63,7 +108,9 @@ export const addAddress = async (req, res) => {
   } catch (error) {
     console.error('Add address error:', error);
 
-    res.redirectWithState('/profile/addresses/add', { error: 'Failed to add address.' });
+    res.redirectWithState('/profile/addresses/add', {
+      error: 'Failed to add address.',
+    });
   }
 };
 
@@ -76,9 +123,13 @@ export const loadEditAddress = async (req, res) => {
       { name: 'Home', url: '/home' },
       { name: 'My Profile', url: '/profile' },
       { name: 'Ritual Sites', url: '/profile/addresses' },
-      { name: 'Edit', url: `/profile/addresses/edit/${address._id}` }
+      { name: 'Edit', url: `/profile/addresses/edit/${address._id}` },
     ];
-    res.render('user/profile/addresses/form', { address, breadcrumbs, returnTo: req.query.returnTo });
+    res.render('user/profile/addresses/form', {
+      address,
+      breadcrumbs,
+      returnTo: req.query.returnTo,
+    });
   } catch (error) {
     console.error('Load edit address error:', error);
     res.redirect('/profile/addresses');
@@ -87,20 +138,52 @@ export const loadEditAddress = async (req, res) => {
 
 export const editAddress = async (req, res) => {
   try {
-    const { fullName, phone, addressLine1, landmark, country, city, state, pincode, isPrimary } = req.body;
+    const {
+      fullName,
+      phone,
+      addressLine1,
+      landmark,
+      country,
+      city,
+      state,
+      pincode,
+      isPrimary,
+    } = req.body;
 
-    const validation = validate(req.body, ['fullName', 'phone', 'addressLine1', 'landmark', 'country', 'city', 'state', 'pincode']);
+    const validation = validate(req.body, [
+      'fullName',
+      'phone',
+      'addressLine1',
+      'landmark',
+      'country',
+      'city',
+      'state',
+      'pincode',
+    ]);
 
     if (!validation.isValid) {
-      const returnUrl = req.query.returnTo ? `?returnTo=${req.query.returnTo}` : '';
-      return res.redirectWithState(`/profile/addresses/edit/${req.params.id}` + returnUrl, {
-        error: 'Please correct the highlighted fields.',
-        fieldErrors: validation.errors
-      });
+      const returnUrl = req.query.returnTo
+        ? `?returnTo=${req.query.returnTo}`
+        : '';
+      return res.redirectWithState(
+        `/profile/addresses/edit/${req.params.id}` + returnUrl,
+        {
+          error: 'Please correct the highlighted fields.',
+          fieldErrors: validation.errors,
+        }
+      );
     }
 
     await updateAddress(req.params.id, req.session.user.id, {
-      fullName, phone, addressLine1, landmark, country, city, state, pincode, isPrimary: isPrimary === 'on'
+      fullName,
+      phone,
+      addressLine1,
+      landmark,
+      country,
+      city,
+      state,
+      pincode,
+      isPrimary: isPrimary === 'on',
     });
 
     req.session.success = 'Address updated successfully.';
@@ -138,4 +221,3 @@ export const makePrimary = async (req, res) => {
     res.redirect('/profile/addresses');
   }
 };
-

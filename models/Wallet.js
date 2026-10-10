@@ -3,39 +3,42 @@ import mongoose from 'mongoose';
 const transactionSchema = new mongoose.Schema({
   amount: {
     type: Number,
-    required: true
+    required: true,
   },
   type: {
     type: String,
     enum: ['CREDIT', 'DEBIT'],
-    required: true
+    required: true,
   },
   description: {
     type: String,
-    required: true
+    required: true,
   },
   date: {
     type: Date,
-    default: Date.now
-  }
+    default: Date.now,
+  },
 });
 
-const walletSchema = new mongoose.Schema({
-  user: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: 'User',
-    required: true,
-    unique: true
+const walletSchema = new mongoose.Schema(
+  {
+    user: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'User',
+      required: true,
+      unique: true,
+    },
+    balance: {
+      type: Number,
+      default: 0,
+    },
+    totalRefunds: {
+      type: Number,
+      default: 0,
+    },
+    transactions: [transactionSchema],
   },
-  balance: {
-    type: Number,
-    default: 0
-  },
-  totalRefunds: {
-    type: Number,
-    default: 0
-  },
-  transactions: [transactionSchema]
-}, { timestamps: true });
+  { timestamps: true }
+);
 
 export default mongoose.model('Wallet', walletSchema);

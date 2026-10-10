@@ -6,7 +6,7 @@ import {
   createOffer,
   loadEditOffer,
   updateOffer,
-  toggleOfferStatus
+  toggleOfferStatus,
 } from '../../controllers/admin/offerController.js';
 
 const router = express.Router();

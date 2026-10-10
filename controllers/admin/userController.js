@@ -1,4 +1,7 @@
-import { getAllUsers, toggleBlockUser } from '../../services/admin/userService.js';
+import {
+  getAllUsers,
+  toggleBlockUser,
+} from '../../services/admin/userService.js';
 
 const loadUsers = async (req, res) => {
   try {
@@ -6,7 +9,11 @@ const loadUsers = async (req, res) => {
     const page = parseInt(req.query.page) || 1;
     const limit = 5;
 
-    const { users, totalUsers, totalPages} = await getAllUsers(search, page, limit);
+    const { users, totalUsers, totalPages } = await getAllUsers(
+      search,
+      page,
+      limit
+    );
 
     res.render('admin/users/index', {
       users,
@@ -16,7 +23,6 @@ const loadUsers = async (req, res) => {
       search,
       admin: req.session.admin,
       activePage: 'users',
-      
     });
   } catch (error) {
     console.error('Load users error:', error);

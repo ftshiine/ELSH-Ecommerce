@@ -171,7 +171,7 @@
       if (!file) {
         window.AdminValidator.addCustomError(imageUploadArea, 'Please upload a category image.');
         hasImageError = true;
-      } else if (!file.type.startsWith('image/')) {
+      } else if (!['image/jpeg', 'image/png', 'image/webp'].includes(file.type)) {
         window.AdminValidator.addCustomError(imageUploadArea, 'Please upload a valid image file (jpeg, png, webp).');
         hasImageError = true;
       } else if (file.size > 2 * 1024 * 1024) { // 2MB

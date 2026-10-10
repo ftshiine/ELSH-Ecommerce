@@ -1,17 +1,25 @@
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Playfair+Display:ital,wght@0,400;0,500;0,600;1,400&display=swap');
 
 :root {
-  --bg-color: #F8F7F3;
+  --bg-color: #f8f7f3;
   --text-color: #222;
   --border-color: #ccc;
-  --accent-color: #556B44;
+  --accent-color: #556b44;
 }
 
 body {
   margin: 0;
   padding: 0;
   background-color: var(--bg-color);
-  font-family: "SF Pro Display", "SF Pro Text", -apple-system, BlinkMacSystemFont, "Helvetica Neue", Helvetica, Arial, sans-serif;
+  font-family:
+    'SF Pro Display',
+    'SF Pro Text',
+    -apple-system,
+    BlinkMacSystemFont,
+    'Helvetica Neue',
+    Helvetica,
+    Arial,
+    sans-serif;
   color: var(--text-color);
 }
 
@@ -24,7 +32,15 @@ body {
 }
 
 .logo {
-  font-family: "SF Pro Display", "SF Pro Text", -apple-system, BlinkMacSystemFont, "Helvetica Neue", Helvetica, Arial, sans-serif;
+  font-family:
+    'SF Pro Display',
+    'SF Pro Text',
+    -apple-system,
+    BlinkMacSystemFont,
+    'Helvetica Neue',
+    Helvetica,
+    Arial,
+    sans-serif;
   font-size: 32px;
   font-weight: 600;
   color: #222;
@@ -68,7 +84,7 @@ body {
 }
 
 .step-num {
-  background: #EAE8E0;
+  background: #eae8e0;
   color: #666;
   font-size: 12px;
   font-weight: 600;
@@ -77,7 +93,15 @@ body {
 }
 
 .section-header h2 {
-  font-family: "SF Pro Display", "SF Pro Text", -apple-system, BlinkMacSystemFont, "Helvetica Neue", Helvetica, Arial, sans-serif;
+  font-family:
+    'SF Pro Display',
+    'SF Pro Text',
+    -apple-system,
+    BlinkMacSystemFont,
+    'Helvetica Neue',
+    Helvetica,
+    Arial,
+    sans-serif;
   font-size: 28px;
   font-weight: 500;
   margin: 0;
@@ -101,7 +125,7 @@ body {
   position: relative;
 }
 
-.address-card input[type="radio"] {
+.address-card input[type='radio'] {
   display: none;
 }
 
@@ -129,8 +153,8 @@ body {
 }
 
 .badge {
-  background: #D8E0D2;
-  color: #4A5D3B;
+  background: #d8e0d2;
+  color: #4a5d3b;
   font-size: 11px;
   font-weight: 600;
   padding: 3px 8px;
@@ -189,7 +213,7 @@ body {
   display: flex;
   flex-direction: column;
   gap: 15px;
-  background: #F0EFEA;
+  background: #f0efea;
   padding: 25px;
   border-radius: 8px;
 }
@@ -213,7 +237,7 @@ body {
   border-width: 1.5px;
 }
 
-.payment-card input[type="radio"] {
+.payment-card input[type='radio'] {
   display: none;
 }
 
@@ -260,7 +284,6 @@ body {
   border-radius: 50%;
 }
 
-
 .checkout-right {
   position: sticky;
   top: 40px;
@@ -268,13 +291,21 @@ body {
 }
 
 .summary-card {
-  background: #EFECE6;
+  background: #efece6;
   padding: 30px;
   border-radius: 8px;
 }
 
 .summary-card h2 {
-  font-family: "SF Pro Display", "SF Pro Text", -apple-system, BlinkMacSystemFont, "Helvetica Neue", Helvetica, Arial, sans-serif;
+  font-family:
+    'SF Pro Display',
+    'SF Pro Text',
+    -apple-system,
+    BlinkMacSystemFont,
+    'Helvetica Neue',
+    Helvetica,
+    Arial,
+    sans-serif;
   font-size: 24px;
   font-weight: 500;
   margin: 0 0 25px 0;
@@ -414,13 +445,13 @@ body {
   .checkout-wrapper {
     margin: 20px auto;
   }
-  
+
   .checkout-header {
     flex-direction: column;
     gap: 16px;
     padding: 20px;
   }
-  
+
   .section-header {
     flex-direction: column;
     align-items: flex-start;

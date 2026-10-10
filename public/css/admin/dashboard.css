@@ -293,7 +293,8 @@
 
 /* ── RESPONSIVE ── */
 @media (max-width: 992px) {
-  .mid-grid, .bottom-grid {
+  .mid-grid,
+  .bottom-grid {
     grid-template-columns: 1fr;
   }
 }
@@ -304,7 +305,7 @@
     align-items: flex-start;
     gap: 16px;
   }
-  
+
   .orders-card {
     overflow-x: auto;
     white-space: nowrap;

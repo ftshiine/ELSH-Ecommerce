@@ -4,7 +4,7 @@ import {
   loadCoupons,
   loadCreateCoupon,
   createCoupon,
-  toggleCouponStatus
+  toggleCouponStatus,
 } from '../../controllers/admin/couponController.js';
 
 const router = express.Router();

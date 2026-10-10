@@ -509,7 +509,7 @@
                                   <div
                                     style="width: 100%; background: #eaeaea; height: 4px; border-radius: 2px; overflow: hidden;">
                                     <div
-                                      style="width: <%= coupon.usageLimit ? percentage : 100 %>%; background: <%= coupon.isActive ? '#556B55' : '#ccc' %>; height: 100%;">
+                                      style="<%- `width: ${coupon.usageLimit ? percentage : 100}%; background: ${coupon.isActive ? '#556B55' : '#ccc'}; height: 100%;` %>">
                                     </div>
                                   </div>
                                 </td>
@@ -540,7 +540,7 @@
                                         <% } %>
                                           <% } else { %>
                                             <button class="action-btn"
-                                              onclick="toggleCoupon('<%= coupon._id %>', <%= coupon.isActive %>)"
+                                              onclick="<%- `toggleCoupon('${coupon._id}', ${coupon.isActive})` %>"
                                               style="background: none; border: none; cursor: pointer; color: #666; padding: 8px;">
                                               <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20"
                                                 viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
@@ -572,7 +572,7 @@
 
                             <% for(let i=1; i <=totalPages; i++) { %>
                               <a href="?page=<%= i %>"
-                                style="width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; border: 1px solid <%= currentPage === i ? '#556B55' : '#eaeaea' %>; background: <%= currentPage === i ? '#eef5ee' : 'white' %>; color: <%= currentPage === i ? '#556B55' : '#666' %>; border-radius: 50%; text-decoration: none;">
+                                style="<%- `width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; border: 1px solid ${currentPage === i ? '#556B55' : '#eaeaea'}; background: ${currentPage === i ? '#eef5ee' : 'white'}; color: ${currentPage === i ? '#556B55' : '#666'}; border-radius: 50%; text-decoration: none;` %>">
                                 <%= i %>
                               </a>
                               <% } %>

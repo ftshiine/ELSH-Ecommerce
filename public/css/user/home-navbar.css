@@ -25,7 +25,7 @@
 }
 
 .home-navbar-logo {
-  font-family: "Playfair Display", serif;
+  font-family: 'Playfair Display', serif;
   font-size: 28px;
   font-weight: 500;
   color: #2c2c2c;
@@ -44,7 +44,15 @@
 }
 
 .home-navbar-links a {
-  font-family: "SF Pro Display", "SF Pro Text", -apple-system, BlinkMacSystemFont, "Helvetica Neue", Helvetica, Arial, sans-serif;
+  font-family:
+    'SF Pro Display',
+    'SF Pro Text',
+    -apple-system,
+    BlinkMacSystemFont,
+    'Helvetica Neue',
+    Helvetica,
+    Arial,
+    sans-serif;
   font-size: 11px;
   font-weight: 500;
   letter-spacing: 1.5px;
@@ -123,7 +131,7 @@
   right: 0;
   background: #ffffff;
   border-radius: 10px;
-  box-shadow: 0 8px 24px rgba(0,0,0,0.10);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
   min-width: 180px;
   padding: 8px 0;
   opacity: 0;
@@ -144,7 +152,15 @@
   align-items: center;
   gap: 10px;
   padding: 12px 16px;
-  font-family: "SF Pro Display", "SF Pro Text", -apple-system, BlinkMacSystemFont, "Helvetica Neue", Helvetica, Arial, sans-serif;
+  font-family:
+    'SF Pro Display',
+    'SF Pro Text',
+    -apple-system,
+    BlinkMacSystemFont,
+    'Helvetica Neue',
+    Helvetica,
+    Arial,
+    sans-serif;
   font-size: 13px;
   color: #2c2c2c;
   text-decoration: none;
@@ -168,7 +184,8 @@
 }
 
 .dropdown-logout img {
-  filter: invert(27%) sepia(51%) saturate(2878%) hue-rotate(346deg) brightness(104%) contrast(97%);
+  filter: invert(27%) sepia(51%) saturate(2878%) hue-rotate(346deg)
+    brightness(104%) contrast(97%);
 }
 
 .hamburger-btn {
@@ -214,7 +231,7 @@
     background-color: #ffffff;
     flex-direction: column;
     gap: 0;
-    box-shadow: 0 8px 16px rgba(0,0,0,0.05);
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.05);
     padding: 0;
     max-height: 0;
     overflow: hidden;

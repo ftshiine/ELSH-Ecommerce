@@ -231,7 +231,7 @@
                                       <span class="upload-overlay-text">+</span>
                                       <img id="preview_<%= index %>_<%= i %>" class="preview-img">
                                       <% } %>
-                                        <input type="file" id="imgInput_<%= index %>_<%= i %>" accept="image/*">
+                                        <input type="file" id="imgInput_<%= index %>_<%= i %>" accept="image/jpeg, image/png, image/webp">
                                 </div>
                                 <% } %>
                             </div>
@@ -348,7 +348,7 @@
           ${Array(6).fill(0).map((_, i) => `
           <div class="image-upload-area">
             <span class="upload-overlay-text">+</span>
-            <input type="file" id="imgInput_${idx}_${i}" accept="image/*">
+            <input type="file" id="imgInput_${idx}_${i}" accept="image/jpeg, image/png, image/webp">
             <img id="preview_${idx}_${i}" class="preview-img">
           </div>
           `).join('')}

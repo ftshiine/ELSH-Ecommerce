@@ -1,9 +1,19 @@
-* { box-sizing: border-box; }
+* {
+  box-sizing: border-box;
+}
 /* Order List Styles */
 body {
   background-color: #fcfbf9;
   margin: 0;
-  font-family: "SF Pro Display", "SF Pro Text", -apple-system, BlinkMacSystemFont, "Helvetica Neue", Helvetica, Arial, sans-serif;
+  font-family:
+    'SF Pro Display',
+    'SF Pro Text',
+    -apple-system,
+    BlinkMacSystemFont,
+    'Helvetica Neue',
+    Helvetica,
+    Arial,
+    sans-serif;
   color: #333;
 }
 
@@ -19,7 +29,15 @@ body {
 }
 
 .orders-page-header h1 {
-  font-family: "SF Pro Display", "SF Pro Text", -apple-system, BlinkMacSystemFont, "Helvetica Neue", Helvetica, Arial, sans-serif;
+  font-family:
+    'SF Pro Display',
+    'SF Pro Text',
+    -apple-system,
+    BlinkMacSystemFont,
+    'Helvetica Neue',
+    Helvetica,
+    Arial,
+    sans-serif;
   font-size: 32px;
   font-weight: 500;
   color: #222;
@@ -55,7 +73,7 @@ body {
 }
 
 .tab-link.active {
-  color: #556B44;
+  color: #556b44;
 }
 
 .tab-link.active::after {
@@ -65,7 +83,7 @@ body {
   left: 0;
   width: 100%;
   height: 2px;
-  background-color: #556B44;
+  background-color: #556b44;
 }
 
 /* Order List */
@@ -79,7 +97,7 @@ body {
   background: white;
   border-radius: 12px;
   padding: 24px;
-  box-shadow: 0 2px 12px rgba(0,0,0,0.03);
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.03);
 }
 
 .order-card-inner {
@@ -127,7 +145,7 @@ body {
 
 .badge-progress {
   background-color: #f0f4ea;
-  color: #556B44;
+  color: #556b44;
 }
 
 .badge-transit {
@@ -151,14 +169,30 @@ body {
 }
 
 .order-title {
-  font-family: "SF Pro Display", "SF Pro Text", -apple-system, BlinkMacSystemFont, "Helvetica Neue", Helvetica, Arial, sans-serif;
+  font-family:
+    'SF Pro Display',
+    'SF Pro Text',
+    -apple-system,
+    BlinkMacSystemFont,
+    'Helvetica Neue',
+    Helvetica,
+    Arial,
+    sans-serif;
   font-size: 20px;
   margin: 0 0 6px 0;
   color: #222;
 }
 
 .more-items {
-  font-family: "SF Pro Display", "SF Pro Text", -apple-system, BlinkMacSystemFont, "Helvetica Neue", Helvetica, Arial, sans-serif;
+  font-family:
+    'SF Pro Display',
+    'SF Pro Text',
+    -apple-system,
+    BlinkMacSystemFont,
+    'Helvetica Neue',
+    Helvetica,
+    Arial,
+    sans-serif;
   font-size: 14px;
   color: #888;
   font-weight: normal;
@@ -176,14 +210,14 @@ body {
 }
 
 .btn-solid {
-  background: #556B44;
+  background: #556b44;
   color: white;
   padding: 8px 16px;
   border-radius: 6px;
   text-decoration: none;
   font-size: 13px;
   font-weight: 500;
-  border: 1px solid #556B44;
+  border: 1px solid #556b44;
   transition: background 0.2s;
   cursor: pointer;
 }
@@ -230,7 +264,11 @@ body {
 }
 
 @media (max-width: 768px) {
-  .orders-wrapper { width: 100%;  overflow-x: hidden; padding: 0 16px; box-sizing: border-box;
+  .orders-wrapper {
+    width: 100%;
+    overflow-x: hidden;
+    padding: 0 16px;
+    box-sizing: border-box;
     margin: 20px auto;
   }
 
@@ -251,7 +289,10 @@ body {
     box-sizing: border-box;
   }
 
-  .order-tabs { width: 100%;  flex-wrap: nowrap; box-sizing: border-box;
+  .order-tabs {
+    width: 100%;
+    flex-wrap: nowrap;
+    box-sizing: border-box;
     overflow-x: auto;
     -webkit-overflow-scrolling: touch;
     padding-bottom: 10px;
@@ -261,7 +302,7 @@ body {
   .tab-link {
     white-space: nowrap;
   }
-  
+
   .order-tabs::-webkit-scrollbar {
     height: 2px;
   }
@@ -298,7 +339,8 @@ body {
     gap: 8px;
   }
 
-  .btn-solid, .btn-outline {
+  .btn-solid,
+  .btn-outline {
     font-size: 12px;
     padding: 8px 12px;
     flex: 1 1 auto;
@@ -315,5 +357,12 @@ body {
   }
 }
 
-
-@media (max-width: 768px) { html, body { overflow-x: hidden; width: 100%;  margin: 0; padding: 0; } }
+@media (max-width: 768px) {
+  html,
+  body {
+    overflow-x: hidden;
+    width: 100%;
+    margin: 0;
+    padding: 0;
+  }
+}

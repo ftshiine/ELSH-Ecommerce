@@ -79,7 +79,7 @@
 }
 
 .thumbnail.active {
-  border-color: #556B44;
+  border-color: #556b44;
 }
 
 .placeholder-thumb {
@@ -105,7 +105,15 @@
 }
 
 .product-title {
-  font-family: "SF Pro Display", "SF Pro Text", -apple-system, BlinkMacSystemFont, "Helvetica Neue", Helvetica, Arial, sans-serif;
+  font-family:
+    'SF Pro Display',
+    'SF Pro Text',
+    -apple-system,
+    BlinkMacSystemFont,
+    'Helvetica Neue',
+    Helvetica,
+    Arial,
+    sans-serif;
   font-size: 48px;
   font-weight: 400;
   color: #222;
@@ -162,10 +170,18 @@
 .size-btn {
   padding: 8px 24px;
   border-radius: 24px;
-  border: 1px solid #EAEAEA;
+  border: 1px solid #eaeaea;
   background: transparent;
   font-size: 12px;
-  font-family: "SF Pro Display", "SF Pro Text", -apple-system, BlinkMacSystemFont, "Helvetica Neue", Helvetica, Arial, sans-serif;
+  font-family:
+    'SF Pro Display',
+    'SF Pro Text',
+    -apple-system,
+    BlinkMacSystemFont,
+    'Helvetica Neue',
+    Helvetica,
+    Arial,
+    sans-serif;
   color: #555;
   cursor: pointer;
   transition: all 0.2s;
@@ -173,9 +189,9 @@
 
 .size-btn.active,
 .size-btn:hover {
-  background: #556B44;
+  background: #556b44;
   color: white;
-  border-color: #556B44;
+  border-color: #556b44;
 }
 
 /* Actions */
@@ -188,7 +204,7 @@
 .quantity-selector {
   display: flex;
   align-items: center;
-  border: 1px solid #EAEAEA;
+  border: 1px solid #eaeaea;
   border-radius: 24px;
   padding: 0 16px;
   height: 48px;
@@ -208,7 +224,15 @@
   text-align: center;
   border: none;
   background: transparent;
-  font-family: "SF Pro Display", "SF Pro Text", -apple-system, BlinkMacSystemFont, "Helvetica Neue", Helvetica, Arial, sans-serif;
+  font-family:
+    'SF Pro Display',
+    'SF Pro Text',
+    -apple-system,
+    BlinkMacSystemFont,
+    'Helvetica Neue',
+    Helvetica,
+    Arial,
+    sans-serif;
   font-size: 14px;
   pointer-events: none;
 }
@@ -219,7 +243,7 @@
   align-items: center;
   justify-content: center;
   gap: 12px;
-  background: #556B44;
+  background: #556b44;
   color: white;
   border: none;
   border-radius: 24px;
@@ -296,11 +320,11 @@
 
 /* Accordions */
 .accordions {
-  border-top: 1px solid #EAEAEA;
+  border-top: 1px solid #eaeaea;
 }
 
 .accordion {
-  border-bottom: 1px solid #EAEAEA;
+  border-bottom: 1px solid #eaeaea;
 }
 
 .accordion-header {
@@ -346,8 +370,8 @@
 /* Middle Section: Reviews */
 .reviews-section {
   padding: 80px 0;
-  border-top: 1px solid #EAEAEA;
-  border-bottom: 1px solid #EAEAEA;
+  border-top: 1px solid #eaeaea;
+  border-bottom: 1px solid #eaeaea;
   margin-bottom: 80px;
 }
 
@@ -359,7 +383,15 @@
 }
 
 .reviews-title-area h2 {
-  font-family: "SF Pro Display", "SF Pro Text", -apple-system, BlinkMacSystemFont, "Helvetica Neue", Helvetica, Arial, sans-serif;
+  font-family:
+    'SF Pro Display',
+    'SF Pro Text',
+    -apple-system,
+    BlinkMacSystemFont,
+    'Helvetica Neue',
+    Helvetica,
+    Arial,
+    sans-serif;
   font-size: 36px;
   font-weight: 400;
   color: #222;
@@ -373,7 +405,7 @@
 }
 
 .stars {
-  color: #556B44;
+  color: #556b44;
   letter-spacing: 2px;
 }
 
@@ -385,7 +417,7 @@
 .write-review-btn {
   padding: 12px 24px;
   border-radius: 24px;
-  border: 1px solid #EAEAEA;
+  border: 1px solid #eaeaea;
   background: transparent;
   font-size: 11px;
   font-weight: 600;
@@ -406,13 +438,13 @@
 }
 
 .review-card {
-  background: #FFF;
+  background: #fff;
   padding: 32px;
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.03);
 }
 
 .review-stars {
-  color: #556B44;
+  color: #556b44;
   margin-bottom: 16px;
   letter-spacing: 2px;
 }
@@ -436,7 +468,7 @@
   width: 40px;
   height: 40px;
   border-radius: 50%;
-  background: #EAEAEA;
+  background: #eaeaea;
 }
 
 .reviewer-details h4 {
@@ -460,7 +492,15 @@
 }
 
 .related-header h2 {
-  font-family: "SF Pro Display", "SF Pro Text", -apple-system, BlinkMacSystemFont, "Helvetica Neue", Helvetica, Arial, sans-serif;
+  font-family:
+    'SF Pro Display',
+    'SF Pro Text',
+    -apple-system,
+    BlinkMacSystemFont,
+    'Helvetica Neue',
+    Helvetica,
+    Arial,
+    sans-serif;
   font-size: 32px;
   font-weight: 400;
   color: #222;
@@ -548,16 +588,17 @@
     flex-direction: column;
     gap: 30px;
   }
-  
-  .product-gallery, .product-info-panel {
+
+  .product-gallery,
+  .product-info-panel {
     max-width: 100%;
     flex: none;
   }
-  
+
   .review-cards {
     grid-template-columns: repeat(2, 1fr);
   }
-  
+
   .related-grid {
     grid-template-columns: repeat(2, 1fr);
   }
@@ -567,25 +608,25 @@
   .product-detail-container {
     padding: 20px;
   }
-  
+
   .product-title {
     font-size: 32px;
   }
-  
+
   .action-row {
     flex-direction: row;
   }
-  
+
   .review-cards {
     grid-template-columns: 1fr;
   }
-  
+
   .reviews-header {
     flex-direction: column;
     align-items: flex-start;
     gap: 16px;
   }
-  
+
   .related-grid {
     grid-template-columns: 1fr;
   }

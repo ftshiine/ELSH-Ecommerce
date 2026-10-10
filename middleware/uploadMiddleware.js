@@ -3,7 +3,7 @@ import path from 'path';
 import { CloudinaryStorage } from 'multer-storage-cloudinary';
 import cloudinary from '../config/cloudinary.js';
 
-//Cloudinary storage 
+//Cloudinary storage
 const storage = new CloudinaryStorage({
   cloudinary: cloudinary,
   params: {
@@ -13,32 +13,44 @@ const storage = new CloudinaryStorage({
 });
 
 const fileFilter = (req, file, cb) => {
-  const allowedTypes = /jpeg|jpg|png|webp/;
-  const isValid = allowedTypes.test(path.extname(file.originalname).toLowerCase());
-  if (isValid) {
+  const allowedExts = /jpeg|jpg|png|webp/;
+  const allowedMimes = /image\/jpeg|image\/jpg|image\/png|image\/webp/;
+  
+  const isValidExt = allowedExts.test(
+    path.extname(file.originalname).toLowerCase()
+  );
+  const isValidMime = allowedMimes.test(file.mimetype);
+
+  if (isValidExt && isValidMime) {
     cb(null, true);
   } else {
-    cb(new Error('Only image files are allowed!'), false);
+    cb(new Error('INVALID_FILE_TYPE'), false);
   }
 };
 
-const upload = multer({ storage, fileFilter, limits: { fileSize: 5 * 1024 * 1024 } });
+const uploadLimits = { fileSize: 5 * 1024 * 1024 }; // 5MB
+
+const upload = multer({
+  storage,
+  fileFilter,
+  limits: uploadLimits,
+});
 
 export const handleProfileUpload = (req, res, next) => {
   const uploadSingle = upload.single('profileImage');
   uploadSingle(req, res, (err) => {
     if (err) {
       let errorMessage = err.message;
-      if (err instanceof multer.MulterError && err.code === 'LIMIT_FILE_SIZE') {
-        errorMessage = 'Profile image is too large. Choose a different image.';
+      if (err.message === 'INVALID_FILE_TYPE') {
+        errorMessage = 'Only image files (JPG, PNG, WEBP) are allowed!';
+      } else if (err instanceof multer.MulterError && err.code === 'LIMIT_FILE_SIZE') {
+        errorMessage = 'Profile image is too large. Choose a different image (Max 5MB).';
       }
       return res.redirectWithState('/profile/edit', { error: errorMessage });
     }
     next();
   });
 };
-
-
 
 const categoryStorage = new CloudinaryStorage({
   cloudinary: cloudinary,
@@ -64,6 +76,6 @@ const offerStorage = new CloudinaryStorage({
   },
 });
 
-export const uploadCategory = multer({ storage: categoryStorage });
-export const uploadProducts = multer({ storage: productStorage });
-export const uploadOffers = multer({ storage: offerStorage });
+export const uploadCategory = multer({ storage: categoryStorage, fileFilter, limits: uploadLimits });
+export const uploadProducts = multer({ storage: productStorage, fileFilter, limits: uploadLimits });
+export const uploadOffers = multer({ storage: offerStorage, fileFilter, limits: uploadLimits });

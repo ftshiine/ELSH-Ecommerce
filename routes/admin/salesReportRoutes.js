@@ -1,5 +1,9 @@
 import express from 'express';
-import { loadSalesReport, downloadPdf, downloadExcel } from '../../controllers/admin/salesReportController.js';
+import {
+  loadSalesReport,
+  downloadPdf,
+  downloadExcel,
+} from '../../controllers/admin/salesReportController.js';
 import { requireAuth } from '../../middleware/authMiddleware.js';
 
 const router = express.Router();

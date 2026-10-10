@@ -1,6 +1,9 @@
 import express from 'express';
 import { requireAuth } from '../../middleware/authMiddleware.js';
-import { getInventory, updateStock } from '../../controllers/admin/inventoryController.js';
+import {
+  getInventory,
+  updateStock,
+} from '../../controllers/admin/inventoryController.js';
 
 const router = express.Router();
 

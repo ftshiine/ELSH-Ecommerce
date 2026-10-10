@@ -1,7 +1,25 @@
 import express from 'express';
 import passport from 'passport';
-import { loadSignup, signup, loadOTP, verifyOTPHandler, resendOTP, loadLogin, login, logout, googleAuthCallback } from '../../controllers/user/authController.js';
-import { loadForgotPassword, sendForgotPasswordOTP, loadForgotOTP, verifyForgotOTP, resendForgotOTP, loadResetPassword, resetPassword } from '../../controllers/user/passwordController.js';
+import {
+  loadSignup,
+  signup,
+  loadOTP,
+  verifyOTPHandler,
+  resendOTP,
+  loadLogin,
+  login,
+  logout,
+  googleAuthCallback,
+} from '../../controllers/user/authController.js';
+import {
+  loadForgotPassword,
+  sendForgotPasswordOTP,
+  loadForgotOTP,
+  verifyForgotOTP,
+  resendForgotOTP,
+  loadResetPassword,
+  resetPassword,
+} from '../../controllers/user/passwordController.js';
 import { requireAuth, requireGuest } from '../../middleware/authMiddleware.js';
 
 const router = express.Router();
@@ -32,12 +50,19 @@ router.get('/forgot-password/reset', loadResetPassword);
 router.post('/forgot-password/reset', resetPassword);
 
 // Google OAuth routes
-router.get('/auth/google', requireGuest('user'), passport.authenticate('google', { scope: ['profile', 'email'] }));
-
-
-router.get('/auth/google/callback',
+router.get(
+  '/auth/google',
   requireGuest('user'),
-  passport.authenticate('google', { failureRedirect: '/login', session: false }),
+  passport.authenticate('google', { scope: ['profile', 'email'] })
+);
+
+router.get(
+  '/auth/google/callback',
+  requireGuest('user'),
+  passport.authenticate('google', {
+    failureRedirect: '/login',
+    session: false,
+  }),
   googleAuthCallback
 );
 

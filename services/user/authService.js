@@ -5,8 +5,6 @@ const findUserByEmail = async (email) => {
   return await User.findOne({ email });
 };
 
-
-
 const createUser = async (userData) => {
   const hashedPassword = await bcrypt.hash(userData.password, 10);
   const user = new User({
@@ -17,7 +15,7 @@ const createUser = async (userData) => {
     role: 'user',
     isActive: true,
     referralCode: userData.referralCode,
-    referredBy: userData.referredBy
+    referredBy: userData.referredBy,
   });
   return await user.save();
 };
@@ -25,26 +23,20 @@ const createUser = async (userData) => {
 const updatePassword = async (email, newPassword) => {
   const hashedPassword = await bcrypt.hash(newPassword, 10);
   return await User.findOneAndUpdate({ email }, { password: hashedPassword });
-}
+};
 
 const validateAccountStatus = (user) => {
   if (!user) {
     return { isValid: false, message: 'Account does not exist.' };
   }
   if (!user.isActive) {
-    return { isValid: false, message: 'Your account has been blocked. Please contact support for assistance.' };
+    return {
+      isValid: false,
+      message:
+        'Your account has been blocked. Please contact support for assistance.',
+    };
   }
   return { isValid: true };
 };
 
 export { findUserByEmail, createUser, updatePassword, validateAccountStatus };
-
-
-
-
-
-
-
-
-
-

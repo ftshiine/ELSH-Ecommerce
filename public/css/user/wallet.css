@@ -3,7 +3,7 @@
   max-width: 900px;
   margin: 40px auto;
   padding: 0 20px;
-  font-family: "Inter", sans-serif;
+  font-family: 'Inter', sans-serif;
   color: #222;
 }
 
@@ -12,7 +12,7 @@
 }
 
 .wallet-header h1 {
-  font-family: "Playfair Display", serif;
+  font-family: 'Playfair Display', serif;
   font-size: 32px;
   font-weight: 400;
   margin-bottom: 8px;
@@ -44,7 +44,7 @@
 }
 
 .balance-info .amount {
-  font-family: "Playfair Display", serif;
+  font-family: 'Playfair Display', serif;
   font-size: 48px;
   font-weight: 500;
   margin-bottom: 16px;
@@ -90,7 +90,7 @@
 .btn-redeem {
   background: transparent;
   color: #fff;
-  border: 1px solid rgba(255,255,255,0.4);
+  border: 1px solid rgba(255, 255, 255, 0.4);
   padding: 12px 24px;
   border-radius: 6px;
   font-size: 12px;
@@ -100,7 +100,7 @@
   transition: background 0.2s;
 }
 .btn-redeem:hover {
-  background: rgba(255,255,255,0.1);
+  background: rgba(255, 255, 255, 0.1);
 }
 
 /* Stats Cards */
@@ -115,7 +115,7 @@
   background: #fff;
   border-radius: 8px;
   padding: 24px;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.02);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.02);
 }
 
 .stat-card .label {
@@ -127,7 +127,7 @@
 }
 
 .stat-card .amount {
-  font-family: "Playfair Display", serif;
+  font-family: 'Playfair Display', serif;
   font-size: 28px;
   color: #222;
   margin-bottom: 12px;
@@ -174,11 +174,11 @@
   background: #fff;
   border-radius: 8px;
   padding: 24px;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.02);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.02);
 }
 
 .transactions-section h2 {
-  font-family: "Playfair Display", serif;
+  font-family: 'Playfair Display', serif;
   font-size: 24px;
   font-weight: 400;
   margin-bottom: 20px;

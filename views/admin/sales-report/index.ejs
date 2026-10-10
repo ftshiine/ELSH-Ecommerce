@@ -155,8 +155,8 @@
                   </div>
                 </td>
                 <td><%= new Date(order.createdAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) %></td>
-                <td style="font-weight: 600;">Rs. <%= order.pricing.totalAmount %></td>
-                <td>Rs. <%= (order.pricing.discountAmount || 0) + (order.pricing.couponDiscount || 0) %></td>
+                <td style="font-weight: 600;">Rs. <%= order.netAmount.toFixed(2) %></td>
+                <td>Rs. <%= order.netDiscount.toFixed(2) %></td>
                 <td>
                   <% 
                     let statusClass = 'status-processing';

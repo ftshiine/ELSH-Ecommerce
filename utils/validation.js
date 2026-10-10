@@ -12,7 +12,6 @@ export const rules = {
     return null;
   },
 
-
   terms: (value) => {
     if (value !== 'on' && value !== true && value !== 'true') {
       return 'You must accept the Terms and Conditions and Privacy Policy';
@@ -107,7 +106,7 @@ export const rules = {
       return 'Pincode must be exactly 6 digits';
     }
     return null;
-  }
+  },
 };
 
 /**
@@ -133,7 +132,6 @@ export const validate = (data, fieldsToValidate) => {
     errors,
   };
 };
-
 
 export const isValidPhone = (phone) => {
   return rules.phone(phone) === null;

@@ -10,20 +10,19 @@ export const getWallet = async (req, res) => {
     // Lazy Evaluation: Check and process pending referral bonus for this user
     await referralService.processUserReferralBonus(userId);
 
-    const {
-      wallet,
-      user,
-      transactions,
-      totalPages,
-      currentPage
-    } = await walletService.getWalletWithPaginatedTransactions(userId, page, limit);
+    const { wallet, user, transactions, totalPages, currentPage } =
+      await walletService.getWalletWithPaginatedTransactions(
+        userId,
+        page,
+        limit
+      );
 
     if (req.xhr || req.headers.accept.indexOf('json') > -1) {
       return res.json({
         success: true,
         transactions,
         currentPage,
-        totalPages
+        totalPages,
       });
     }
 
@@ -33,9 +32,8 @@ export const getWallet = async (req, res) => {
       user,
       transactions,
       currentPage,
-      totalPages
+      totalPages,
     });
-
   } catch (error) {
     console.error('Error fetching wallet:', error);
     res.redirect('/home');

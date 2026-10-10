@@ -1,14 +1,21 @@
-import { findUserByEmail, createUser, validateAccountStatus } from '../../services/user/authService.js';
+import {
+  findUserByEmail,
+  createUser,
+  validateAccountStatus,
+} from '../../services/user/authService.js';
 import { sendOTP, verifyOTP } from '../../services/user/otpService.js';
 import { validate } from '../../utils/validation.js';
 import bcrypt from 'bcrypt';
-import { STATUS_CODES, COMMON_MESSAGES, AUTH_MESSAGES } from '../../constants/index.js';
+import {
+  STATUS_CODES,
+  COMMON_MESSAGES,
+  AUTH_MESSAGES,
+} from '../../constants/index.js';
 
 const loadSignup = (req, res) => {
   const refCode = req.query.ref || '';
   res.render('user/auth/signup', { error: null, refCode });
 };
-
 
 const signup = async (req, res) => {
   try {
@@ -17,38 +24,62 @@ const signup = async (req, res) => {
 
     const { fullName, email, phone, password, confirmPassword } = req.body;
 
-    const validation = validate(req.body, ['fullName', 'email', 'phone', 'password', 'confirmPassword', 'terms']);
+    const validation = validate(req.body, [
+      'fullName',
+      'email',
+      'phone',
+      'password',
+      'confirmPassword',
+      'terms',
+    ]);
     if (!validation.isValid) {
-      return res.redirectWithState('/signup', { error: 'Please correct the highlighted fields.', fieldErrors: validation.errors });
+      return res.redirectWithState('/signup', {
+        error: 'Please correct the highlighted fields.',
+        fieldErrors: validation.errors,
+      });
     }
-
 
     const existingEmail = await findUserByEmail(email);
     if (existingEmail) {
-      return res.redirectWithState('/signup', { error: 'Please correct the highlighted fields.', fieldErrors: { email: 'Email already registered' } });
+      return res.redirectWithState('/signup', {
+        error: 'Please correct the highlighted fields.',
+        fieldErrors: { email: 'Email already registered' },
+      });
     }
 
     let referredBy = null;
     if (req.body.referralCode && req.body.referralCode.trim() !== '') {
-      const referrer = await import('../../models/User.js').then(m => m.default.findOne({ referralCode: req.body.referralCode.trim() }));
+      const referrer = await import('../../models/User.js').then((m) =>
+        m.default.findOne({ referralCode: req.body.referralCode.trim() })
+      );
       if (referrer) {
         referredBy = referrer._id;
       }
     }
 
     // Generate unique referral code for the new user
-    const newReferralCode = fullName.substring(0, 3).toUpperCase() + Math.random().toString(36).substring(2, 7).toUpperCase();
+    const newReferralCode =
+      fullName.substring(0, 3).toUpperCase() +
+      Math.random().toString(36).substring(2, 7).toUpperCase();
 
-    await createUser({ fullName, email, phone, password, referralCode: newReferralCode, referredBy });
+    await createUser({
+      fullName,
+      email,
+      phone,
+      password,
+      referralCode: newReferralCode,
+      referredBy,
+    });
     await sendOTP(email);
 
     req.session.pendingEmail = email;
     req.session.otpSentAt = Date.now();
     res.redirect('/otp');
-
   } catch (error) {
     console.error('Signup error:', error);
-    res.redirectWithState('/signup', { error: COMMON_MESSAGES.SOMETHING_WENT_WRONG });
+    res.redirectWithState('/signup', {
+      error: COMMON_MESSAGES.SOMETHING_WENT_WRONG,
+    });
   }
 };
 
@@ -76,7 +107,10 @@ const verifyOTPHandler = async (req, res) => {
     const isAjax = req.headers['content-type'] === 'application/json';
 
     if (!result.success) {
-      if (isAjax) return res.status(STATUS_CODES.BAD_REQUEST).json({ success: false, message: result.message });
+      if (isAjax)
+        return res
+          .status(STATUS_CODES.BAD_REQUEST)
+          .json({ success: false, message: result.message });
       const now = Date.now();
       const otpSentAt = req.session.otpSentAt || now;
       const elapsed = Math.floor((now - otpSentAt) / 1000);
@@ -84,8 +118,7 @@ const verifyOTPHandler = async (req, res) => {
       return res.redirectWithState('/otp', { error: result.message });
     }
 
-
-    await findUserByEmail(email).then(user => {
+    await findUserByEmail(email).then((user) => {
       user.isActive = true;
       return user.save();
     });
@@ -98,24 +131,24 @@ const verifyOTPHandler = async (req, res) => {
     }
 
     res.redirect('/login');
-
   } catch (error) {
     console.error('OTP verify error:', error);
-    res.redirectWithState('/otp', { error: COMMON_MESSAGES.SOMETHING_WENT_WRONG });
+    res.redirectWithState('/otp', {
+      error: COMMON_MESSAGES.SOMETHING_WENT_WRONG,
+    });
   }
 };
 
 const resendOTP = async (req, res) => {
   try {
     const email = req.session.pendingEmail;
-    if (!email) return res.status(STATUS_CODES.BAD_REQUEST).json({ success: false });
+    if (!email)
+      return res.status(STATUS_CODES.BAD_REQUEST).json({ success: false });
 
     await sendOTP(email);
     req.session.otpSentAt = Date.now();
     res.status(STATUS_CODES.OK).json({ success: true });
-
   } catch (error) {
-
     console.error('Resend OTP error:', error);
     res.status(STATUS_CODES.INTERNAL_SERVER_ERROR).json({ success: false });
   }
@@ -123,7 +156,7 @@ const resendOTP = async (req, res) => {
 
 const loadLogin = (req, res) => {
   res.render('user/auth/login');
-}
+};
 
 const login = async (req, res) => {
   try {
@@ -138,16 +171,18 @@ const login = async (req, res) => {
     }
 
     if (!validationRes.isValid) {
-      return res.redirectWithState('/login', { error: 'Please correct the highlighted fields.', fieldErrors: validationRes.errors })
+      return res.redirectWithState('/login', {
+        error: 'Please correct the highlighted fields.',
+        fieldErrors: validationRes.errors,
+      });
     }
-
-
 
     const user = await findUserByEmail(email);
 
-
     if (!user) {
-      return res.redirectWithState('/login', { error: 'Invalid email or password' });
+      return res.redirectWithState('/login', {
+        error: 'Invalid email or password',
+      });
     }
 
     const validation = validateAccountStatus(user);
@@ -157,45 +192,45 @@ const login = async (req, res) => {
 
     const isMatch = await bcrypt.compare(password, user.password);
     if (!isMatch) {
-      return res.redirectWithState('/login', { error: 'Invalid email or password' });
+      return res.redirectWithState('/login', {
+        error: 'Invalid email or password',
+      });
     }
 
     req.session.user = {
       id: user._id,
       fullName: user.fullName,
       email: user.email,
-      role: user.role
-    }
+      role: user.role,
+    };
 
     res.redirect('/home');
-
   } catch (error) {
     console.error('Login error:', error);
-    res.redirectWithState('/login', { error: COMMON_MESSAGES.SOMETHING_WENT_WRONG });
+    res.redirectWithState('/login', {
+      error: COMMON_MESSAGES.SOMETHING_WENT_WRONG,
+    });
   }
 };
 
 const logout = (req, res) => {
   if (req.session) {
-
     delete req.session.user;
 
     const handleSessionDestruction = () => {
       if (!req.session.admin) {
-
         req.session.destroy((err) => {
-          if (err) console.error('Session destroy error during user logout:', err);
+          if (err)
+            console.error('Session destroy error during user logout:', err);
           res.clearCookie('connect.sid');
           return res.redirect('/login');
         });
       } else {
-
         req.session.save(() => {
           return res.redirect('/login');
         });
       }
     };
-
 
     if (req.logout) {
       req.logout({ keepSessionInfo: true }, (err) => {
@@ -208,7 +243,7 @@ const logout = (req, res) => {
   } else {
     res.redirect('/login');
   }
-}
+};
 
 const googleAuthCallback = (req, res) => {
   req.session.user = {
@@ -240,10 +275,14 @@ const googleAuthCallback = (req, res) => {
   `);
 };
 
-export { loadSignup, signup, loadOTP, verifyOTPHandler, resendOTP, loadLogin, login, logout, googleAuthCallback };
-
-
-
-
-
-
+export {
+  loadSignup,
+  signup,
+  loadOTP,
+  verifyOTPHandler,
+  resendOTP,
+  loadLogin,
+  login,
+  logout,
+  googleAuthCallback,
+};

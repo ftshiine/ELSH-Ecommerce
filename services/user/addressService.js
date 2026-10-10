@@ -11,7 +11,7 @@ export const getAddressesByUser = async (userId, page = 1, limit = 4) => {
   return {
     addresses,
     totalAddresses,
-    totalPages: Math.ceil(totalAddresses / limit) || 1
+    totalPages: Math.ceil(totalAddresses / limit) || 1,
   };
 };
 
@@ -23,7 +23,6 @@ export const createAddress = async (userId, data) => {
   if (data.isPrimary) {
     await Address.updateMany({ userId }, { isPrimary: false });
   } else {
-
     const count = await Address.countDocuments({ userId });
     if (count === 0) {
       data.isPrimary = true;
@@ -36,11 +35,15 @@ export const createAddress = async (userId, data) => {
 
 export const updateAddress = async (id, userId, data) => {
   if (data.isPrimary) {
-    await Address.updateMany({ userId, _id: { $ne: id } }, { isPrimary: false });
+    await Address.updateMany(
+      { userId, _id: { $ne: id } },
+      { isPrimary: false }
+    );
   } else {
-
   }
-  return await Address.findOneAndUpdate({ _id: id, userId }, data, { new: true });
+  return await Address.findOneAndUpdate({ _id: id, userId }, data, {
+    new: true,
+  });
 };
 
 export const deleteAddress = async (id, userId) => {
@@ -50,9 +53,10 @@ export const deleteAddress = async (id, userId) => {
   const wasPrimary = address.isPrimary;
   await Address.deleteOne({ _id: id, userId });
 
-
   if (wasPrimary) {
-    const nextAddress = await Address.findOne({ userId }).sort({ createdAt: -1 });
+    const nextAddress = await Address.findOne({ userId }).sort({
+      createdAt: -1,
+    });
     if (nextAddress) {
       nextAddress.isPrimary = true;
       await nextAddress.save();
@@ -64,5 +68,9 @@ export const deleteAddress = async (id, userId) => {
 
 export const setPrimaryAddress = async (id, userId) => {
   await Address.updateMany({ userId }, { isPrimary: false });
-  return await Address.findOneAndUpdate({ _id: id, userId }, { isPrimary: true }, { new: true });
+  return await Address.findOneAndUpdate(
+    { _id: id, userId },
+    { isPrimary: true },
+    { new: true }
+  );
 };

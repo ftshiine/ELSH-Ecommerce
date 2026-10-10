@@ -34,12 +34,20 @@ export const generateInvoicePDF = (order, res) => {
     .text('Billed To:', 300, 160)
     .text(order.shippingAddress.fullName, 300, 175)
     .text(order.shippingAddress.addressLine1, 300, 190);
-    
+
   if (order.shippingAddress.addressLine2) {
     doc.text(order.shippingAddress.addressLine2, 300, 205);
-    doc.text(`${order.shippingAddress.city}, ${order.shippingAddress.state} ${order.shippingAddress.postalCode}`, 300, 220);
+    doc.text(
+      `${order.shippingAddress.city}, ${order.shippingAddress.state} ${order.shippingAddress.postalCode}`,
+      300,
+      220
+    );
   } else {
-    doc.text(`${order.shippingAddress.city}, ${order.shippingAddress.state} ${order.shippingAddress.postalCode}`, 300, 205);
+    doc.text(
+      `${order.shippingAddress.city}, ${order.shippingAddress.state} ${order.shippingAddress.postalCode}`,
+      300,
+      205
+    );
   }
 
   doc.moveDown(4);
@@ -61,10 +69,13 @@ export const generateInvoicePDF = (order, res) => {
 
   // --- Table Items ---
   let y = tableTop + 25;
-  order.items.forEach(item => {
-    const itemName = item.productName || (item.product ? item.product.name : 'Unknown Product');
-    const variantName = item.variantName || (item.variant ? item.variant.size : 'Standard');
-    
+  order.items.forEach((item) => {
+    const itemName =
+      item.productName ||
+      (item.product ? item.product.name : 'Unknown Product');
+    const variantName =
+      item.variantName || (item.variant ? item.variant.size : 'Standard');
+
     doc.text(`${itemName} - ${variantName}`, 50, y, { width: 220 });
     doc.text(item.quantity.toString(), 280, y);
     doc.text(`INR ${item.price.toFixed(2)}`, 370, y);
@@ -72,17 +83,14 @@ export const generateInvoicePDF = (order, res) => {
     y += 30;
   });
 
-  doc
-    .moveTo(50, y)
-    .lineTo(550, y)
-    .stroke();
+  doc.moveTo(50, y).lineTo(550, y).stroke();
 
   // --- Totals ---
   y += 15;
   doc.text('Subtotal:', 370, y);
   doc.text(`INR ${order.pricing.subtotal.toFixed(2)}`, 470, y);
   y += 20;
-  
+
   if (order.pricing.discount > 0) {
     doc.text('Discount:', 370, y);
     doc.text(`-INR ${order.pricing.discount.toFixed(2)}`, 470, y);
@@ -90,14 +98,21 @@ export const generateInvoicePDF = (order, res) => {
   }
 
   doc.text('Shipping:', 370, y);
-  doc.text(order.pricing.shippingFee > 0 ? `INR ${order.pricing.shippingFee.toFixed(2)}` : 'FREE', 470, y);
+  doc.text(
+    order.pricing.shippingFee > 0
+      ? `INR ${order.pricing.shippingFee.toFixed(2)}`
+      : 'FREE',
+    470,
+    y
+  );
   y += 20;
 
   // Calculate actual additive tax applied to this specific order
   const subTotalAfterDiscount = order.pricing.subtotal - order.pricing.discount;
-  const expectedTotalWithoutTax = subTotalAfterDiscount + order.pricing.shippingFee;
+  const expectedTotalWithoutTax =
+    subTotalAfterDiscount + order.pricing.shippingFee;
   const appliedTax = order.pricing.totalAmount - expectedTotalWithoutTax;
-  
+
   if (appliedTax > 0.01) {
     doc.text('Tax:', 370, y);
     doc.text(`INR ${appliedTax.toFixed(2)}`, 470, y);
@@ -113,7 +128,10 @@ export const generateInvoicePDF = (order, res) => {
   doc
     .fontSize(10)
     .fillColor('#888')
-    .text('Thank you for shopping with ELSH.', 50, 700, { align: 'center', width: 500 });
+    .text('Thank you for shopping with ELSH.', 50, 700, {
+      align: 'center',
+      width: 500,
+    });
 
   doc.end();
 };

@@ -13,7 +13,6 @@ passport.use(
     },
     async (req, accessToken, refreshToken, profile, done) => {
       try {
-        
         let user = await User.findOne({ googleId: profile.id });
 
         if (user) {
@@ -25,7 +24,6 @@ passport.use(
           return done(null, user);
         }
 
-        
         user = await User.findOne({ email: profile.emails[0].value });
 
         if (user) {
@@ -35,13 +33,11 @@ passport.use(
             return done(null, false);
           }
 
-          
           user.googleId = profile.id;
           await user.save();
           return done(null, user);
         }
 
-        
         user = new User({
           fullName: profile.displayName,
           email: profile.emails[0].value,
@@ -53,7 +49,6 @@ passport.use(
 
         await user.save();
         return done(null, user);
-
       } catch (error) {
         return done(error, null);
       }

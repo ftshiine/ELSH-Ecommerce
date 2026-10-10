@@ -8,11 +8,13 @@ const loadDashboard = async (req, res) => {
     res.render('admin/dashboard/index', {
       admin: req.session.admin,
       activePage: 'dashboard',
-      ...metrics
+      ...metrics,
     });
   } catch (error) {
     console.error('Error loading dashboard:', error);
-    res.status(STATUS_CODES.INTERNAL_SERVER_ERROR).send(COMMON_MESSAGES.INTERNAL_SERVER_ERROR);
+    res
+      .status(STATUS_CODES.INTERNAL_SERVER_ERROR)
+      .send(COMMON_MESSAGES.INTERNAL_SERVER_ERROR);
   }
 };
 
@@ -23,19 +25,29 @@ const getChartData = async (req, res) => {
     res.status(STATUS_CODES.OK).json({ success: true, data: chartData });
   } catch (error) {
     console.error('Error fetching chart data:', error);
-    res.status(STATUS_CODES.INTERNAL_SERVER_ERROR).json({ success: false, message: 'Failed to fetch chart data' });
+    res
+      .status(STATUS_CODES.INTERNAL_SERVER_ERROR)
+      .json({ success: false, message: 'Failed to fetch chart data' });
   }
 };
 
 const downloadLedgerExcel = async (req, res) => {
   try {
-    res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
-    res.setHeader('Content-Disposition', 'attachment; filename=' + 'elsh_ledger_book.xlsx');
+    res.setHeader(
+      'Content-Type',
+      'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+    );
+    res.setHeader(
+      'Content-Disposition',
+      'attachment; filename=' + 'elsh_ledger_book.xlsx'
+    );
 
     await dashboardService.generateLedgerExcelWorkbook(res);
   } catch (error) {
     console.error('Error generating Ledger Book:', error);
-    res.status(STATUS_CODES.INTERNAL_SERVER_ERROR).send('Failed to generate Ledger Book');
+    res
+      .status(STATUS_CODES.INTERNAL_SERVER_ERROR)
+      .send('Failed to generate Ledger Book');
   }
 };
 

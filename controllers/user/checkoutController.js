@@ -1,5 +1,10 @@
 import * as checkoutService from '../../services/user/checkoutService.js';
-import { STATUS_CODES, COMMON_MESSAGES, COUPON_MESSAGES, ORDER_MESSAGES } from '../../constants/index.js';
+import {
+  STATUS_CODES,
+  COMMON_MESSAGES,
+  COUPON_MESSAGES,
+  ORDER_MESSAGES,
+} from '../../constants/index.js';
 
 export const loadCheckout = async (req, res) => {
   try {
@@ -14,7 +19,7 @@ export const loadCheckout = async (req, res) => {
       checkoutType,
       directItem,
       directCouponId,
-      addressId
+      addressId,
     });
 
     if (data.redirectCart) {
@@ -24,7 +29,7 @@ export const loadCheckout = async (req, res) => {
     const breadcrumbs = [
       { name: 'Home', url: '/home' },
       { name: 'Shop', url: '/shop' },
-      { name: 'Checkout', url: '/checkout' }
+      { name: 'Checkout', url: '/checkout' },
     ];
 
     res.render('user/checkout/index', {
@@ -33,7 +38,7 @@ export const loadCheckout = async (req, res) => {
       selectedAddress: data.selectedAddress,
       breadcrumbs,
       checkoutType,
-      walletBalance: data.walletBalance
+      walletBalance: data.walletBalance,
     });
   } catch (error) {
     console.error('Error loading checkout:', error);
@@ -55,7 +60,7 @@ export const placeOrder = async (req, res) => {
       checkoutType,
       useWallet,
       directItem,
-      directCouponId
+      directCouponId,
     });
 
     if (checkoutType === 'direct') {
@@ -67,19 +72,29 @@ export const placeOrder = async (req, res) => {
   } catch (error) {
     console.error('Error placing order:', error);
     const status = error.statusCode || STATUS_CODES.INTERNAL_SERVER_ERROR;
-    res.status(status).json({ success: false, message: error.message || ORDER_MESSAGES.PAYMENT_PLACE_FAILED });
+    res
+      .status(status)
+      .json({
+        success: false,
+        message: error.message || ORDER_MESSAGES.PAYMENT_PLACE_FAILED,
+      });
   }
 };
 
 export const verifyPayment = async (req, res) => {
   try {
-    const { razorpay_payment_id, razorpay_order_id, razorpay_signature, orderId } = req.body;
+    const {
+      razorpay_payment_id,
+      razorpay_order_id,
+      razorpay_signature,
+      orderId,
+    } = req.body;
 
     const result = await checkoutService.verifyPaymentSignatureAndFulfill({
       razorpay_payment_id,
       razorpay_order_id,
       razorpay_signature,
-      orderId
+      orderId,
     });
 
     res.status(STATUS_CODES.OK).json(result);
@@ -89,14 +104,17 @@ export const verifyPayment = async (req, res) => {
     res.status(status).json({
       success: false,
       message: error.message || ORDER_MESSAGES.PAYMENT_VERIFY_FAILED,
-      oversold: error.oversold || false
+      oversold: error.oversold || false,
     });
   }
 };
 
 export const loadSuccess = async (req, res) => {
   try {
-    const order = await checkoutService.getOrderByIdForUser(req.params.id, req.session.user.id);
+    const order = await checkoutService.getOrderByIdForUser(
+      req.params.id,
+      req.session.user.id
+    );
 
     if (!order) {
       return res.redirect('/orders');
@@ -104,7 +122,7 @@ export const loadSuccess = async (req, res) => {
 
     res.render('user/checkout/success', {
       title: 'Order Confirmed',
-      order
+      order,
     });
   } catch (error) {
     console.error('Error loading success page:', error);
@@ -114,7 +132,10 @@ export const loadSuccess = async (req, res) => {
 
 export const loadFailure = async (req, res) => {
   try {
-    const order = await checkoutService.getOrderByIdForUser(req.params.id, req.session.user.id);
+    const order = await checkoutService.getOrderByIdForUser(
+      req.params.id,
+      req.session.user.id
+    );
 
     if (!order) {
       return res.redirect('/orders');
@@ -122,7 +143,7 @@ export const loadFailure = async (req, res) => {
 
     res.render('user/checkout/failure', {
       title: 'Payment Failed',
-      order
+      order,
     });
   } catch (error) {
     console.error('Error loading failure page:', error);
@@ -139,7 +160,7 @@ export const startDirectCheckout = async (req, res) => {
       userId,
       productId,
       variantSize,
-      quantity
+      quantity,
     });
 
     req.session.directCheckoutItem = directItem;
@@ -149,7 +170,12 @@ export const startDirectCheckout = async (req, res) => {
   } catch (error) {
     console.error('Error in startDirectCheckout:', error);
     const status = error.statusCode || STATUS_CODES.INTERNAL_SERVER_ERROR;
-    res.status(status).json({ success: false, message: error.message || 'Failed to start direct checkout' });
+    res
+      .status(status)
+      .json({
+        success: false,
+        message: error.message || 'Failed to start direct checkout',
+      });
   }
 };
 
@@ -163,7 +189,7 @@ export const applyCheckoutCoupon = async (req, res) => {
       userId,
       code,
       checkoutType,
-      directItem
+      directItem,
     });
 
     if (checkoutType === 'direct') {
@@ -173,12 +199,17 @@ export const applyCheckoutCoupon = async (req, res) => {
     res.status(STATUS_CODES.OK).json({
       success: true,
       message: COUPON_MESSAGES.APPLIED_SUCCESS,
-      discountAmount: result.discountAmount
+      discountAmount: result.discountAmount,
     });
   } catch (error) {
     console.error('Error applying checkout coupon:', error);
     const status = error.statusCode || STATUS_CODES.INTERNAL_SERVER_ERROR;
-    res.status(status).json({ success: false, message: error.message || COMMON_MESSAGES.INTERNAL_SERVER_ERROR });
+    res
+      .status(status)
+      .json({
+        success: false,
+        message: error.message || COMMON_MESSAGES.INTERNAL_SERVER_ERROR,
+      });
   }
 };
 
@@ -193,10 +224,17 @@ export const removeCheckoutCoupon = async (req, res) => {
 
     await checkoutService.removeCheckoutCoupon({ userId, checkoutType });
 
-    res.status(STATUS_CODES.OK).json({ success: true, message: COUPON_MESSAGES.REMOVED_SUCCESS });
+    res
+      .status(STATUS_CODES.OK)
+      .json({ success: true, message: COUPON_MESSAGES.REMOVED_SUCCESS });
   } catch (error) {
     console.error('Error removing checkout coupon:', error);
     const status = error.statusCode || STATUS_CODES.INTERNAL_SERVER_ERROR;
-    res.status(status).json({ success: false, message: error.message || COMMON_MESSAGES.INTERNAL_SERVER_ERROR });
+    res
+      .status(status)
+      .json({
+        success: false,
+        message: error.message || COMMON_MESSAGES.INTERNAL_SERVER_ERROR,
+      });
   }
 };

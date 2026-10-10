@@ -30,7 +30,3 @@ const toggleBlockUser = async (userId) => {
 };
 
 export { getAllUsers, toggleBlockUser };
-
-
-
-

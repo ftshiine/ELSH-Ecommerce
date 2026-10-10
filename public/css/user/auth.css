@@ -14,11 +14,10 @@
   padding: 48px 52px;
   width: 100%;
   max-width: 560px;
-  box-shadow: 0 4px 24px rgba(0,0,0,0.06);
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.06);
 }
 
 .auth-card h1 {
-
   font-size: 32px;
   font-weight: 400;
   color: #2c2c2c;
@@ -26,7 +25,6 @@
 }
 
 .auth-subtitle {
-
   font-size: 13px;
   color: #888;
   margin-bottom: 32px;
@@ -40,7 +38,6 @@
   border-radius: 8px;
   font-size: 13px;
   margin-bottom: 20px;
-
 }
 
 /* ── FORM ── */
@@ -149,7 +146,6 @@
 }
 
 .form-checkbox label {
-
   font-size: 12px;
   color: #888;
   line-height: 1.6;
@@ -277,7 +273,7 @@
   padding: 48px 52px;
   width: 100%;
   max-width: 440px;
-  box-shadow: 0 4px 24px rgba(0,0,0,0.06);
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.06);
 }
 
 /* ── LOGIN BRAND ── */
@@ -287,7 +283,6 @@
 }
 
 .login-brand h2 {
-
   font-size: 22px;
   font-weight: 400;
   color: #2c2c2c;
@@ -296,7 +291,6 @@
 }
 
 .login-brand h3 {
-
   font-size: 28px;
   font-weight: 400;
   font-style: italic;
@@ -317,7 +311,6 @@
 }
 
 .forgot-link {
-
   font-size: 12px;
   color: #4a5240;
   text-decoration: none;
@@ -326,18 +319,20 @@
 
 .forgot-link:hover {
   opacity: 0.7;
-} 
+}
 
 /* ── RESPONSIVE ── */
 @media (max-width: 768px) {
-  .auth-wrapper, .login-wrapper {
+  .auth-wrapper,
+  .login-wrapper {
     padding: 30px 15px;
   }
-  
-  .auth-card, .login-card {
+
+  .auth-card,
+  .login-card {
     padding: 30px 20px;
   }
-  
+
   .form-row {
     grid-template-columns: 1fr;
   }

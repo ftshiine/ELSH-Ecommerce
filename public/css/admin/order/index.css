@@ -561,13 +561,27 @@ body {
   border-radius: 4px 4px 0 0;
 }
 
-.h-30 { height: 30%; }
-.h-40 { height: 40%; }
-.h-50 { height: 50%; }
-.h-60 { height: 60%; }
-.h-80 { height: 80%; }
-.h-90 { height: 90%; }
-.h-20 { height: 20%; }
+.h-30 {
+  height: 30%;
+}
+.h-40 {
+  height: 40%;
+}
+.h-50 {
+  height: 50%;
+}
+.h-60 {
+  height: 60%;
+}
+.h-80 {
+  height: 80%;
+}
+.h-90 {
+  height: 90%;
+}
+.h-20 {
+  height: 20%;
+}
 
 .chart-labels {
   display: flex;
@@ -623,7 +637,9 @@ body {
   font-size: 13px;
   color: var(--text-dark);
   cursor: pointer;
-  transition: background-color 0.1s, color 0.1s;
+  transition:
+    background-color 0.1s,
+    color 0.1s;
 }
 
 .dropdown-option:hover,
@@ -642,40 +658,41 @@ body {
   .page-container {
     padding: 16px;
   }
-  
+
   .card {
     padding: 16px;
   }
-  
+
   .card-value {
     font-size: 20px;
   }
-  
+
   .page-header {
     flex-direction: column;
     align-items: flex-start;
     gap: 16px;
   }
-  
+
   .filters-section {
     flex-direction: column;
     align-items: stretch;
     gap: 16px;
   }
-  
-  .filters-left, .filters-right {
+
+  .filters-left,
+  .filters-right {
     flex-direction: column;
     width: 100%;
   }
-  
+
   .search-box {
     width: 100%;
   }
-  
+
   .search-input {
     width: 100%;
   }
-  
+
   .table-container {
     overflow-x: auto;
     white-space: nowrap;

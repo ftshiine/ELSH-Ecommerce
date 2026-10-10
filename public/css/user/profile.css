@@ -11,7 +11,15 @@ body {
   margin: 0;
   padding: 0;
 
-  font-family: "SF Pro Display", "SF Pro Text", -apple-system, BlinkMacSystemFont, "Helvetica Neue", Helvetica, Arial, sans-serif;
+  font-family:
+    'SF Pro Display',
+    'SF Pro Text',
+    -apple-system,
+    BlinkMacSystemFont,
+    'Helvetica Neue',
+    Helvetica,
+    Arial,
+    sans-serif;
 }
 
 /* ── BREADCRUMB ── */
@@ -37,7 +45,6 @@ body {
 }
 
 .profile-page-header h1 {
-
   font-size: 40px;
   font-weight: 400;
   color: #2c2c2c;
@@ -45,7 +52,6 @@ body {
 }
 
 .profile-page-header p {
-
   font-size: 13px;
   color: #888;
 }
@@ -55,7 +61,7 @@ body {
   background: #ffffff;
   border-radius: 16px;
   padding: 40px;
-  box-shadow: 0 2px 16px rgba(0,0,0,0.05);
+  box-shadow: 0 2px 16px rgba(0, 0, 0, 0.05);
 }
 
 /* ── PROFILE TOP ── */
@@ -96,7 +102,6 @@ body {
 }
 
 .profile-info h2 {
-
   font-size: 26px;
   font-weight: 400;
   color: #2c2c2c;
@@ -110,7 +115,6 @@ body {
 }
 
 .member-since {
-
   font-size: 11px;
   letter-spacing: 1px;
   color: #aaa;
@@ -125,7 +129,6 @@ body {
 }
 
 .details-section h3 {
-
   font-size: 10px;
   font-weight: 600;
   letter-spacing: 1.5px;
@@ -148,7 +151,6 @@ body {
 }
 
 .detail-item p {
-
   font-size: 15px;
   color: #2c2c2c;
 }
@@ -162,7 +164,6 @@ body {
 }
 
 .detail-item-row label {
-
   font-size: 10px;
   font-weight: 600;
   letter-spacing: 1.2px;
@@ -170,7 +171,6 @@ body {
 }
 
 .status-active {
-
   font-size: 13px;
   color: #4a5240;
   font-weight: 600;
@@ -190,7 +190,6 @@ body {
 }
 
 .btn-edit-profile {
-
   font-size: 11px;
   font-weight: 600;
   letter-spacing: 1.5px;
@@ -207,7 +206,6 @@ body {
 }
 
 .btn-change-password {
-
   font-size: 11px;
   font-weight: 600;
   letter-spacing: 1.5px;
@@ -230,7 +228,7 @@ body {
   background: #ffffff;
   border-radius: 16px;
   padding: 40px;
-  box-shadow: 0 2px 16px rgba(0,0,0,0.05);
+  box-shadow: 0 2px 16px rgba(0, 0, 0, 0.05);
 }
 
 .edit-card-header {
@@ -238,7 +236,6 @@ body {
 }
 
 .edit-card-header h2 {
-
   font-size: 20px;
   font-weight: 400;
   color: #2c2c2c;
@@ -246,7 +243,6 @@ body {
 }
 
 .edit-card-header p {
-
   font-size: 13px;
   color: #888;
 }
@@ -300,7 +296,6 @@ body {
 }
 
 .btn-upload {
-
   font-size: 11px;
   font-weight: 600;
   letter-spacing: 1.5px;
@@ -318,7 +313,6 @@ body {
 }
 
 .btn-remove-photo {
-
   font-size: 12px;
   color: #c0392b;
   background: none;
@@ -387,7 +381,6 @@ body {
 }
 
 .input-hint {
-
   font-size: 11px;
   color: #aaa;
 }
@@ -409,7 +402,6 @@ body {
   border-radius: 8px;
   font-size: 13px;
   margin-bottom: 20px;
-
 }
 
 /* ── EDIT ACTIONS ── */
@@ -423,7 +415,6 @@ body {
 }
 
 .btn-cancel {
-
   font-size: 11px;
   font-weight: 600;
   letter-spacing: 1.5px;
@@ -437,7 +428,6 @@ body {
 }
 
 .btn-save {
-
   font-size: 11px;
   font-weight: 600;
   letter-spacing: 1.5px;
@@ -493,8 +483,14 @@ body {
 }
 
 @keyframes modalFadeIn {
-  from { opacity: 0; transform: translateY(20px); }
-  to { opacity: 1; transform: translateY(0); }
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 .otp-modal-close {
@@ -520,7 +516,6 @@ body {
 }
 
 .otp-modal-header h2 {
-
   font-size: 26px;
   font-weight: 400;
   color: #2c2c2c;
@@ -528,7 +523,6 @@ body {
 }
 
 .otp-modal-header p {
-
   font-size: 13px;
   color: #888;
   line-height: 1.5;
@@ -642,7 +636,9 @@ body {
   cursor: pointer;
   font-size: 14px;
   color: #333;
-  transition: border-color 0.2s, box-shadow 0.2s;
+  transition:
+    border-color 0.2s,
+    box-shadow 0.2s;
   user-select: none;
   min-height: 46px;
   box-sizing: border-box;
@@ -658,7 +654,10 @@ body {
   transition: transform 0.2s ease;
 }
 
-.custom-dropdown-wrapper .custom-dropdown-options.show ~ .custom-dropdown-trigger svg,
+.custom-dropdown-wrapper
+  .custom-dropdown-options.show
+  ~ .custom-dropdown-trigger
+  svg,
 .custom-dropdown-trigger:focus svg {
   transform: rotate(180deg);
 }
@@ -684,8 +683,14 @@ body {
 }
 
 @keyframes dropdownFadeIn {
-  from { opacity: 0; transform: translateY(-4px); }
-  to { opacity: 1; transform: translateY(0); }
+  from {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 .custom-dropdown-option {
@@ -693,7 +698,9 @@ body {
   font-size: 14px;
   color: #555;
   cursor: pointer;
-  transition: background-color 0.15s, color 0.15s;
+  transition:
+    background-color 0.15s,
+    color 0.15s;
 }
 
 .custom-dropdown-option:first-child {
@@ -773,50 +780,51 @@ body {
   .profile-wrapper {
     padding: 24px 20px 60px;
   }
-  
+
   .profile-top {
     flex-direction: column;
     align-items: flex-start;
   }
-  
+
   .profile-details {
     grid-template-columns: 1fr;
     gap: 24px;
   }
-  
+
   .edit-form-row {
     grid-template-columns: 1fr;
   }
-  
+
   .profile-actions {
     flex-direction: column;
   }
-  
-  .btn-edit-profile, .btn-change-password {
+
+  .btn-edit-profile,
+  .btn-change-password {
     text-align: center;
     width: 100%;
     box-sizing: border-box;
   }
-  
+
   .photo-upload-row {
     flex-direction: column;
     align-items: flex-start;
   }
-  
+
   .edit-actions {
     flex-direction: column-reverse;
     gap: 16px;
   }
-  
+
   .btn-save {
     width: 100%;
   }
-  
+
   .dob-picker-row {
     grid-template-columns: 1fr 1fr 1fr;
     gap: 8px;
   }
-  
+
   .custom-dropdown-trigger {
     padding: 12px 12px;
     font-size: 13px;

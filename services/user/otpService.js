@@ -6,30 +6,28 @@ const processingEmails = new Set();
 const abuseTracker = new Map(); // email -> { count, windowStart }
 
 const sendOTP = async (email) => {
-  
   if (processingEmails.has(email)) {
     throw new Error('OTP request is already processing. Please wait.');
   }
-  
+
   const now = Date.now();
 
-  
   const existingRecord = otpStore.get(email);
   if (existingRecord && existingRecord.lastSentAt) {
     const elapsed = now - existingRecord.lastSentAt;
     if (elapsed < 60 * 1000) {
-      throw new Error(`Please wait ${Math.ceil((60000 - elapsed) / 1000)} seconds before requesting another OTP.`);
+      throw new Error(
+        `Please wait ${Math.ceil((60000 - elapsed) / 1000)} seconds before requesting another OTP.`
+      );
     }
   }
 
-  
   const abuseRecord = abuseTracker.get(email) || { count: 0, windowStart: now };
   if (now - abuseRecord.windowStart > 60 * 60 * 1000) {
-    
     abuseRecord.count = 0;
     abuseRecord.windowStart = now;
   }
-  
+
   if (abuseRecord.count >= 5) {
     throw new Error('Too many OTP requests. Please try again later.');
   }
@@ -41,8 +39,7 @@ const sendOTP = async (email) => {
     const expiresAt = now + 10 * 60 * 1000; // 10 minutes
 
     otpStore.set(email, { otp, expiresAt, lastSentAt: now });
-    
-    
+
     abuseRecord.count += 1;
     abuseTracker.set(email, abuseRecord);
 
@@ -64,7 +61,8 @@ const verifyOTP = (email, enteredOtp) => {
     otpStore.delete(email);
     return { success: false, message: 'OTP expired' };
   }
-  if (record.otp !== enteredOtp) return { success: false, message: 'Invalid OTP' };
+  if (record.otp !== enteredOtp)
+    return { success: false, message: 'Invalid OTP' };
 
   otpStore.delete(email);
   return { success: true };

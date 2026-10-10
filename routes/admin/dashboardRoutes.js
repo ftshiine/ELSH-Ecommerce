@@ -1,5 +1,9 @@
 import express from 'express';
-import { loadDashboard, getChartData, downloadLedgerExcel } from '../../controllers/admin/dashboardController.js';
+import {
+  loadDashboard,
+  getChartData,
+  downloadLedgerExcel,
+} from '../../controllers/admin/dashboardController.js';
 import { requireAuth } from '../../middleware/authMiddleware.js';
 
 const router = express.Router();

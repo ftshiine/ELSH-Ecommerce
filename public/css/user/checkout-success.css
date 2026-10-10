@@ -1,5 +1,13 @@
 body {
-  font-family: "SF Pro Display", "SF Pro Text", -apple-system, BlinkMacSystemFont, "Helvetica Neue", Helvetica, Arial, sans-serif;
+  font-family:
+    'SF Pro Display',
+    'SF Pro Text',
+    -apple-system,
+    BlinkMacSystemFont,
+    'Helvetica Neue',
+    Helvetica,
+    Arial,
+    sans-serif;
 }
 
 .success-wrapper {
@@ -19,7 +27,7 @@ body {
 .check-circle {
   width: 80px;
   height: 80px;
-  background: #F0F2EB;
+  background: #f0f2eb;
   border-radius: 50%;
   display: flex;
   align-items: center;
@@ -33,7 +41,15 @@ body {
 }
 
 .success-header h1 {
-  font-family: "SF Pro Display", "SF Pro Text", -apple-system, BlinkMacSystemFont, "Helvetica Neue", Helvetica, Arial, sans-serif;
+  font-family:
+    'SF Pro Display',
+    'SF Pro Text',
+    -apple-system,
+    BlinkMacSystemFont,
+    'Helvetica Neue',
+    Helvetica,
+    Arial,
+    sans-serif;
   font-size: 42px;
   font-weight: 500;
   margin: 0 0 15px 0;
@@ -50,7 +66,7 @@ body {
 
 .order-status-card {
   width: 100%;
-  background: linear-gradient(to right, #FBFbfb, #F2EFE8);
+  background: linear-gradient(to right, #fbfbfb, #f2efe8);
   border-radius: 12px;
   padding: 40px;
   margin-bottom: 50px;
@@ -75,7 +91,15 @@ body {
 
 .estimated-arrival .date {
   display: block;
-  font-family: "SF Pro Display", "SF Pro Text", -apple-system, BlinkMacSystemFont, "Helvetica Neue", Helvetica, Arial, sans-serif;
+  font-family:
+    'SF Pro Display',
+    'SF Pro Text',
+    -apple-system,
+    BlinkMacSystemFont,
+    'Helvetica Neue',
+    Helvetica,
+    Arial,
+    sans-serif;
   font-size: 28px;
   color: #222;
 }
@@ -104,7 +128,7 @@ body {
 }
 
 .timeline-step.active .dot {
-  background: #556B44;
+  background: #556b44;
 }
 
 .timeline-step span {
@@ -120,7 +144,7 @@ body {
 .timeline-line {
   flex-grow: 1;
   height: 2px;
-  background: #E0E0E0;
+  background: #e0e0e0;
   margin: 0 10px;
   position: relative;
   top: -15px;
@@ -131,7 +155,7 @@ body {
 }
 
 .btn-track {
-  background: #556B44;
+  background: #556b44;
   color: #fff;
   padding: 12px 24px;
   border-radius: 4px;
@@ -143,7 +167,7 @@ body {
 }
 
 .btn-track:hover {
-  background: #4A5D3B;
+  background: #4a5d3b;
 }
 
 .btn-shop {
@@ -153,15 +177,15 @@ body {
   font-size: 12px;
   font-weight: 600;
   letter-spacing: 0.5px;
-  border: 1px solid #556B44;
-  color: #556B44;
+  border: 1px solid #556b44;
+  color: #556b44;
   transition: all 0.2s;
   background: transparent;
 }
 
 .btn-shop:hover {
   background: #f0f2eb;
-  color: #4A5D3B;
+  color: #4a5d3b;
 }
 
 .order-details-grid {
@@ -170,7 +194,7 @@ body {
   grid-template-columns: 1fr 1fr;
   gap: 40px;
   padding-top: 40px;
-  border-top: 1px solid #EAEAEA;
+  border-top: 1px solid #eaeaea;
 }
 
 .detail-block h5 {

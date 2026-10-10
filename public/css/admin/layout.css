@@ -4,11 +4,11 @@ body {
   padding: 0;
 
   font-family:
-    "SF Pro Display",
-    "SF Pro Text",
+    'SF Pro Display',
+    'SF Pro Text',
     -apple-system,
     BlinkMacSystemFont,
-    "Helvetica Neue",
+    'Helvetica Neue',
     Helvetica,
     Arial,
     sans-serif;
@@ -27,11 +27,11 @@ body {
   color: #333;
 
   font-family:
-    "SF Pro Display",
-    "SF Pro Text",
+    'SF Pro Display',
+    'SF Pro Text',
     -apple-system,
     BlinkMacSystemFont,
-    "Helvetica Neue",
+    'Helvetica Neue',
     Helvetica,
     Arial,
     sans-serif;
@@ -65,7 +65,7 @@ body {
   color: #5a4a3a;
   font-size: 22px;
   letter-spacing: 2px;
-  font-family: "Georgia", serif;
+  font-family: 'Georgia', serif;
 }
 
 .sidebar-logo span {
@@ -373,11 +373,11 @@ body {
     margin-left: 0;
     min-width: 0;
   }
-  
+
   .topbar {
     justify-content: flex-end;
   }
-  
+
   .page-content {
     padding: 20px 16px;
   }
@@ -442,4 +442,3 @@ body {
   flex-wrap: wrap;
   justify-content: center;
 }
-

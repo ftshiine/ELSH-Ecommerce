@@ -1,7 +1,14 @@
-import { findAdminByEmail, updatePassword } from '../../services/admin/authService.js';
+import {
+  findAdminByEmail,
+  updatePassword,
+} from '../../services/admin/authService.js';
 import { sendOTP, verifyOTP } from '../../services/user/otpService.js';
 import { validate } from '../../utils/validation.js';
-import { STATUS_CODES, COMMON_MESSAGES, AUTH_MESSAGES } from '../../constants/index.js';
+import {
+  STATUS_CODES,
+  COMMON_MESSAGES,
+  AUTH_MESSAGES,
+} from '../../constants/index.js';
 
 const loadForgotPassword = (req, res) => {
   res.render('admin/auth/forgot-password', { error: null, success: null });
@@ -11,7 +18,9 @@ const sendForgotPasswordOTP = async (req, res) => {
   try {
     const { email } = req.body;
     if (!email) {
-      return res.redirectWithState('/admin/forgot-password', { error: AUTH_MESSAGES.EMAIL_REQUIRED });
+      return res.redirectWithState('/admin/forgot-password', {
+        error: AUTH_MESSAGES.EMAIL_REQUIRED,
+      });
     }
 
     const admin = await findAdminByEmail(email.toLowerCase().trim());
@@ -23,10 +32,14 @@ const sendForgotPasswordOTP = async (req, res) => {
       return res.redirect('/admin/forgot-password/otp');
     }
 
-    res.redirectWithState('/admin/forgot-password', { success: AUTH_MESSAGES.INVALID_CREDENTIALS });
+    res.redirectWithState('/admin/forgot-password', {
+      success: AUTH_MESSAGES.INVALID_CREDENTIALS,
+    });
   } catch (error) {
     console.error('Admin Forgot password error:', error);
-    res.redirectWithState('/admin/forgot-password', { error: COMMON_MESSAGES.SOMETHING_WENT_WRONG });
+    res.redirectWithState('/admin/forgot-password', {
+      error: COMMON_MESSAGES.SOMETHING_WENT_WRONG,
+    });
   }
 };
 
@@ -57,27 +70,30 @@ const verifyForgotOTP = async (req, res) => {
       const otpSentAt = req.session.resetOtpSentAtAdmin || now;
       const elapsed = Math.floor((now - otpSentAt) / 1000);
       const remaining = Math.max(59 - elapsed, 0);
-      return res.redirectWithState('/admin/forgot-password/otp', { error: result.message });
+      return res.redirectWithState('/admin/forgot-password/otp', {
+        error: result.message,
+      });
     }
 
     req.session.otpVerifiedAdmin = true;
     res.redirect('/admin/forgot-password/reset');
-
   } catch (error) {
     console.error('Admin Forgot OTP verify error:', error);
-    res.redirectWithState('/admin/forgot-password/otp', { error: COMMON_MESSAGES.SOMETHING_WENT_WRONG });
+    res.redirectWithState('/admin/forgot-password/otp', {
+      error: COMMON_MESSAGES.SOMETHING_WENT_WRONG,
+    });
   }
 };
 
 const resendForgotOTP = async (req, res) => {
   try {
     const email = req.session.resetEmailAdmin;
-    if (!email) return res.status(STATUS_CODES.BAD_REQUEST).json({ success: false });
+    if (!email)
+      return res.status(STATUS_CODES.BAD_REQUEST).json({ success: false });
 
     await sendOTP(email);
     req.session.resetOtpSentAtAdmin = Date.now();
     res.status(STATUS_CODES.OK).json({ success: true });
-
   } catch (error) {
     console.error('Admin Resend Forgot OTP error:', error);
     res.status(STATUS_CODES.INTERNAL_SERVER_ERROR).json({ success: false });
@@ -100,10 +116,15 @@ const resetPassword = async (req, res) => {
       return res.redirect('/admin/forgot-password');
     }
 
-    const validation = validate({ password: newPassword, confirmPassword }, ['password', 'confirmPassword']);
+    const validation = validate({ password: newPassword, confirmPassword }, [
+      'password',
+      'confirmPassword',
+    ]);
     if (!validation.isValid) {
       const firstError = Object.values(validation.errors)[0];
-      return res.redirectWithState('/admin/forgot-password/reset', { error: firstError });
+      return res.redirectWithState('/admin/forgot-password/reset', {
+        error: firstError,
+      });
     }
 
     await updatePassword(email, newPassword);
@@ -114,10 +135,11 @@ const resetPassword = async (req, res) => {
 
     req.session.success = AUTH_MESSAGES.PASSWORD_RESET_SUCCESS;
     res.redirect('/admin/login');
-
   } catch (error) {
     console.error('Admin Reset password error:', error);
-    res.redirectWithState('/admin/forgot-password/reset', { error: COMMON_MESSAGES.SOMETHING_WENT_WRONG });
+    res.redirectWithState('/admin/forgot-password/reset', {
+      error: COMMON_MESSAGES.SOMETHING_WENT_WRONG,
+    });
   }
 };
 
@@ -128,5 +150,5 @@ export {
   verifyForgotOTP,
   resendForgotOTP,
   loadResetPassword,
-  resetPassword
+  resetPassword,
 };

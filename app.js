@@ -5,25 +5,23 @@ import connectDB from './config/db.js';
 import adminRoutes from './routes/adminRoutes.js';
 import userRoutes from './routes/userRoutes.js';
 import passport from './config/passport.js';
-import { notFoundHandler, globalErrorHandler } from './middleware/errorMiddleware.js';
+import {
+  notFoundHandler,
+  globalErrorHandler,
+} from './middleware/errorMiddleware.js';
 import sessionConfig from './config/session.js';
 const app = express();
-
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(methodOverride('_method'));
 
-app.use(sessionConfig)
-
+app.use(sessionConfig);
 
 app.use(express.static('public'));
 
-
 app.set('view engine', 'ejs');
 app.set('views', './views');
-
-
 
 app.use(passport.initialize());
 

@@ -1,6 +1,14 @@
 import express from 'express';
 import { requireAuth } from '../../middleware/authMiddleware.js';
-import { getOrders, getOrderDetails, getReturnRequests, rejectReturn, updateOrderStatus, processRefund, downloadInvoice } from '../../controllers/admin/orderController.js';
+import {
+  getOrders,
+  getOrderDetails,
+  getReturnRequests,
+  rejectReturn,
+  updateOrderStatus,
+  processRefund,
+  downloadInvoice,
+} from '../../controllers/admin/orderController.js';
 
 const router = express.Router();
 

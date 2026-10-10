@@ -11,7 +11,10 @@ const verifyPassword = async (enteredPassword, storedPassword) => {
 
 const updatePassword = async (email, newPassword) => {
   const hashedPassword = await bcrypt.hash(newPassword, 10);
-  return await User.findOneAndUpdate({ email, role: 'admin' }, { password: hashedPassword });
+  return await User.findOneAndUpdate(
+    { email, role: 'admin' },
+    { password: hashedPassword }
+  );
 };
 
 export { findAdminByEmail, verifyPassword, updatePassword };

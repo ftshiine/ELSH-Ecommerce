@@ -227,7 +227,7 @@
                     <button type="submit" class="btn-save">SAVE CHANGES</button>
                   </div>
 
-                  <input type="file" id="profileImage" name="profileImage" accept="image/*" style="display:none;" />
+                  <input type="file" id="profileImage" name="profileImage" accept="image/jpeg, image/png, image/webp" style="display:none;" />
                 </form>
       </div>
     </div>
@@ -333,8 +333,15 @@
         profileImageInput.addEventListener('change', (e) => {
           const file = e.target.files[0];
           if (file) {
+            const validTypes = ['image/jpeg', 'image/png', 'image/webp'];
+            if (!validTypes.includes(file.type)) {
+              imageUploadError.textContent = 'Invalid file type! Please upload a JPG, PNG, or WEBP image.';
+              imageUploadError.style.display = 'block';
+              profileImageInput.value = '';
+              return;
+            }
             if (file.size > 5 * 1024 * 1024) {
-              imageUploadError.textContent = 'Profile image is too large. Choose a different image.';
+              imageUploadError.textContent = 'Profile image is too large. Choose a different image (Max 5MB).';
               imageUploadError.style.display = 'block';
               profileImageInput.value = '';
               return;

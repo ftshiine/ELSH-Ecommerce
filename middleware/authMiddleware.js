@@ -9,14 +9,12 @@ const requireAuth = (role) => async (req, res, next) => {
     return res.redirect(redirectUrl);
   }
 
-
   if (role === 'user') {
     try {
       const user = await User.findById(sessionUser.id);
       const validation = validateAccountStatus(user);
 
       if (!validation.isValid) {
-
         delete req.session.user;
         if (req.session.passport) {
           delete req.session.passport;
@@ -56,7 +54,10 @@ const preventCache = (req, res, next) => {
 
 const requireEmailState = (requiredStatus) => {
   return (req, res, next) => {
-    if (!req.session.emailChangeState || req.session.emailChangeState.status !== requiredStatus) {
+    if (
+      !req.session.emailChangeState ||
+      req.session.emailChangeState.status !== requiredStatus
+    ) {
       delete req.session.emailChangeState;
       req.session.error = 'Invalid email change flow. Please start over.';
       return res.redirect('/profile/edit');

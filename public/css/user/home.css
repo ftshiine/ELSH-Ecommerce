@@ -7,7 +7,15 @@
 body {
   background-color: #ffffff;
 
-  font-family: "SF Pro Display", "SF Pro Text", -apple-system, BlinkMacSystemFont, "Helvetica Neue", Helvetica, Arial, sans-serif;
+  font-family:
+    'SF Pro Display',
+    'SF Pro Text',
+    -apple-system,
+    BlinkMacSystemFont,
+    'Helvetica Neue',
+    Helvetica,
+    Arial,
+    sans-serif;
 }
 
 /* ── HERO BANNER ── */
@@ -45,12 +53,11 @@ body {
 }
 
 .hero-tag {
-
   font-size: 10px;
   font-weight: 600;
   letter-spacing: 2px;
   color: #ffffff;
-  background: rgba(255,255,255,0.2);
+  background: rgba(255, 255, 255, 0.2);
   padding: 6px 14px;
   border-radius: 20px;
   display: inline-block;
@@ -59,7 +66,6 @@ body {
 }
 
 .hero-banner-content h1 {
-
   font-size: 56px;
   font-weight: 400;
   color: #ffffff;
@@ -68,9 +74,8 @@ body {
 }
 
 .hero-banner-content p {
-
   font-size: 14px;
-  color: rgba(255,255,255,0.85);
+  color: rgba(255, 255, 255, 0.85);
   line-height: 1.8;
   margin-bottom: 32px;
   max-width: 420px;
@@ -79,7 +84,6 @@ body {
 }
 
 .btn-shop {
-
   font-size: 11px;
   font-weight: 600;
   letter-spacing: 1.5px;
@@ -108,7 +112,6 @@ body {
 }
 
 .curated-header h2 {
-
   font-size: 36px;
   font-weight: 400;
   color: #2c2c2c;
@@ -116,7 +119,6 @@ body {
 }
 
 .curated-header p {
-
   font-size: 13px;
   color: #888;
 }
@@ -156,7 +158,6 @@ body {
 }
 
 .concern-info h3 {
-
   font-size: 22px;
   font-weight: 400;
   color: #2c2c2c;
@@ -164,7 +165,6 @@ body {
 }
 
 .concern-info p {
-
   font-size: 12px;
   color: #888;
   line-height: 1.7;
@@ -209,7 +209,6 @@ body {
 }
 
 .set-tag {
-
   font-size: 10px;
   font-weight: 600;
   letter-spacing: 2px;
@@ -219,7 +218,6 @@ body {
 }
 
 .set-info h3 {
-
   font-size: 26px;
   font-weight: 400;
   color: #2c2c2c;
@@ -227,7 +225,6 @@ body {
 }
 
 .set-info p {
-
   font-size: 13px;
   color: #888;
   line-height: 1.7;
@@ -235,7 +232,6 @@ body {
 }
 
 .set-link {
-
   font-size: 12px;
   font-weight: 600;
   color: #2c2c2c;

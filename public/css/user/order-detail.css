@@ -1,9 +1,19 @@
-* { box-sizing: border-box; }
+* {
+  box-sizing: border-box;
+}
 /* Order Detail Styles */
 body {
   background-color: #fcfbf9;
   margin: 0;
-  font-family: "SF Pro Display", "SF Pro Text", -apple-system, BlinkMacSystemFont, "Helvetica Neue", Helvetica, Arial, sans-serif;
+  font-family:
+    'SF Pro Display',
+    'SF Pro Text',
+    -apple-system,
+    BlinkMacSystemFont,
+    'Helvetica Neue',
+    Helvetica,
+    Arial,
+    sans-serif;
   color: #333;
 }
 
@@ -23,7 +33,15 @@ body {
 }
 
 .header-titles h1 {
-  font-family: "SF Pro Display", "SF Pro Text", -apple-system, BlinkMacSystemFont, "Helvetica Neue", Helvetica, Arial, sans-serif;
+  font-family:
+    'SF Pro Display',
+    'SF Pro Text',
+    -apple-system,
+    BlinkMacSystemFont,
+    'Helvetica Neue',
+    Helvetica,
+    Arial,
+    sans-serif;
   font-size: 32px;
   font-weight: 500;
   color: #222;
@@ -46,7 +64,7 @@ body {
 }
 
 .btn-solid {
-  background: #556B44;
+  background: #556b44;
   color: white;
   padding: 10px 20px;
   border-radius: 4px;
@@ -88,7 +106,15 @@ body {
 }
 
 .timeline-header h2 {
-  font-family: "SF Pro Display", "SF Pro Text", -apple-system, BlinkMacSystemFont, "Helvetica Neue", Helvetica, Arial, sans-serif;
+  font-family:
+    'SF Pro Display',
+    'SF Pro Text',
+    -apple-system,
+    BlinkMacSystemFont,
+    'Helvetica Neue',
+    Helvetica,
+    Arial,
+    sans-serif;
   font-size: 24px;
   font-weight: 400;
   color: #222;
@@ -97,7 +123,7 @@ body {
 
 .timeline-status-badge {
   background: #f0f4ea;
-  color: #556B44;
+  color: #556b44;
   padding: 6px 14px;
   border-radius: 20px;
   font-size: 12px;
@@ -128,7 +154,7 @@ body {
 }
 
 .timeline-step.active {
-  color: #556B44;
+  color: #556b44;
 }
 
 .step-icon {
@@ -144,7 +170,7 @@ body {
 }
 
 .timeline-step.active .step-icon {
-  background: #556B44;
+  background: #556b44;
   color: white;
 }
 
@@ -167,7 +193,7 @@ body {
 }
 
 .timeline-line.active {
-  background: #556B44;
+  background: #556b44;
 }
 
 /* Grid Layout */
@@ -236,7 +262,15 @@ body {
 }
 
 .item-title {
-  font-family: "SF Pro Display", "SF Pro Text", -apple-system, BlinkMacSystemFont, "Helvetica Neue", Helvetica, Arial, sans-serif;
+  font-family:
+    'SF Pro Display',
+    'SF Pro Text',
+    -apple-system,
+    BlinkMacSystemFont,
+    'Helvetica Neue',
+    Helvetica,
+    Arial,
+    sans-serif;
   font-size: 20px;
   font-weight: 400;
   color: #222;
@@ -348,7 +382,15 @@ body {
 }
 
 .total-price {
-  font-family: "SF Pro Display", "SF Pro Text", -apple-system, BlinkMacSystemFont, "Helvetica Neue", Helvetica, Arial, sans-serif;
+  font-family:
+    'SF Pro Display',
+    'SF Pro Text',
+    -apple-system,
+    BlinkMacSystemFont,
+    'Helvetica Neue',
+    Helvetica,
+    Arial,
+    sans-serif;
   font-size: 28px;
   color: #222;
   font-weight: 400;
@@ -437,7 +479,10 @@ body {
 }
 
 @media (max-width: 768px) {
-  .order-detail-wrapper { width: 100%; overflow-x: hidden; padding: 0 16px;
+  .order-detail-wrapper {
+    width: 100%;
+    overflow-x: hidden;
+    padding: 0 16px;
     margin: 20px auto;
   }
 
@@ -446,7 +491,7 @@ body {
     align-items: flex-start;
     gap: 16px;
   }
-  
+
   .header-titles h1 {
     font-size: 24px;
     word-break: break-word;
@@ -473,12 +518,12 @@ body {
     overflow-x: auto;
     justify-content: flex-start;
     padding-bottom: 20px;
-    
+
     /* Native App-like Swipe Physics */
     -webkit-overflow-scrolling: touch;
     scroll-snap-type: x mandatory;
     scroll-behavior: smooth;
-    
+
     width: 100%;
     box-sizing: border-box;
   }
@@ -498,7 +543,7 @@ body {
     min-width: 40px;
     margin: -40px 0 0 0;
   }
-  
+
   /* Smooth scrollbar styling */
   .timeline-container::-webkit-scrollbar {
     height: 4px;
@@ -514,12 +559,14 @@ body {
   .main-grid {
     grid-template-columns: 1fr;
   }
-  
+
   .bottom-split {
     grid-template-columns: 1fr;
   }
 
-  .timeline-box, .info-box, .action-card {
+  .timeline-box,
+  .info-box,
+  .action-card {
     padding: 16px;
   }
 
@@ -551,5 +598,12 @@ body {
   }
 }
 
-
-@media (max-width: 768px) { html, body { overflow-x: hidden !important; width: 100%; margin: 0; padding: 0; } }
+@media (max-width: 768px) {
+  html,
+  body {
+    overflow-x: hidden !important;
+    width: 100%;
+    margin: 0;
+    padding: 0;
+  }
+}

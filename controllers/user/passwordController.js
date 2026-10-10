@@ -1,8 +1,15 @@
-import { findUserByEmail, updatePassword } from '../../services/user/authService.js';
+import {
+  findUserByEmail,
+  updatePassword,
+} from '../../services/user/authService.js';
 import { sendOTP, verifyOTP } from '../../services/user/otpService.js';
 import { validate } from '../../utils/validation.js';
 import bcrypt from 'bcrypt';
-import { STATUS_CODES, COMMON_MESSAGES, AUTH_MESSAGES } from '../../constants/index.js';
+import {
+  STATUS_CODES,
+  COMMON_MESSAGES,
+  AUTH_MESSAGES,
+} from '../../constants/index.js';
 
 const loadForgotPassword = (req, res) => {
   res.render('user/auth/forgot-password');
@@ -12,7 +19,9 @@ const sendForgotPasswordOTP = async (req, res) => {
   try {
     const { email } = req.body;
     if (!email) {
-      return res.redirectWithState('/forgot-password', { error: AUTH_MESSAGES.EMAIL_REQUIRED });
+      return res.redirectWithState('/forgot-password', {
+        error: AUTH_MESSAGES.EMAIL_REQUIRED,
+      });
     }
 
     const user = await findUserByEmail(email.toLowerCase().trim());
@@ -23,10 +32,14 @@ const sendForgotPasswordOTP = async (req, res) => {
       req.session.resetOtpSentAtUser = Date.now();
       return res.redirect('/forgot-password/otp');
     }
-    res.redirectWithState('/forgot-password', { success: 'If an account exists, an email was sent.' });
+    res.redirectWithState('/forgot-password', {
+      success: 'If an account exists, an email was sent.',
+    });
   } catch (error) {
     console.error('Forgot password error:', error);
-    res.redirectWithState('/forgot-password', { error: COMMON_MESSAGES.SOMETHING_WENT_WRONG });
+    res.redirectWithState('/forgot-password', {
+      error: COMMON_MESSAGES.SOMETHING_WENT_WRONG,
+    });
   }
 };
 
@@ -36,7 +49,8 @@ const authSendForgotPasswordOTP = async (req, res) => {
     const user = await findUserByEmail(email);
 
     if (user && user.googleId) {
-      req.session.error = 'This account uses Google Sign-In. Your password is managed by your Google account.';
+      req.session.error =
+        'This account uses Google Sign-In. Your password is managed by your Google account.';
       return res.redirect('/profile');
     }
 
@@ -82,27 +96,30 @@ const verifyForgotOTP = async (req, res) => {
       const otpSentAt = req.session.resetOtpSentAtUser || now;
       const elapsed = Math.floor((now - otpSentAt) / 1000);
       const remaining = Math.max(59 - elapsed, 0);
-      return res.redirectWithState('/forgot-password/otp', { error: result.message });
+      return res.redirectWithState('/forgot-password/otp', {
+        error: result.message,
+      });
     }
 
     req.session.otpVerifiedUser = true;
     res.redirect('/forgot-password/reset');
-
   } catch (error) {
     console.error('Forgot OTP verify error:', error);
-    res.redirectWithState('/forgot-password/otp', { error: COMMON_MESSAGES.SOMETHING_WENT_WRONG });
+    res.redirectWithState('/forgot-password/otp', {
+      error: COMMON_MESSAGES.SOMETHING_WENT_WRONG,
+    });
   }
 };
 
 const resendForgotOTP = async (req, res) => {
   try {
     const email = req.session.resetEmailUser;
-    if (!email) return res.status(STATUS_CODES.BAD_REQUEST).json({ success: false });
+    if (!email)
+      return res.status(STATUS_CODES.BAD_REQUEST).json({ success: false });
 
     await sendOTP(email);
     req.session.resetOtpSentAtUser = Date.now();
     res.status(STATUS_CODES.OK).json({ success: true });
-
   } catch (error) {
     console.error('Resend Forgot OTP error:', error);
     res.status(STATUS_CODES.INTERNAL_SERVER_ERROR).json({ success: false });
@@ -125,10 +142,15 @@ const resetPassword = async (req, res) => {
       return res.redirect('/forgot-password');
     }
 
-    const validation = validate({ password: newPassword, confirmPassword }, ['password', 'confirmPassword']);
+    const validation = validate({ password: newPassword, confirmPassword }, [
+      'password',
+      'confirmPassword',
+    ]);
     if (!validation.isValid) {
       const firstError = Object.values(validation.errors)[0];
-      return res.redirectWithState('/forgot-password/reset', { error: firstError });
+      return res.redirectWithState('/forgot-password/reset', {
+        error: firstError,
+      });
     }
 
     await updatePassword(email, newPassword);
@@ -144,10 +166,11 @@ const resetPassword = async (req, res) => {
       req.session.success = AUTH_MESSAGES.PASSWORD_RESET_SUCCESS;
       res.redirect('/login');
     }
-
   } catch (error) {
     console.error('Reset password error:', error);
-    res.redirectWithState('/forgot-password/reset', { error: COMMON_MESSAGES.SOMETHING_WENT_WRONG });
+    res.redirectWithState('/forgot-password/reset', {
+      error: COMMON_MESSAGES.SOMETHING_WENT_WRONG,
+    });
   }
 };
 
@@ -155,7 +178,8 @@ const loadChangePassword = async (req, res) => {
   try {
     const user = await findUserByEmail(req.session.user.email);
     if (user && user.googleId) {
-      req.session.error = 'This account uses Google Sign-In. Your password is managed by your Google account.';
+      req.session.error =
+        'This account uses Google Sign-In. Your password is managed by your Google account.';
       return res.redirect('/profile');
     }
     res.render('user/profile/change-password');
@@ -172,22 +196,25 @@ const changePassword = async (req, res) => {
     const fieldErrors = {};
 
     if (!currentPassword || !newPassword || !confirmPassword) {
-      return res.redirectWithState('/profile/change-password', { error: 'All fields are required.' });
+      return res.redirectWithState('/profile/change-password', {
+        error: 'All fields are required.',
+      });
     }
 
     if (newPassword !== confirmPassword) {
       fieldErrors.confirmPassword = 'Passwords do not match.';
       return res.redirectWithState('/profile/change-password', {
         error: 'Please correct the highlighted fields.',
-        fieldErrors
+        fieldErrors,
       });
     }
 
     if (newPassword === currentPassword) {
-      fieldErrors.newPassword = 'New password must be different from current password.';
+      fieldErrors.newPassword =
+        'New password must be different from current password.';
       return res.redirectWithState('/profile/change-password', {
         error: 'Please correct the highlighted fields.',
-        fieldErrors
+        fieldErrors,
       });
     }
 
@@ -198,16 +225,21 @@ const changePassword = async (req, res) => {
 
     if (!minLengthRegex.test(newPassword)) {
       fieldErrors.newPassword = 'Password must be at least 8 characters long.';
-    } else if (!uppercaseRegex.test(newPassword) || !lowercaseRegex.test(newPassword)) {
-      fieldErrors.newPassword = 'Password must contain at least one uppercase and one lowercase letter.';
+    } else if (
+      !uppercaseRegex.test(newPassword) ||
+      !lowercaseRegex.test(newPassword)
+    ) {
+      fieldErrors.newPassword =
+        'Password must contain at least one uppercase and one lowercase letter.';
     } else if (!numberSpecialRegex.test(newPassword)) {
-      fieldErrors.newPassword = 'Password must contain at least one number or special character.';
+      fieldErrors.newPassword =
+        'Password must contain at least one number or special character.';
     }
 
     if (Object.keys(fieldErrors).length > 0) {
       return res.redirectWithState('/profile/change-password', {
         error: 'Please correct the highlighted fields.',
-        fieldErrors
+        fieldErrors,
       });
     }
 
@@ -217,7 +249,8 @@ const changePassword = async (req, res) => {
     }
 
     if (user.googleId) {
-      req.session.error = 'This account uses Google Sign-In. Password is managed by your Google account.';
+      req.session.error =
+        'This account uses Google Sign-In. Password is managed by your Google account.';
       return res.redirect('/profile');
     }
 
@@ -226,7 +259,7 @@ const changePassword = async (req, res) => {
       fieldErrors.currentPassword = 'Current password is incorrect.';
       return res.redirectWithState('/profile/change-password', {
         error: 'Please correct the highlighted fields.',
-        fieldErrors
+        fieldErrors,
       });
     }
 
@@ -234,10 +267,11 @@ const changePassword = async (req, res) => {
 
     req.session.success = 'Password updated successfully.';
     res.redirect('/profile');
-
   } catch (error) {
     console.error('change password error:', error);
-    res.redirectWithState('/profile/change-password', { error: COMMON_MESSAGES.SOMETHING_WENT_WRONG });
+    res.redirectWithState('/profile/change-password', {
+      error: COMMON_MESSAGES.SOMETHING_WENT_WRONG,
+    });
   }
 };
 
@@ -251,5 +285,5 @@ export {
   resetPassword,
   authSendForgotPasswordOTP,
   loadChangePassword,
-  changePassword
+  changePassword,
 };

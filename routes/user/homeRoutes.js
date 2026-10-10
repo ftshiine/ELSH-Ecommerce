@@ -6,4 +6,4 @@ const router = express.Router();
 
 router.get('/home', requireAuth('user'), loadHome);
 
-export default router
+export default router;

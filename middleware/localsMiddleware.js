@@ -11,14 +11,14 @@ export const setLocals = async (req, res, next) => {
   // Global user/admin state for EJS templates
   res.locals.admin = req.session.admin || null;
   res.locals.user = req.session.user || null;
-  
+
   res.locals.cartCount = 0;
   res.locals.wishlistCount = 0;
 
   if (req.session.user) {
     try {
       const userId = req.session.user.id || req.session.user._id;
-      
+
       const cart = await Cart.findOne({ user: userId });
       if (cart) {
         res.locals.cartCount = cart.items.length;
@@ -32,6 +32,6 @@ export const setLocals = async (req, res, next) => {
       console.error('Error fetching cart/wishlist counts:', err);
     }
   }
-  
+
   next();
 };

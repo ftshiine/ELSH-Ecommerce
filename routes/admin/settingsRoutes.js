@@ -1,6 +1,10 @@
 import express from 'express';
 import { requireAuth } from '../../middleware/authMiddleware.js';
-import { getSettings, updateSettings, setReferralCoupon } from '../../controllers/admin/settingsController.js';
+import {
+  getSettings,
+  updateSettings,
+  setReferralCoupon,
+} from '../../controllers/admin/settingsController.js';
 
 const router = express.Router();
 

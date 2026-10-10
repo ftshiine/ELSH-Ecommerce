@@ -11,7 +11,7 @@ export const COMMON_MESSAGES = Object.freeze({
   INVALID_REQUEST: 'Invalid request',
   TOO_MANY_REQUESTS: 'Too many requests. Please try again.',
   SERVER_ERROR: 'Server error.',
-  ACTION_FAILED: 'Action failed. Please try again.'
+  ACTION_FAILED: 'Action failed. Please try again.',
 });
 
 export const AUTH_MESSAGES = Object.freeze({
@@ -23,7 +23,7 @@ export const AUTH_MESSAGES = Object.freeze({
   OTP_SENT: 'OTP has been sent to your email.',
   OTP_INVALID: 'Invalid OTP',
   OTP_EXPIRED: 'OTP has expired',
-  ACCOUNT_BLOCKED: 'Your account has been blocked by admin.'
+  ACCOUNT_BLOCKED: 'Your account has been blocked by admin.',
 });
 
 export const CATEGORY_MESSAGES = Object.freeze({
@@ -35,9 +35,10 @@ export const CATEGORY_MESSAGES = Object.freeze({
   LISTED_SUCCESS: 'Category listed successfully',
   UNLISTED_SUCCESS: 'Category unlisted successfully',
   NAME_VALIDATION: 'Category name must be between 3 and 50 characters',
-  NAME_FORMAT: 'Category name can only contain letters, numbers, spaces, and hyphens',
+  NAME_FORMAT:
+    'Category name can only contain letters, numbers, spaces, and hyphens',
   DESC_VALIDATION: 'Description must be between 10 and 500 characters',
-  IMAGE_REQUIRED: 'Image is required'
+  IMAGE_REQUIRED: 'Image is required',
 });
 
 export const PRODUCT_MESSAGES = Object.freeze({
@@ -48,7 +49,7 @@ export const PRODUCT_MESSAGES = Object.freeze({
   UNLISTED_SUCCESS: 'Product unlisted successfully',
   INVALID_VARIANTS: 'Invalid variants format',
   VARIANT_REQUIRED: 'At least one variant is required',
-  PRIMARY_IMAGE_REQUIRED: 'Primary product image is required'
+  PRIMARY_IMAGE_REQUIRED: 'Primary product image is required',
 });
 
 export const CART_MESSAGES = Object.freeze({
@@ -59,7 +60,7 @@ export const CART_MESSAGES = Object.freeze({
   OUT_OF_STOCK: 'This item is currently out of stock.',
   EXCEEDS_STOCK: 'Requested quantity exceeds available stock.',
   MAX_QTY_PER_PERSON: 'Maximum quantity allowed per person reached.',
-  CART_EMPTY: 'Your cart is empty.'
+  CART_EMPTY: 'Your cart is empty.',
 });
 
 export const ORDER_MESSAGES = Object.freeze({
@@ -81,7 +82,7 @@ export const ORDER_MESSAGES = Object.freeze({
   RETURN_REJECTED: 'Return request rejected. Order reverted to Delivered.',
   RETURN_REJECT_FAILED: 'Failed to reject return request.',
   ALREADY_REFUNDED: 'This order has already been refunded.',
-  NOT_RETURN_REQUESTED: 'This order does not have a pending return request.'
+  NOT_RETURN_REQUESTED: 'This order does not have a pending return request.',
 });
 
 export const COUPON_MESSAGES = Object.freeze({
@@ -92,7 +93,7 @@ export const COUPON_MESSAGES = Object.freeze({
   REMOVED_SUCCESS: 'Coupon removed successfully.',
   INVALID_OR_EXPIRED: 'Invalid or expired coupon code.',
   MIN_PURCHASE_NOT_MET: 'Minimum purchase amount not met for this coupon.',
-  ALREADY_USED: 'You have already used this coupon.'
+  ALREADY_USED: 'You have already used this coupon.',
 });
 
 export const OFFER_MESSAGES = Object.freeze({
@@ -101,7 +102,7 @@ export const OFFER_MESSAGES = Object.freeze({
   UPDATED_SUCCESS: 'Offer updated successfully',
   ACTIVATED_SUCCESS: 'Offer activated successfully',
   DEACTIVATED_SUCCESS: 'Offer deactivated successfully',
-  ALREADY_EXISTS: 'An active offer already exists for this selection'
+  ALREADY_EXISTS: 'An active offer already exists for this selection',
 });
 
 export const WISHLIST_MESSAGES = Object.freeze({
@@ -110,13 +111,13 @@ export const WISHLIST_MESSAGES = Object.freeze({
   UPDATE_FAILED: 'An error occurred while updating wishlist',
   REMOVED_SUCCESS: 'Product removed from wishlist',
   REMOVE_FAILED: 'Failed to remove from wishlist',
-  ITEM_EXISTS: 'Product already in wishlist'
+  ITEM_EXISTS: 'Product already in wishlist',
 });
 
 export const WALLET_MESSAGES = Object.freeze({
   INSUFFICIENT_BALANCE: 'Insufficient wallet balance',
   ADD_MONEY_FAILED: 'Failed to add money to wallet',
-  PAYMENT_FAILED: 'Wallet payment failed'
+  PAYMENT_FAILED: 'Wallet payment failed',
 });
 
 export const ADDRESS_MESSAGES = Object.freeze({
@@ -124,13 +125,13 @@ export const ADDRESS_MESSAGES = Object.freeze({
   ADDED_SUCCESS: 'Address added successfully',
   UPDATED_SUCCESS: 'Address updated successfully',
   DELETED_SUCCESS: 'Address deleted successfully',
-  MAX_LIMIT_REACHED: 'Maximum address limit reached'
+  MAX_LIMIT_REACHED: 'Maximum address limit reached',
 });
 
 export const INVENTORY_MESSAGES = Object.freeze({
   NOT_FOUND: 'Inventory item not found',
   UPDATED_SUCCESS: 'Stock updated successfully',
-  UPDATE_FAILED: 'Failed to update stock'
+  UPDATE_FAILED: 'Failed to update stock',
 });
 
 export const MESSAGES = Object.freeze({
@@ -145,7 +146,7 @@ export const MESSAGES = Object.freeze({
   WISHLIST: WISHLIST_MESSAGES,
   WALLET: WALLET_MESSAGES,
   ADDRESS: ADDRESS_MESSAGES,
-  INVENTORY: INVENTORY_MESSAGES
+  INVENTORY: INVENTORY_MESSAGES,
 });
 
 export default MESSAGES;

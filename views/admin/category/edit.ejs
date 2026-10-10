@@ -168,7 +168,7 @@
 
       // Image Validation (Optional for Edit, but validate if provided)
       if (file) {
-        if (!file.type.startsWith('image/')) {
+        if (!['image/jpeg', 'image/png', 'image/webp'].includes(file.type)) {
           window.AdminValidator.addCustomError(imageUploadArea, 'Please upload a valid image file (jpeg, png, webp).');
           hasImageError = true;
         } else if (file.size > 2 * 1024 * 1024) { // 2MB
